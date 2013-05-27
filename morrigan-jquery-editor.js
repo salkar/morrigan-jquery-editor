@@ -8,7 +8,7 @@ $.widget( "morrigan.morrigan_editor", {
     _create: function() {
         this.element.width(this.options.width);
         this.element.height(this.options.height);
-
+        this.element.addClass('morrigan-editor');
     }
  
 });
