@@ -3,3 +3,10 @@
     margin:0;
     padding:0;
 }
+
+.morrigan-editor .mrge-toolbox-action {
+    background-color: red;
+    height: 24px;
+    width:24px;
+    display: inline-block;
+}

@@ -3,6 +3,7 @@ $.widget( "morrigan.morrigan_editor", {
     options: {
         height: '300px',
         width: '700px',
+        prefix: 'mrge',
         toolbox: [
             [
                 ['bold']
@@ -14,19 +15,57 @@ $.widget( "morrigan.morrigan_editor", {
         {
             name: 'bold',
             view: {
-                icon: '..',
+                icon: 'black',
                 title: 'bold'
+            },
+            onClickHandler: function (self) {
+                console.log(self.options.height)
             }
         }
     ],
  
     _create: function() {
-        this.element.width(this.options.width);
-        this.element.height(this.options.height);
-        this.element.addClass('morrigan-editor');
+        this._setupMainElement();
+
         var toolbox = this._formToolbox();
-        console.log(toolbox);
+        this.element.append(toolbox);
+
+        this._bindEvents();
     },
+
+    // Setup main element
+
+    _setupMainElement: function () {
+        this.element.width(this.options.width).height(this.options.height).addClass('morrigan-editor');
+    },
+
+    // Bind events
+
+    _bindEvents: function () {
+        var self = this;
+        $(this.options.toolbox).each(function () {
+            $(this).each(function () {
+                $(this).each(function () {
+                    self._bindEventToAction(this);
+                });
+            });
+        });
+    },
+
+    _bindEventToAction: function (action_name) {
+        var self = this;
+        var config = this._getActionConfig(action_name);
+        var id = this._generateActionId(action_name);
+        $('#' + id).on("click", function () {
+            config.onClickHandler(self);
+        });
+    },
+
+    _generateActionId: function (action_name) {
+        return this.options.prefix + '_' + action_name;
+    },
+
+    // Form toolbox
 
     _formToolbox: function() {
         var self = this;
@@ -56,8 +95,17 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _formToolboxItem: function (name) {
-        console.log(this._getActionConfig(name));
-        return name
+        var config = this._getActionConfig(name);
+        var result = "<span class='mrge-toolbox-action' title='" + config['view']['title'] + "'";
+        result += " id='" + this.options.prefix + '_' + config.name + "'";
+        if (config.view.icon) {
+            result += " style='background: " + config['view']['icon'] + "'";
+        }
+        result += ">";
+        if (config.view.text) {
+            result += config['view']['text'];
+        }
+        return result + "</span>";
     },
 
     _getActionConfig: function (name) {
