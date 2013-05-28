@@ -6,7 +6,10 @@ $.widget( "morrigan.morrigan_editor", {
         prefix: 'mrge',
         toolbox: [
             [
-                ['bold']
+                ['bold', 'italy']
+            ],
+            [
+                ['strike']
             ]
         ]
     },
@@ -16,12 +19,33 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'bold',
             view: {
                 icon: 'black',
-                title: 'bold'
+                title: 'Bold'
             },
             onClickHandler: function (self) {
                 console.log(self.options.height)
             }
+        },
+        {
+            name: 'italy',
+            view: {
+                icon: 'red',
+                title: 'Italy'
+            },
+            onClickHandler: function (self) {
+                console.log('Italy' + self.options.height)
+            }
+        },
+        {
+            name: 'strike',
+            view: {
+                icon: 'gray',
+                title: 'Strike'
+            },
+            onClickHandler: function (self) {
+                console.log('Strike' + self.options.height)
+            }
         }
+
     ],
  
     _create: function() {
@@ -29,6 +53,8 @@ $.widget( "morrigan.morrigan_editor", {
 
         var toolbox = this._formToolbox();
         this.element.append(toolbox);
+        var content = this._formContentField();
+        this.element.append(content);
 
         this._bindEvents();
     },
@@ -73,16 +99,17 @@ $.widget( "morrigan.morrigan_editor", {
         $(this.options.toolbox).each(function () {
             toolbox_lines += self._formToolboxLine(this);
         });
-        return "<span class='mrge-toolbox'>" + toolbox_lines + "</span>"
+        toolbox_lines += "<div class='clear'></div>"
+        return "<div class='mrge-toolbox'>" + toolbox_lines + "</span>"
     },
 
     _formToolboxLine: function(arr) {
         var self = this;
-        var toolbox_line = "";
+        var toolbox_lines = "";
         $(arr).each(function () {
-            toolbox_line += self._formToolboxBlock(this);
+            toolbox_lines += self._formToolboxBlock(this);
         });
-        return toolbox_line;
+        return "<ul>" + toolbox_lines + "</ul>";
     },
 
     _formToolboxBlock: function (arr) {
@@ -91,12 +118,12 @@ $.widget( "morrigan.morrigan_editor", {
         $(arr).each(function () {
             block_items += self._formToolboxItem(this);
         });
-        return "<span class='mrge-toolbox-block'>" + block_items + "</span>";
+        return "<li>" + block_items + "</li>";
     },
 
     _formToolboxItem: function (name) {
         var config = this._getActionConfig(name);
-        var result = "<span class='mrge-toolbox-action' title='" + config['view']['title'] + "'";
+        var result = "<a title='" + config['view']['title'] + "'";
         result += " id='" + this.options.prefix + '_' + config.name + "'";
         if (config.view.icon) {
             result += " style='background: " + config['view']['icon'] + "'";
@@ -105,11 +132,23 @@ $.widget( "morrigan.morrigan_editor", {
         if (config.view.text) {
             result += config['view']['text'];
         }
-        return result + "</span>";
+        return result + "</a>";
     },
 
+    // Form content field
+
+    _formContentField: function () {
+        return "<div class='mrge-content'></div>"
+    },
+
+    // Support
+
     _getActionConfig: function (name) {
-        return $.grep(this.actions, function (action) { return action["name"] == name})[0];
+        return $.grep(this.actions, function (action) {
+            return action["name"] == name
+        })[0];
     }
+
+
  
 });
