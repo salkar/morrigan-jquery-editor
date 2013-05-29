@@ -4,6 +4,7 @@ $.widget( "morrigan.morrigan_editor", {
         height: '300px',
         width: '700px',
         prefix: 'mrge',
+        doctype: '<!DOCTYPE html>',
         toolbox: [
             [
                 ['bold', 'italy']
@@ -55,6 +56,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.element.append(toolbox);
         var content = this._formContentField();
         this.element.append(content);
+        this._setupIframe();
 
         this._bindEvents();
     },
@@ -99,7 +101,7 @@ $.widget( "morrigan.morrigan_editor", {
         $(this.options.toolbox).each(function () {
             toolbox_lines += self._formToolboxLine(this);
         });
-        toolbox_lines += "<div class='clear'></div>"
+        toolbox_lines += "<div class='clear'></div>";
         return "<div class='mrge-toolbox'>" + toolbox_lines + "</span>"
     },
 
@@ -138,14 +140,36 @@ $.widget( "morrigan.morrigan_editor", {
     // Form content field
 
     _formContentField: function () {
-        return "<div class='mrge-content'></div>"
+        var content_height = this._calcContentFieldHeight();
+        return $("<div class='mrge-content' style='height: " + content_height + "px'><iframe frameborder='0'></iframe></div>");
+    },
+
+    _calcContentFieldHeight: function () {
+        var toolbox_height = this.element.find('.mrge-toolbox').outerHeight(true);
+        return this.element.height() - toolbox_height;
+    },
+
+    _formContentIframe: function () {
+        var iframe = $("<iframe frameborder='0'></iframe>");
+        return iframe;
+    },
+
+    _setupIframe: function () {
+        var idoc = this.element.find('iframe')[0].contentDocument;
+        idoc.open();
+        idoc.write(this.options.doctype);
+        idoc.write("<html><head></head><body></body></html>");
+        idoc.close();
+
+        //            $(this).contents().find('body').append('aaa');
+        idoc.designMode = "on";
     },
 
     // Support
 
     _getActionConfig: function (name) {
         return $.grep(this.actions, function (action) {
-            return action["name"] == name
+            return action["name"] == name;
         })[0];
     }
 
