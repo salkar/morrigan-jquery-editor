@@ -4,7 +4,6 @@ $.widget( "morrigan.morrigan_editor", {
         height: '300px',
         width: '700px',
         prefix: 'mrge',
-        doctype: '<!DOCTYPE html>',
         toolbox: [
             [
                 ['bold', 'italy']
@@ -149,20 +148,11 @@ $.widget( "morrigan.morrigan_editor", {
         return this.element.height() - toolbox_height;
     },
 
-    _formContentIframe: function () {
-        var iframe = $("<iframe frameborder='0'></iframe>");
-        return iframe;
-    },
-
     _setupIframe: function () {
         var idoc = this.element.find('iframe')[0].contentDocument;
         idoc.open();
-        idoc.write(this.options.doctype);
-        idoc.write("<html><head></head><body></body></html>");
+        idoc.write("<html><head></head><body contenteditable='true'></body></html>");
         idoc.close();
-
-        //            $(this).contents().find('body').append('aaa');
-        idoc.designMode = "on";
     },
 
     // Support
