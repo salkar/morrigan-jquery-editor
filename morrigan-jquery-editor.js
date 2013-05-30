@@ -4,6 +4,7 @@ $.widget( "morrigan.morrigan_editor", {
         height: '300px',
         width: '700px',
         prefix: 'mrge',
+        doctype: '<!DOCTYPE html>',
         toolbox: [
             [
                 ['bold', 'italy']
@@ -149,10 +150,19 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _setupIframe: function () {
-        var idoc = this.element.find('iframe')[0].contentDocument;
+        var iframe = this.element.find('iframe');
+        var idoc = iframe.get(0).contentDocument;
         idoc.open();
-        idoc.write("<html><head></head><body contenteditable='true'></body></html>");
+        idoc.write(this.options.doctype);
+        idoc.write("<html style='cursor: text;height: 100%;'><head></head><body contenteditable='true' class='mrge-iframe-body'></body></html>");
         idoc.close();
+        iframe.contents().find('body').height(this._calcOperaIframeBodyHeight(iframe));
+    },
+
+    _calcOperaIframeBodyHeight: function (iframe) {
+        var body = iframe.contents().find('body');
+        var diff = body.outerHeight(true) - body.height();
+        return iframe.height() - diff
     },
 
     // Support
@@ -161,6 +171,10 @@ $.widget( "morrigan.morrigan_editor", {
         return $.grep(this.actions, function (action) {
             return action["name"] == name;
         })[0];
+    },
+
+    _isOpera: function () {
+        return navigator.appName == "Opera";
     }
 
 
