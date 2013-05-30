@@ -5,6 +5,7 @@ $.widget( "morrigan.morrigan_editor", {
         width: '700px',
         prefix: 'mrge',
         doctype: '<!DOCTYPE html>',
+        iframeStyles: 'assets/morrigan_editor/iframe.css',
         toolbox: [
             [
                 ['bold', 'italy']
@@ -154,7 +155,9 @@ $.widget( "morrigan.morrigan_editor", {
         var idoc = iframe.get(0).contentDocument;
         idoc.open();
         idoc.write(this.options.doctype);
-        idoc.write("<html style='cursor: text;height: 100%;'><head></head><body contenteditable='true' class='mrge-iframe-body'></body></html>");
+        idoc.write("<html style='cursor: text;height: 100%;'>");
+        idoc.write("<head><link href='" + this.options.iframeStyles + "' media='all' rel='stylesheet' type='text/css'></head>");
+        idoc.write("<body contenteditable='true' class='mrge-iframe-body'></body></html>");
         idoc.close();
         iframe.contents().find('body').height(this._calcOperaIframeBodyHeight(iframe));
     },
