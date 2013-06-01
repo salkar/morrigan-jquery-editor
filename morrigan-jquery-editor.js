@@ -184,7 +184,10 @@ $.widget( "morrigan.morrigan_editor", {
 
     _enterHandler: function () {
         var selection = this._selectionGet();
-        console.log(this._selectionPositionOnElement(selection));
+        if (this._selectionIsCaret(selection)) {
+            var caret_position = this._selectionPositionOnElement(selection);
+            console.log(caret_position);
+        }
     },
 
     // Support
@@ -199,8 +202,14 @@ $.widget( "morrigan.morrigan_editor", {
 
     _selectionGet : function () {
         var window = this.element.find('iframe').get(0).contentWindow;
-        if (window.getSelection) return window.getSelection()
+        if (window.getSelection) return window.getSelection();
         return window.document.selection.createRange();
+    },
+
+    _selectionIsCaret : function (selection) {
+        if (selection.boundingWidth != undefined) return selection.boundingWidth == 0;
+        return selection.anchorOffset == selection.focusOffset &&
+            selection.anchorNode == selection.focusNode;
     },
 
     _selectionPositionOnElement : function (selection) {
