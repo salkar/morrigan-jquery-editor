@@ -59,6 +59,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.element.append(content);
         this._setupIframe();
 
+        this._setupContentEditableDefaultBehavior();
         this._bindEvents();
     },
 
@@ -152,12 +153,12 @@ $.widget( "morrigan.morrigan_editor", {
 
     _setupIframe: function () {
         var iframe = this.element.find('iframe');
-        var idoc = iframe.get(0).contentDocument;
+        var idoc = iframe.get(0).contentWindow.document;
         idoc.open();
         idoc.write(this.options.doctype);
         idoc.write("<html style='cursor: text;height: 100%;'>");
         idoc.write("<head><link href='" + this.options.iframeStyles + "' media='all' rel='stylesheet' type='text/css'></head>");
-        idoc.write("<body contenteditable='true' class='mrge-iframe-body'></body></html>");
+        idoc.write("<body contenteditable='true' class='mrge-iframe-body'><div>asdasdasdas<br>asdasd</div> <div>ssssss</div> <div>ssssss</div></body></html>");
         idoc.close();
         iframe.contents().find('body').height(this._calcOperaIframeBodyHeight(iframe));
     },
@@ -168,6 +169,24 @@ $.widget( "morrigan.morrigan_editor", {
         return iframe.height() - diff
     },
 
+    // Content field custom behavior
+
+    _setupContentEditableDefaultBehavior: function () {
+        var self = this;
+        this.element.find('iframe').contents().find('body').on('keypress', function (e) {
+            if (e.keyCode==13) {
+                e.preventDefault();
+                self._enterHandler();
+            }
+
+        });
+    },
+
+    _enterHandler: function () {
+        var selection = this._selectionGet();
+        console.log(this._selectionIsEndOfElement(selection));
+    },
+
     // Support
 
     _getActionConfig: function (name) {
@@ -176,10 +195,34 @@ $.widget( "morrigan.morrigan_editor", {
         })[0];
     },
 
-    _isOpera: function () {
-        return navigator.appName == "Opera";
-    }
+    // Selection
 
+    _selectionGet : function () {
+        if (this.element.find('iframe').get(0).contentWindow.getSelection) {
+            console.log(1);
+            return this.element.find('iframe').get(0).contentWindow.getSelection()
+        } else {
+            console.log(2);
+            return this.element.find('iframe').get(0).contentWindow.document.selection.createRange();
+        }
+    },
+
+    _selectionIsEndOfElement : function (selection) {
+        if (this._selectionIsOldIERange(selection)) return this._selectionIsEndOfElementOldIE(selection);
+
+    },
+
+    _selectionIsEndOfElementOldIE: function (range) {
+        var parentElement = range.parentElement();
+        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
+        preCaretTextRange.moveToElementText(parentElement);
+        preCaretTextRange.setEndPoint("EndToEnd", range);
+        return preCaretTextRange.text == parentElement.innerText;
+    },
+
+    _selectionIsOldIERange: function (selection) {
+        return selection.offsetLeft != undefined;
+    }
 
  
 });
