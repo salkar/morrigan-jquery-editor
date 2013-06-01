@@ -184,7 +184,7 @@ $.widget( "morrigan.morrigan_editor", {
 
     _enterHandler: function () {
         var selection = this._selectionGet();
-        console.log(this._selectionIsStartOfElement(selection));
+        console.log(this._selectionPositionOnElement(selection));
     },
 
     // Support
@@ -198,53 +198,34 @@ $.widget( "morrigan.morrigan_editor", {
     // Selection
 
     _selectionGet : function () {
-        if (this.element.find('iframe').get(0).contentWindow.getSelection) {
-            console.log(1);
-            return this.element.find('iframe').get(0).contentWindow.getSelection()
-
-        } else {
-            console.log(2);
-            return this.element.find('iframe').get(0).contentWindow.document.selection.createRange();
-        }
+        var window = this.element.find('iframe').get(0).contentWindow;
+        if (window.getSelection) return window.getSelection()
+        return window.document.selection.createRange();
     },
 
-    _selectionIsEndOfElement : function (selection) {
-        if (this._selectionIsOldIERange(selection)) return this._selectionIsEndOfElementOldIE(selection);
-        return this._selectionIsEndOfElementNew(selection);
+    _selectionPositionOnElement : function (selection) {
+        if (this._selectionIsOldIERange(selection)) return this._selectionPositionOnElementOldIE(selection);
+        return this._selectionPositionOnElementNewBrowsers(selection);
     },
 
-    _selectionIsEndOfElementNew : function (selection) {
-        return !(selection.anchorNode.nextSibling) &&
+    _selectionPositionOnElementNewBrowsers : function (selection) {
+        if (!(selection.anchorNode.nextSibling) &&
             selection.anchorOffset == selection.focusOffset &&
-            selection.anchorOffset == selection.anchorNode.nodeValue.length;
+            selection.anchorOffset == selection.anchorNode.nodeValue.length) return 1;
+        if (!(selection.anchorNode.previousSibling) &&
+            selection.anchorOffset == selection.focusOffset &&
+            selection.anchorOffset == 0) return -1;
+        return 0;
     },
 
-    _selectionIsEndOfElementOldIE: function (range) {
+    _selectionPositionOnElementOldIE : function (range) {
         var parentElement = range.parentElement();
         var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
         preCaretTextRange.moveToElementText(parentElement);
         preCaretTextRange.setEndPoint("EndToEnd", range);
-        return preCaretTextRange.text == parentElement.innerText;
-    },
-
-    _selectionIsStartOfElement : function (selection) {
-        if (this._selectionIsOldIERange(selection)) return this._selectionIsStartOfElementOldIE(selection);
-        return this._selectionIsStartOfElementNew(selection);
-    },
-
-    _selectionIsStartOfElementOldIE : function (range) {
-        var parentElement = range.parentElement();
-        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
-        preCaretTextRange.moveToElementText(parentElement);
-        preCaretTextRange.setEndPoint("EndToEnd", range);
-        return preCaretTextRange.text == "";
-    },
-
-    _selectionIsStartOfElementNew : function (selection) {
-        console.log(selection);
-        return !(selection.anchorNode.previousSibling) &&
-            selection.anchorOffset == selection.focusOffset &&
-            selection.anchorOffset == 0;
+        if (preCaretTextRange.text == parentElement.innerText) return 1;
+        if (preCaretTextRange.text == "") return -1;
+        return 0;
     },
 
     _selectionIsOldIERange: function (selection) {
