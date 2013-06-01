@@ -201,6 +201,7 @@ $.widget( "morrigan.morrigan_editor", {
         if (this.element.find('iframe').get(0).contentWindow.getSelection) {
             console.log(1);
             return this.element.find('iframe').get(0).contentWindow.getSelection()
+
         } else {
             console.log(2);
             return this.element.find('iframe').get(0).contentWindow.document.selection.createRange();
@@ -209,7 +210,13 @@ $.widget( "morrigan.morrigan_editor", {
 
     _selectionIsEndOfElement : function (selection) {
         if (this._selectionIsOldIERange(selection)) return this._selectionIsEndOfElementOldIE(selection);
+        return this._selectionIsEndOfElementNew(selection);
+    },
 
+    _selectionIsEndOfElementNew : function (selection) {
+        return !(selection.anchorNode.nextSibling) &&
+            selection.anchorOffset == selection.focusOffset &&
+            selection.anchorOffset == selection.anchorNode.nodeValue.length;
     },
 
     _selectionIsEndOfElementOldIE: function (range) {
