@@ -246,10 +246,17 @@ $.widget( "morrigan.morrigan_editor", {
         var textnodes = contents.filter(function () {
             return this.nodeType === 3;
         });
+        console.log(textnodes);
+        if (textnodes.length > 0) {
+        var text = "";
         textnodes.each(function () {
-            var element = $("<p>" + this.textContent + "</p>");
+            text += this.textContent;
+        });
+
+            var element = $("<p>" + text + "</p>");
             console.log($(e.target).contents());
-            $(this).replaceWith(element);
+            $(textnodes.get(0)).replaceWith(element);
+            if (textnodes.length > 1) $(textnodes.get(1)).remove();
             $(e.target).children('br').remove();
 
             var selection = self.element.find('iframe').get(0).contentWindow.getSelection();
@@ -257,7 +264,8 @@ $.widget( "morrigan.morrigan_editor", {
             console.log(self._options.partOfEndElementSelected)
 
             if (self._options.partOfEndElementSelected) {
-                rng.setStart(element.get(0).firstChild, 0);
+                if (textnodes.length > 1) rng.setStart(element.get(0).firstChild, textnodes.get(0).length);
+                else rng.setStart(element.get(0).firstChild, 0);
                 self._options.partOfEndElementSelected = false;
             }
             else {
@@ -265,7 +273,7 @@ $.widget( "morrigan.morrigan_editor", {
             }
             selection.removeAllRanges();
             selection.addRange(rng);
-        });
+        }
         var brs = $(e.target).children('br');
         brs.each(function () {
             console.log(2)
