@@ -16,7 +16,20 @@ $.widget( "morrigan.morrigan_editor", {
         ]
     },
 
-    actions: [
+    _options: {
+        rangeSelection: false,
+        partOfEndElementSelected: false
+    },
+
+    browser: {
+        opera: false,
+        chrome: false,
+        ie: false,
+        ff: false,
+        other: false
+    },
+
+    _actions: [
         {
             name: 'bold',
             view: {
@@ -66,7 +79,16 @@ $.widget( "morrigan.morrigan_editor", {
     // Setup main element
 
     _setupMainElement: function () {
+        this._getBrowser();
         this.element.width(this.options.width).height(this.options.height).addClass('morrigan-editor');
+    },
+
+    _getBrowser: function () {
+        if (navigator.userAgent.indexOf('Opera') != -1) this.browser.opera = true;
+        else if (navigator.userAgent.indexOf('Chrome') != -1) this.browser.chrome = true;
+        else if (navigator.userAgent.indexOf('Firefox') != -1) this.browser.ff = true;
+        else if (navigator.userAgent.indexOf('MSIE') != -1) this.browser.ie = true;
+        else this.browser.other = true;
     },
 
     // Bind events
@@ -158,88 +180,116 @@ $.widget( "morrigan.morrigan_editor", {
         idoc.write(this.options.doctype);
         idoc.write("<html style='cursor: text;height: 100%;'>");
         idoc.write("<head><link href='" + this.options.iframeStyles + "' media='all' rel='stylesheet' type='text/css'></head>");
-        idoc.write("<body contenteditable='true' class='mrge-iframe-body'><div>asdasdasdas<br>asdasd</div> <div>ssssss</div> <div>ssssss</div></body></html>");
+        idoc.write("<body contenteditable='true' class='mrge-iframe-body'>" + this._getDefaultIframeBodyContent() + "</body></html>");
         idoc.close();
-        iframe.contents().find('body').height(this._calcOperaIframeBodyHeight(iframe));
+        iframe.contents().find('body').height(this._calcIframeBodyHeight(iframe));
     },
 
-    _calcOperaIframeBodyHeight: function (iframe) {
+    _calcIframeBodyHeight: function (iframe) {
         var body = iframe.contents().find('body');
         var diff = body.outerHeight(true) - body.height();
         return iframe.height() - diff
     },
 
-    // Content field custom behavior
-
-    _setupContentEditableDefaultBehavior: function () {
-        var self = this;
-        this.element.find('iframe').contents().find('body').on('keypress', function (e) {
-            if (e.keyCode==13) {
-                e.preventDefault();
-                self._enterHandler();
-            }
-
-        });
+    _getDefaultIframeBodyContent: function () {
+        if (this.browser.ie || this.browser.opera) return "<p></p>";
+        else return "<p><br></p>";
     },
 
-    _enterHandler: function () {
-        var selection = this._selectionGet();
-        if (this._selectionIsCaret(selection)) {
-            var caret_position = this._selectionPositionOnElement(selection);
-            console.log(caret_position);
+    // Content field custom behavior
+
+    _setupContentEditableDefaultBehavior: function (e) {
+        var self = this;
+        this.element.find('iframe').contents().find('body').on('keydown', function (e) {
+
+                    self._keyDownHandler(e);
+
+        }).on('keyup', function (e) {
+//            console.log(e.target.innerHTML);
+            self._keyUpHandler(e);
+//            console.log(e.target.innerHTML);
+
+
+         });
+//            .on('focus', function (e) {
+//        }).on('blur', function () {
+//            })
+    },
+
+    _keyDownHandler: function (e) {
+        if (!this.browser.ie && !this.browser.opera) {
+            if (e.keyCode == 8) {
+                var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+                if (selection.focusNode.nodeName == 'P' &&
+                    selection.focusNode.innerHTML == '<br>' &&
+                    $(selection.focusNode).closest('body').children('p').length == 1)
+                    e.preventDefault();
+            }
         }
+        if (this.browser.ff) {
+            var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+            if (!this._selectionIsCaret(selection)) {
+                this._options.rangeSelection = true;
+                if (selection.anchorNode.nodeType == 3) {
+                    this._options.partOfEndElementSelected = true;
+                }
+            }
+        }
+    },
+
+    _keyUpHandler: function (e) {
+        if (!this.browser.ff) return;
+        if (!this._options.rangeSelection) return;
+        this._options.rangeSelection = false;
+        var self = this;
+        var contents = $(e.target).contents();
+        var textnodes = contents.filter(function () {
+            return this.nodeType === 3;
+        });
+        textnodes.each(function () {
+            var element = $("<p>" + this.textContent + "</p>");
+            console.log($(e.target).contents());
+            $(this).replaceWith(element);
+            $(e.target).children('br').remove();
+
+            var selection = self.element.find('iframe').get(0).contentWindow.getSelection();
+            var rng = self.element.find('iframe').get(0).contentWindow.document.createRange();
+            console.log(self._options.partOfEndElementSelected)
+
+            if (self._options.partOfEndElementSelected) {
+                rng.setStart(element.get(0).firstChild, 0);
+                self._options.partOfEndElementSelected = false;
+            }
+            else {
+                rng.setStart(element.get(0).firstChild, element.text().length);
+            }
+            selection.removeAllRanges();
+            selection.addRange(rng);
+        });
+        var brs = $(e.target).children('br');
+        brs.each(function () {
+            console.log(2)
+            var element = $("<p><br></p>");
+            $(this).replaceWith(element);
+            var selection = self.element.find('iframe').get(0).contentWindow.getSelection();
+            var rng = self.element.find('iframe').get(0).contentWindow.document.createRange();
+            rng.setStart(element.get(0), 0);
+            selection.removeAllRanges();
+            selection.addRange(rng);
+        })
     },
 
     // Support
 
     _getActionConfig: function (name) {
-        return $.grep(this.actions, function (action) {
+        return $.grep(this._actions, function (action) {
             return action["name"] == name;
         })[0];
     },
 
-    // Selection
-
-    _selectionGet : function () {
-        var window = this.element.find('iframe').get(0).contentWindow;
-        if (window.getSelection) return window.getSelection();
-        return window.document.selection.createRange();
-    },
-
-    _selectionIsCaret : function (selection) {
+    _selectionIsCaret: function (selection) {
         if (selection.boundingWidth != undefined) return selection.boundingWidth == 0;
         return selection.anchorOffset == selection.focusOffset &&
             selection.anchorNode == selection.focusNode;
-    },
-
-    _selectionPositionOnElement : function (selection) {
-        if (this._selectionIsOldIERange(selection)) return this._selectionPositionOnElementOldIE(selection);
-        return this._selectionPositionOnElementNewBrowsers(selection);
-    },
-
-    _selectionPositionOnElementNewBrowsers : function (selection) {
-        if (!(selection.anchorNode.nextSibling) &&
-            selection.anchorOffset == selection.focusOffset &&
-            selection.anchorOffset == selection.anchorNode.nodeValue.length) return 1;
-        if (!(selection.anchorNode.previousSibling) &&
-            selection.anchorOffset == selection.focusOffset &&
-            selection.anchorOffset == 0) return -1;
-        return 0;
-    },
-
-    _selectionPositionOnElementOldIE : function (range) {
-        var parentElement = range.parentElement();
-        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
-        preCaretTextRange.moveToElementText(parentElement);
-        preCaretTextRange.setEndPoint("EndToEnd", range);
-        if (preCaretTextRange.text == parentElement.innerText) return 1;
-        if (preCaretTextRange.text == "") return -1;
-        return 0;
-    },
-
-    _selectionIsOldIERange: function (selection) {
-        return selection.offsetLeft != undefined;
     }
-
- 
 });

@@ -39,3 +39,47 @@ $(document).ready(function () {
 //        }
 //    }
 });
+
+    // Selection
+
+//    _selectionGet : function () {
+//        var window = this.element.find('iframe').get(0).contentWindow;
+//        if (window.getSelection) return window.getSelection();
+//        return window.document.selection.createRange();
+//    },
+//
+//    _selectionIsCaret : function (selection) {
+//        if (selection.boundingWidth != undefined) return selection.boundingWidth == 0;
+//        return selection.anchorOffset == selection.focusOffset &&
+//            selection.anchorNode == selection.focusNode;
+//    },
+//
+//    _selectionPositionOnElement : function (selection) {
+//        if (this._selectionIsOldIERange(selection)) return this._selectionPositionOnElementOldIE(selection);
+//        return this._selectionPositionOnElementNewBrowsers(selection);
+//    },
+//
+//    _selectionPositionOnElementNewBrowsers : function (selection) {
+//        if (!(selection.anchorNode.nextSibling) &&
+//            selection.anchorOffset == selection.focusOffset &&
+//            selection.anchorOffset == selection.anchorNode.nodeValue.length) return 1;
+//        if (!(selection.anchorNode.previousSibling) &&
+//            selection.anchorOffset == selection.focusOffset &&
+//            selection.anchorOffset == 0) return -1;
+//        return 0;
+//    },
+//
+//    _selectionPositionOnElementOldIE : function (range) {
+//        var parentElement = range.parentElement();
+//        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
+//        preCaretTextRange.moveToElementText(parentElement);
+//        preCaretTextRange.setEndPoint("EndToEnd", range);
+//        if (preCaretTextRange.text == parentElement.innerText) return 1;
+//        if (preCaretTextRange.text == "") return -1;
+//        return 0;
+//    },
+//
+//    _selectionIsOldIERange: function (selection) {
+//        return selection.offsetLeft != undefined;
+//    }
+
