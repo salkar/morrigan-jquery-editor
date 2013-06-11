@@ -276,7 +276,6 @@ $.widget( "morrigan.morrigan_editor", {
         }
         var brs = $(e.target).children('br');
         brs.each(function () {
-            console.log(2)
             var element = $("<p><br></p>");
             $(this).replaceWith(element);
             var selection = self.element.find('iframe').get(0).contentWindow.getSelection();
