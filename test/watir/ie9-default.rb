@@ -573,6 +573,456 @@ describe "IE default container behavior" do
 		@iframe.p(:index => 1).text.should == "ccccc"
 	end
 	
+	it "All text should be in P tag when selection deleted by key (middle of first p and middle of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aasdbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (middle of first p and start of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aasdbbbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (middle of first p and end of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aasd"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and middle of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "sdbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and end of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "sd"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and start of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "sdbbbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and start of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aaaaasdbbbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and middle of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aaaaasdbbb"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and end of second p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 1
+		@iframe.p(:index => 0).text.should == "aaaaasd"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (middle of first p and middle of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aasdbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (middle of first p and start of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aasdbbbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (middle of first p and end of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,2);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aasd"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and middle of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "sdbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and end of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "sd"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (start of first p and start of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,0);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "sdbbbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and start of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,0);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aaaaasdbbbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and middle of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,2);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+		
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aaaaasdbbb"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
+	it "All text should be in P tag when selection deleted by key (end of first p and end of second p - 3 p)" do
+		@iframe.click
+		@iframe.send_keys 'aaaaa'
+		@iframe.send_keys :enter
+		@iframe.send_keys 'bbbbb'
+		@iframe.ps.size.should == 2
+		@iframe.send_keys :enter
+		@iframe.send_keys 'ccccc'
+		@iframe.ps.size.should == 3
+		
+		@b.body.click
+		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+		selection_script << "var a = $('iframe').contents().find('p')[0];"
+		selection_script << "var b = $('iframe').contents().find('p')[1];"
+		selection_script << "rng.setStart(a.firstChild,5);"
+		selection_script << "rng.setEnd(b.firstChild,5);"
+		selection_script << "selection.removeAllRanges();"
+		selection_script << "selection.addRange(rng);"
+		@b.execute_script selection_script
+
+		@iframe.send_keys "sd"
+		@iframe.ps.size.should == 2
+		@iframe.p(:index => 0).text.should == "aaaaasd"
+		@iframe.p(:index => 1).text.should == "ccccc"
+	end
+	
 	after(:each) do
 		@b.close
 	end
