@@ -200,34 +200,26 @@ $.widget( "morrigan.morrigan_editor", {
 
     _setupContentEditableDefaultBehavior: function (e) {
         var self = this;
-        this.element.find('iframe').contents().find('body').on('keydown', function (e) {
-
-                    self._keyDownHandler(e);
-
+        this.element.find('iframe').contents().find('body').on('keydown',function (e) {
+            self._keyDownHandler(e);
         }).on('keyup', function (e) {
-//            console.log(e.target.innerHTML);
             self._keyUpHandler(e);
-//            console.log(e.target.innerHTML);
-
-
-         });
-//            .on('focus', function (e) {
-//        }).on('blur', function () {
-//            })
+        });
     },
 
     _keyDownHandler: function (e) {
+        var selection;
+        // Prevent to delete last <p><br></p> from ff and webkit
         if (!this.browser.ie && !this.browser.opera) {
             if (e.keyCode == 8) {
-                var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
-                if (selection.focusNode.nodeName == 'P' &&
-                    selection.focusNode.innerHTML == '<br>' &&
-                    $(selection.focusNode).closest('body').children('p').length == 1)
+                selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+                if (this._selectionIsLastSingleEmptyPSelected(selection))
                     e.preventDefault();
             }
         }
+
         if (this.browser.ff) {
-            var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+            if (!selection) selection = this.element.find('iframe').get(0).contentWindow.getSelection();
             this._options.partOfEndElementSelected = false;
             this._options.rangeSelection = false;
 
@@ -241,28 +233,30 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _keyUpHandler: function (e) {
-        if (!this.browser.ff) return;
-        if (!this._options.rangeSelection) return;
-        this._options.rangeSelection = false;
-        var self = this;
+        if (this.browser.opera) this._defaultBehaviorChangeTextNodesToP(e);
+        if (this.browser.ff && this._options.rangeSelection) {
+            this._options.rangeSelection = false; //?
+            this._defaultBehaviorChangeTextNodesToP(e);
+            this._defaultBehaviorChangeBrToP(e);
+        }
+    },
 
-        this._changeTextNodesToPAfterDeleteRangeFF(e);
+    // Default behavior
 
-        var brs = $(e.target).children('br');
-        brs.each(function () {
+    _defaultBehaviorChangeBrToP: function (e) {
+        var br = $(e.target).children('br');
+        if (br.length != 0) {
             var element = $("<p><br></p>");
-            $(this).replaceWith(element);
-            var selection = self.element.find('iframe').get(0).contentWindow.getSelection();
-            var rng = self.element.find('iframe').get(0).contentWindow.document.createRange();
+            $(br[0]).replaceWith(element);
+            var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+            var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
             rng.setStart(element.get(0), 0);
             selection.removeAllRanges();
             selection.addRange(rng);
-        })
+        }
     },
 
-    // Custom default behavior
-
-    _changeTextNodesToPAfterDeleteRangeFF: function (e) {
+    _defaultBehaviorChangeTextNodesToP: function (e) {
         var self = this;
         var textnodes = $(e.target).contents().filter(function () {
             return this.nodeType === 3;
@@ -318,5 +312,12 @@ $.widget( "morrigan.morrigan_editor", {
         } else {
             return (focusNode.nodeType == 3) && (focusNode.nodeValue.length != selection.focusOffset);
         }
+    },
+
+    _selectionIsLastSingleEmptyPSelected: function (selection) {
+        return this._selectionIsCaret(selection) &&
+            selection.focusNode.nodeName == 'P' &&
+            selection.focusNode.innerHTML == '<br>' &&
+            $(selection.focusNode).closest('body').children('p').length == 1;
     }
 });
