@@ -235,7 +235,7 @@ $.widget( "morrigan.morrigan_editor", {
     _keyUpHandler: function (e) {
         if (this.browser.opera) this._defaultBehaviorChangeTextNodesToP(e);
         if (this.browser.ff && this._options.rangeSelection) {
-            this._options.rangeSelection = false; //?
+//            this._options.rangeSelection = false; //?
             this._defaultBehaviorChangeTextNodesToP(e);
             this._defaultBehaviorChangeBrToP(e);
         }
@@ -279,7 +279,6 @@ $.widget( "morrigan.morrigan_editor", {
             if (self._options.partOfEndElementSelected) {
                 if (textnodes.length > 1) rng.setStart(element.get(0).firstChild, textnodes.get(0).length);
                 else rng.setStart(element.get(0).firstChild, 0);
-                self._options.partOfEndElementSelected = false;
             } else {
                 rng.setStart(element.get(0).firstChild, element.text().length);
             }
