@@ -8,7 +8,7 @@ $.widget( "morrigan.morrigan_editor", {
         iframeStyles: 'assets/morrigan_editor/iframe.css',
         toolbox: [
             [
-                ['bold', 'italy']
+                ['bold', 'italy', 'format']
             ],
             [
                 ['strike']
@@ -59,6 +59,46 @@ $.widget( "morrigan.morrigan_editor", {
             onClickHandler: function (self) {
                 console.log('Strike' + self.options.height)
             }
+        },
+        {
+            name: 'format',
+            view: {
+                text: 'Format',
+                title: 'Paragraph format'
+            },
+            dropdown: {
+                width: '150px',
+                actionList: [
+                    {
+                        name: 'p',
+                        text: 'Paragraph',
+                        onClickHandler: function (self) {
+                            console.log('paragraph' + self.options.height)
+                        }
+                    },
+                    {
+                        name: 'h1',
+                        text: 'Heading 1',
+                        onClickHandler: function (self) {
+                            console.log('Heading 1 ' + self.options.height)
+                        }
+                    },
+                    {
+                        name: 'h2',
+                        text: 'Heading 2',
+                        onClickHandler: function (self) {
+                            console.log('Heading 2 ' + self.options.height)
+                        }
+                    },
+                    {
+                        name: 'h3',
+                        text: 'Heading 3',
+                        onClickHandler: function (self) {
+                            console.log('Heading 3 ' + self.options.height)
+                        }
+                    }
+                ]
+            }
         }
 
     ],
@@ -105,16 +145,45 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _bindEventToAction: function (action_name) {
-        var self = this;
         var config = this._getActionConfig(action_name);
         var id = this._generateActionId(action_name);
+        if (config.dropdown) {
+
+            this._bindEventToDropDown(config, id);
+        } else {
+            this._bindEventToSimpleAction(config, id);
+        }
+    },
+
+    _bindEventToSimpleAction: function (config, id) {
+        var self = this;
         $('#' + id).on("click", function () {
             config.onClickHandler(self);
         });
     },
 
+    _bindEventToDropDown: function (config, id) {
+        var self = this;
+        $('#' + id).on("click", function (e) {
+            var target_id = $(e.target).attr('id');
+            if (target_id == id) {
+                var dropdown = $(this).children('.mrge-action-dropdown');
+                if (dropdown.is(':visible')) dropdown.hide();
+                else dropdown.show();
+            } else {
+                var action_name = self._getActionNameFromId(target_id);
+                var action_config = self._getDropDownActionConfig(config, action_name);
+                action_config.onClickHandler(self);
+            }
+        });
+    },
+
     _generateActionId: function (action_name) {
         return this.options.prefix + '_' + action_name;
+    },
+
+    _getActionNameFromId: function (id) {
+        return id.replace(this.options.prefix, '').substring(1);
     },
 
     // Form toolbox
@@ -126,7 +195,7 @@ $.widget( "morrigan.morrigan_editor", {
             toolbox_lines += self._formToolboxLine(this);
         });
         toolbox_lines += "<div class='clear'></div>";
-        return "<div class='mrge-toolbox'>" + toolbox_lines + "</span>"
+        return "<div class='mrge-toolbox'>" + toolbox_lines + "</div>"
     },
 
     _formToolboxLine: function(arr) {
@@ -150,13 +219,22 @@ $.widget( "morrigan.morrigan_editor", {
     _formToolboxItem: function (name) {
         var config = this._getActionConfig(name);
         var result = "<a title='" + config['view']['title'] + "'";
-        result += " id='" + this.options.prefix + '_' + config.name + "'";
+        result += " id='" + this._generateActionId(config.name) + "'";
+        if (config.dropdown) result += " class='mrge-action-list'";
         if (config.view.icon) {
             result += " style='background: " + config['view']['icon'] + "'";
         }
         result += ">";
         if (config.view.text) {
             result += config['view']['text'];
+        }
+        if (config.dropdown) {
+            var self = this;
+            result += "<div class='mrge-action-dropdown' style='display: none; width:" + config.dropdown.width + "'>";
+            $(config.dropdown.actionList).each( function () {
+                result += "<div id='" + self._generateActionId(this.name) + "'>"+ this.text + "</div>";
+            });
+            result += "</div>";
         }
         return result + "</a>";
     },
@@ -291,6 +369,12 @@ $.widget( "morrigan.morrigan_editor", {
 
     _getActionConfig: function (name) {
         return $.grep(this._actions, function (action) {
+            return action["name"] == name;
+        })[0];
+    },
+
+    _getDropDownActionConfig: function (dropDownConfig, name) {
+        return $.grep(dropDownConfig.dropdown.actionList, function (action) {
             return action["name"] == name;
         })[0];
     },
