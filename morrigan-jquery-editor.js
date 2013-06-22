@@ -73,7 +73,10 @@ $.widget( "morrigan.morrigan_editor", {
                         name: 'p',
                         text: 'Paragraph',
                         onClickHandler: function (self) {
-                            console.log('paragraph' + self.options.height)
+                            var selection = self._selectionGet();
+                            console.log(selection)
+                            console.log(self._selectionGetSelectedTopNode(selection));
+//                            console.log('paragraph' + self.options.height)
                         }
                     },
                     {
@@ -271,7 +274,8 @@ $.widget( "morrigan.morrigan_editor", {
 
     _getDefaultIframeBodyContent: function () {
         if (this.browser.ie || this.browser.opera) return "<p></p>";
-        else return "<p><br></p>";
+        //else return "<p><br></p>";
+        else return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p>";
     },
 
     // Content field custom behavior
@@ -379,6 +383,12 @@ $.widget( "morrigan.morrigan_editor", {
         })[0];
     },
 
+    _selectionGet: function () {
+        var window = this.element.find('iframe').get(0).contentWindow;
+        if (window.getSelection) return window.getSelection();
+        return window.document.selection.createRange();
+    },
+
     _selectionIsCaret: function (selection) {
         if (selection.boundingWidth != undefined) return selection.boundingWidth == 0;
         return selection.anchorOffset == selection.focusOffset &&
@@ -386,15 +396,27 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _selectionIsPartOfEndElementSelected: function (selection) {
+//        var anchorNode = selection.anchorNode;
+//        var focusNode = selection.focusNode;
+//        var anchorElement = (anchorNode.nodeType == 3 ? anchorNode.parentNode : anchorNode);
+//        var focusElement = (focusNode.nodeType == 3 ? focusNode.parentNode : focusNode);
+//        if (anchorElement.offsetTop > focusElement.offsetTop) {
+//            return (anchorNode.nodeType == 3) && (anchorNode.nodeValue.length != selection.anchorOffset);
+//        } else {
+//            return (focusNode.nodeType == 3) && (focusNode.nodeValue.length != selection.focusOffset);
+//        }
+        if (this._selectionFromTopToBottom(selection))
+            return (focusNode.nodeType == 3) && (focusNode.nodeValue.length != selection.focusOffset);
+        else
+            return (anchorNode.nodeType == 3) && (anchorNode.nodeValue.length != selection.anchorOffset);
+    },
+
+    _selectionFromTopToBottom: function (selection) {
         var anchorNode = selection.anchorNode;
         var focusNode = selection.focusNode;
         var anchorElement = (anchorNode.nodeType == 3 ? anchorNode.parentNode : anchorNode);
         var focusElement = (focusNode.nodeType == 3 ? focusNode.parentNode : focusNode);
-        if (anchorElement.offsetTop > focusElement.offsetTop) {
-            return (anchorNode.nodeType == 3) && (anchorNode.nodeValue.length != selection.anchorOffset);
-        } else {
-            return (focusNode.nodeType == 3) && (focusNode.nodeValue.length != selection.focusOffset);
-        }
+        return anchorElement.offsetTop < focusElement.offsetTop;
     },
 
     _selectionIsLastSingleEmptyPSelected: function (selection) {
@@ -402,5 +424,38 @@ $.widget( "morrigan.morrigan_editor", {
             selection.focusNode.nodeName == 'P' &&
             selection.focusNode.innerHTML == '<br>' &&
             $(selection.focusNode).closest('body').children('p').length == 1;
+    },
+
+    _selectionGetSelectedTopNode: function (selection) {
+        var startElement = selection.anchorNode;
+        var startE = (startElement.parentNode.nodeName == 'BODY' ? startElement : $(startElement).closest('body > *').get(0));
+        var endElement = selection.focusNode;
+        var endE = (endElement.parentNode.nodeName == 'BODY' ? endElement : $(endElement).closest('body > *').get(0));
+        if (startE == endE) return [startE];
+        else {
+            return this._selectionGetTopNodesInInterval(startE, endE);
+        }
+    },
+
+    _selectionGetTopNodesInInterval: function (startE, endE) {
+        var topNodes = this.element.find('iframe').contents().find('body').children();
+        var inSelection = false;
+        var result = [];
+        $(topNodes).each(function () {
+            if (inSelection) {
+                if (this == startE || this == endE) inSelection = false;
+                result.push(this);
+            } else {
+                if (this == startE || this == endE) {
+                    inSelection = true;
+                    result.push(this);
+                }
+            }
+
+        });
+        return result;
     }
+
+    // Actions
+
 });
