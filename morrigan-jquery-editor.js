@@ -18,7 +18,8 @@ $.widget( "morrigan.morrigan_editor", {
 
     _options: {
         rangeSelection: false,
-        partOfEndElementSelected: false
+        partOfEndElementSelected: false,
+        savedSelectionBeforeAction: {}
     },
 
     browser: {
@@ -73,31 +74,28 @@ $.widget( "morrigan.morrigan_editor", {
                         name: 'p',
                         text: 'Paragraph',
                         onClickHandler: function (self) {
-                            var selection = self._selectionGet();
-                            console.log(selection)
-                            console.log(self._selectionGetSelectedTopNode(selection));
-//                            console.log('paragraph' + self.options.height)
+                            self._actionMutateTopSelectedNodes("P");
                         }
                     },
                     {
                         name: 'h1',
                         text: 'Heading 1',
                         onClickHandler: function (self) {
-                            console.log('Heading 1 ' + self.options.height)
+                            self._actionMutateTopSelectedNodes("H1");
                         }
                     },
                     {
                         name: 'h2',
                         text: 'Heading 2',
                         onClickHandler: function (self) {
-                            console.log('Heading 2 ' + self.options.height)
+                            self._actionMutateTopSelectedNodes("H2");
                         }
                     },
                     {
                         name: 'h3',
                         text: 'Heading 3',
                         onClickHandler: function (self) {
-                            console.log('Heading 3 ' + self.options.height)
+                            self._actionMutateTopSelectedNodes("H3");
                         }
                     }
                 ]
@@ -426,7 +424,7 @@ $.widget( "morrigan.morrigan_editor", {
             $(selection.focusNode).closest('body').children('p').length == 1;
     },
 
-    _selectionGetSelectedTopNode: function (selection) {
+    _selectionGetSelectedTopNodes: function (selection) {
         var startElement = selection.anchorNode;
         var startE = (startElement.parentNode.nodeName == 'BODY' ? startElement : $(startElement).closest('body > *').get(0));
         var endElement = selection.focusNode;
@@ -454,8 +452,78 @@ $.widget( "morrigan.morrigan_editor", {
 
         });
         return result;
-    }
+    },
 
     // Actions
+
+    _actionMutateTopSelectedNodes: function (nodeName) {
+        var selection = this._selectionGet();
+        var topNodes = this._selectionGetSelectedTopNodes(selection);
+        this._actionSupportSaveSelectionBeforeMutate(selection);
+        this._actionSupportMutateNodes(topNodes, nodeName);
+        this._actionSupportRestoreSelectionAfterMutate();
+    },
+
+    _actionSupportMutateNodes: function (nodes, nodeName) {
+        $(nodes).each(function () {
+            if (this.nodeName != nodeName) {
+                $(this).replaceWith("<" + nodeName + ">" + this.innerHTML + "</" + nodeName + ">");
+            }
+        });
+    },
+
+    _actionSupportSaveSelectionBeforeMutate: function (selection) {
+        var anchorNodePath = this._actionSupportGetNodePathFromTopElement(selection.anchorNode);
+        var focusNodePath = this._actionSupportGetNodePathFromTopElement(selection.focusNode);
+        if (this._selectionFromTopToBottom(selection)) {
+            this._options.savedSelectionBeforeAction = {
+                anchorNodePath: anchorNodePath,
+                anchorOffset: selection.anchorOffset,
+                focusNodePath: focusNodePath,
+                focusOffset: selection.focusOffset
+            };
+        } else {
+            this._options.savedSelectionBeforeAction = {
+                anchorNodePath: focusNodePath,
+                anchorOffset: selection.focusOffset,
+                focusNodePath: anchorNodePath,
+                focusOffset: selection.anchorOffset
+            };
+        }
+
+    },
+
+    _actionSupportRestoreSelectionAfterMutate: function () {
+        var savedSelection = this._options.savedSelectionBeforeAction;
+        var anchorNode = this._actionSupportGetNodeFromPath(savedSelection.anchorNodePath);
+        var focusNode = this._actionSupportGetNodeFromPath(savedSelection.focusNodePath);
+
+        var selection = this.element.find('iframe').get(0).contentWindow.getSelection();
+        var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
+
+        rng.setStart(anchorNode, savedSelection.anchorOffset);
+        rng.setEnd(focusNode, savedSelection.focusOffset);
+        selection.removeAllRanges();
+        selection.addRange(rng);
+    },
+
+    _actionSupportGetNodePathFromTopElement: function (node) {
+        var result = [];
+        var currentNode = node;
+        while (currentNode.nodeName != 'BODY') {
+            result.push($(currentNode.parentNode).contents().index(currentNode));
+            currentNode = currentNode.parentNode;
+        }
+        return result;
+    },
+
+    _actionSupportGetNodeFromPath: function (path) {
+        var currentNode = this.element.find('iframe').contents().find('body');
+        while (path.length != 0) {
+            var currentChildIndex = path.pop();
+            currentNode = currentNode.contents().eq(currentChildIndex);
+        }
+        return currentNode.get(0);
+    }
 
 });
