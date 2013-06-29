@@ -165,7 +165,7 @@ $.widget( "morrigan.morrigan_editor", {
 
     _bindEventToDropDown: function (config, id) {
         var self = this;
-        $('#' + id).on("click", function (e) {
+        $('#' + id).on("mousedown", function (e) {
             var target_id = $(e.target).attr('id');
             if (target_id == id) {
                 var dropdown = $(this).children('.mrge-action-dropdown');
@@ -225,15 +225,21 @@ $.widget( "morrigan.morrigan_editor", {
         if (config.view.icon) {
             result += " style='background: " + config['view']['icon'] + "'";
         }
+        if (this.browser.ie) {
+            result += " unselectable='on'"
+        }
         result += ">";
         if (config.view.text) {
             result += config['view']['text'];
         }
         if (config.dropdown) {
-            var self = this;
             result += "<div class='mrge-action-dropdown' style='display: none; width:" + config.dropdown.width + "'>";
+            var self = this;
             $(config.dropdown.actionList).each( function () {
-                result += "<div id='" + self._generateActionId(this.name) + "'>"+ this.text + "</div>";
+                result += "<div id='" +
+                    self._generateActionId(this.name) + "'" +
+                    (self.browser.ie ? "unselectable='on'" : '') +
+                    ">" + this.text + "</div>";
             });
             result += "</div>";
         }
@@ -271,9 +277,9 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _getDefaultIframeBodyContent: function () {
-        if (this.browser.ie || this.browser.opera) return "<p></p>";
+//        if (this.browser.ie || this.browser.opera) return "<p></p>";
         //else return "<p><br></p>";
-        else return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p>";
+        return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p>";
     },
 
     // Content field custom behavior

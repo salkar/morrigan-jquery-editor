@@ -1,7 +1,25 @@
 $(document).ready(function () {
-    var editor = $('#test').morrigan_editor();
-    var editor1 = $('#test1').morrigan_editor({height:'500px', prefix:"mrge1"});
+    editor = $('#test').morrigan_editor();
+    editor1 = $('#test1').morrigan_editor({height:'500px', prefix:"mrge1"});
 
+//    $($('iframe').get(0).contentWindow).on('mouseleave', function (e) {
+//        if (e.target.nodeName == 'HTML') {
+//            var selection = this.getSelection();
+//            console.log(selection)
+//        }
+//
+//    });
+//    var selectedRange = null;
+//    $('html').on('mousedown', function (e) {
+//        var selection = $('iframe').get(0).contentWindow.document.selection;
+//        selectedRange = selection.createRange();
+//    }).on('mouseup', function (e) {
+//            if (selectedRange) {
+//                            selectedRange.select();
+////                var selection = $('iframe').get(0).contentWindow.getSelection();
+////                selection.addRange(selectedRange)
+//                        }
+//        })
 //    $('iframe').contents().find('html').on("click", function (e) {
 //        console.log($(e.target)[0].nodeName);
 //       if ($(e.target)[0].nodeName == "HTML") $(this).find('body').trigger('click');
