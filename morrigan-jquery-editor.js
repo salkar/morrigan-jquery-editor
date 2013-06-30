@@ -285,7 +285,7 @@ $.widget( "morrigan.morrigan_editor", {
     _getDefaultIframeBodyContent: function () {
 //        if (this.browser.ie || this.browser.opera) return "<p></p>";
         //else return "<p><br></p>";
-        return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p>";
+        return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p><p>paragraph 3</p><p>paragraph 4</p>";
     },
 
     // Content field custom behavior
@@ -469,7 +469,7 @@ $.widget( "morrigan.morrigan_editor", {
     _selectionGetSelectedTopNodesOldIE: function (range) {
         var iframeBody = this.element.find('iframe').contents().find('body');
         var bodyOffsetTop = iframeBody.offset().top;
-        var rangeTopOffset = range.offsetTop - bodyOffsetTop;
+        var rangeTopOffset = range.boundingTop - bodyOffsetTop;
         var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
 
         var topNodes = iframeBody.children();
@@ -493,8 +493,8 @@ $.widget( "morrigan.morrigan_editor", {
         var selection = this._selectionGet();
         if (this._selectionIsTextRange(selection)) {
             topNodes = this._selectionGetSelectedTopNodesOldIE(selection);
-            if (this.browser.ie7) this._actionSupportSaveSelectionBeforeMutateIE7(selection);
-            else if (this.browser.ie8) this._actionSupportSaveSelectionBeforeMutateIE8(selection);
+            if (this.browser.ie7) this._actionSupportSaveSelectionBeforeMutateIE7(selection, topNodes);
+            else if (this.browser.ie8) this._actionSupportSaveSelectionBeforeMutateIE8(selection, topNodes);
 
             this._actionSupportMutateNodes(topNodes, nodeName);
             this._actionSupportRestoreSelectionAfterMutateOldIE();
@@ -535,13 +535,14 @@ $.widget( "morrigan.morrigan_editor", {
         }
     },
 
-    _actionSupportSaveSelectionBeforeMutateIE7: function (range) {
+    _actionSupportSaveSelectionBeforeMutateIE7: function (range, topNodes) {
+        console.log("ie7")
         var parentNode = range.parentElement();
         var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
         preCaretTextRange.moveToElementText(parentNode);
         preCaretTextRange.setEndPoint("EndToStart", range);
-        var offsetToStart = preCaretTextRange.text.length;
-        var rangeLength = range.text.replace("\r\n","").length;
+        var offsetToStart = preCaretTextRange.text.replace(/\r\n/g," ").length;
+        var rangeLength = range.text.replace(/\r\n/g," ").length;
         var parentNodePath = this._actionSupportGetNodePathFromTopElement(parentNode);
         this._options.savedSelectionBeforeAction = {
             startOffset: offsetToStart,
@@ -551,6 +552,7 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _actionSupportSaveSelectionBeforeMutateIE8: function (range) {
+        console.log("ie8")
         var parentNode = range.parentElement();
         var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
         preCaretTextRange.moveToElementText(parentNode);
