@@ -26,6 +26,8 @@ $.widget( "morrigan.morrigan_editor", {
         opera: false,
         chrome: false,
         ie: false,
+        ie7: false,
+        ie8: false,
         ff: false,
         other: false
     },
@@ -128,7 +130,11 @@ $.widget( "morrigan.morrigan_editor", {
         if (navigator.userAgent.indexOf('Opera') != -1) this.browser.opera = true;
         else if (navigator.userAgent.indexOf('Chrome') != -1) this.browser.chrome = true;
         else if (navigator.userAgent.indexOf('Firefox') != -1) this.browser.ff = true;
-        else if (navigator.userAgent.indexOf('MSIE') != -1) this.browser.ie = true;
+        else if (navigator.userAgent.indexOf('MSIE') != -1) {
+            this.browser.ie = true;
+            if (navigator.userAgent.indexOf('MSIE 8') != -1) this.browser.ie8 = true;
+            else if (navigator.userAgent.indexOf('MSIE 7') != -1) this.browser.ie7 = true;
+        }
         else this.browser.other = true;
     },
 
@@ -460,14 +466,45 @@ $.widget( "morrigan.morrigan_editor", {
         return result;
     },
 
+    _selectionGetSelectedTopNodesOldIE: function (range) {
+        var iframeBody = this.element.find('iframe').contents().find('body');
+        var bodyOffsetTop = iframeBody.offset().top;
+        var rangeTopOffset = range.offsetTop - bodyOffsetTop;
+        var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
+
+        var topNodes = iframeBody.children();
+        var result = [];
+        $(topNodes).each(function () {
+            if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
+                result.push(this);
+            }
+        });
+        return result;
+    },
+
+    _selectionIsTextRange: function (selection) {
+        return selection.boundingWidth != undefined;
+    },
+
     // Actions
 
     _actionMutateTopSelectedNodes: function (nodeName) {
+        var topNodes;
         var selection = this._selectionGet();
-        var topNodes = this._selectionGetSelectedTopNodes(selection);
-        this._actionSupportSaveSelectionBeforeMutate(selection);
-        this._actionSupportMutateNodes(topNodes, nodeName);
-        this._actionSupportRestoreSelectionAfterMutate();
+        if (this._selectionIsTextRange(selection)) {
+            topNodes = this._selectionGetSelectedTopNodesOldIE(selection);
+            if (this.browser.ie7) this._actionSupportSaveSelectionBeforeMutateIE7(selection);
+            else if (this.browser.ie8) this._actionSupportSaveSelectionBeforeMutateIE8(selection);
+
+            this._actionSupportMutateNodes(topNodes, nodeName);
+            this._actionSupportRestoreSelectionAfterMutateOldIE();
+        } else {
+            topNodes = this._selectionGetSelectedTopNodes(selection);
+            this._actionSupportSaveSelectionBeforeMutate(selection);
+            this._actionSupportMutateNodes(topNodes, nodeName);
+            this._actionSupportRestoreSelectionAfterMutate();
+        }
+
     },
 
     _actionSupportMutateNodes: function (nodes, nodeName) {
@@ -496,7 +533,47 @@ $.widget( "morrigan.morrigan_editor", {
                 focusOffset: selection.anchorOffset
             };
         }
+    },
 
+    _actionSupportSaveSelectionBeforeMutateIE7: function (range) {
+        var parentNode = range.parentElement();
+        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
+        preCaretTextRange.moveToElementText(parentNode);
+        preCaretTextRange.setEndPoint("EndToStart", range);
+        var offsetToStart = preCaretTextRange.text.length;
+        var rangeLength = range.text.replace("\r\n","").length;
+        var parentNodePath = this._actionSupportGetNodePathFromTopElement(parentNode);
+        this._options.savedSelectionBeforeAction = {
+            startOffset: offsetToStart,
+            rangeLength: rangeLength,
+            parentNodePath: parentNodePath
+        };
+    },
+
+    _actionSupportSaveSelectionBeforeMutateIE8: function (range) {
+        var parentNode = range.parentElement();
+        var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
+        preCaretTextRange.moveToElementText(parentNode);
+        preCaretTextRange.setEndPoint("EndToStart", range);
+        var offsetToStart = preCaretTextRange.text.length;
+        var rangeLength = range.text.length;
+        var parentNodePath = this._actionSupportGetNodePathFromTopElement(parentNode);
+        this._options.savedSelectionBeforeAction = {
+            startOffset: offsetToStart,
+            rangeLength: rangeLength,
+            parentNodePath: parentNodePath
+        };
+    },
+
+    _actionSupportRestoreSelectionAfterMutateOldIE: function () {
+        var savedSelection = this._options.savedSelectionBeforeAction;
+        var parentNode = this._actionSupportGetNodeFromPath(savedSelection.parentNodePath);
+        var rng = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
+        rng.moveToElementText(parentNode);
+        rng.moveStart("character", savedSelection.startOffset);
+        rng.collapse();
+        rng.moveEnd("character", savedSelection.rangeLength);
+        rng.select();
     },
 
     _actionSupportRestoreSelectionAfterMutate: function () {
