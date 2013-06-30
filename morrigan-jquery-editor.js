@@ -466,7 +466,7 @@ $.widget( "morrigan.morrigan_editor", {
         return result;
     },
 
-    _selectionGetSelectedTopNodesOldIE: function (range) {
+    _selectionGetSelectedTopNodesIE7: function (range) {
         var iframeBody = this.element.find('iframe').contents().find('body');
         var bodyOffsetTop = iframeBody.offset().top;
         var rangeTopOffset = range.boundingTop - bodyOffsetTop;
@@ -474,7 +474,26 @@ $.widget( "morrigan.morrigan_editor", {
 
         var topNodes = iframeBody.children();
         var result = [];
+        console.log(rangeTopOffset)
         $(topNodes).each(function () {
+            console.log(this.offsetTop)
+            if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
+                result.push(this);
+            }
+        });
+        return result;
+    },
+
+    _selectionGetSelectedTopNodesIE8: function (range) {
+        var iframeBody = this.element.find('iframe').contents().find('body');
+        var rangeTopOffset = range.boundingTop;
+        var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
+
+        var topNodes = iframeBody.children();
+        var result = [];
+        console.log(rangeTopOffset)
+        $(topNodes).each(function () {
+            console.log(this.offsetTop)
             if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
                 result.push(this);
             }
@@ -492,9 +511,15 @@ $.widget( "morrigan.morrigan_editor", {
         var topNodes;
         var selection = this._selectionGet();
         if (this._selectionIsTextRange(selection)) {
-            topNodes = this._selectionGetSelectedTopNodesOldIE(selection);
-            if (this.browser.ie7) this._actionSupportSaveSelectionBeforeMutateIE7(selection);
-            else if (this.browser.ie8) this._actionSupportSaveSelectionBeforeMutateIE8(selection, topNodes);
+
+            if (this.browser.ie7) {
+                topNodes = this._selectionGetSelectedTopNodesIE7(selection);
+                this._actionSupportSaveSelectionBeforeMutateIE7(selection);
+            }
+            else if (this.browser.ie8) {
+                topNodes = this._selectionGetSelectedTopNodesIE8(selection);
+                this._actionSupportSaveSelectionBeforeMutateIE8(selection, topNodes);
+            }
 
             this._actionSupportMutateNodes(topNodes, nodeName);
             this._actionSupportRestoreSelectionAfterMutateOldIE();
