@@ -19,7 +19,8 @@ $.widget( "morrigan.morrigan_editor", {
     _options: {
         rangeSelection: false,
         partOfEndElementSelected: false,
-        savedSelectionBeforeAction: {}
+        savedSelectionBeforeAction: {},
+        nodesMutated: false
     },
 
     browser: {
@@ -474,9 +475,7 @@ $.widget( "morrigan.morrigan_editor", {
 
         var topNodes = iframeBody.children();
         var result = [];
-        console.log(rangeTopOffset)
         $(topNodes).each(function () {
-            console.log(this.offsetTop)
             if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
                 result.push(this);
             }
@@ -491,9 +490,7 @@ $.widget( "morrigan.morrigan_editor", {
 
         var topNodes = iframeBody.children();
         var result = [];
-        console.log(rangeTopOffset)
         $(topNodes).each(function () {
-            console.log(this.offsetTop)
             if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
                 result.push(this);
             }
@@ -522,22 +519,31 @@ $.widget( "morrigan.morrigan_editor", {
             }
 
             this._actionSupportMutateNodes(topNodes, nodeName);
-            this._actionSupportRestoreSelectionAfterMutateOldIE();
+            if (this._options.nodesMutated) {
+                console.log("restore")
+                this._actionSupportRestoreSelectionAfterMutateOldIE();
+            }
         } else {
             topNodes = this._selectionGetSelectedTopNodes(selection);
             this._actionSupportSaveSelectionBeforeMutate(selection);
             this._actionSupportMutateNodes(topNodes, nodeName);
-            this._actionSupportRestoreSelectionAfterMutate();
+            if (this._options.nodesMutated) {
+                this._actionSupportRestoreSelectionAfterMutate();
+            }
         }
 
     },
 
     _actionSupportMutateNodes: function (nodes, nodeName) {
+        this._options.nodesMutated = false;
+        var mutated = false;
         $(nodes).each(function () {
             if (this.nodeName != nodeName) {
                 $(this).replaceWith("<" + nodeName + ">" + this.innerHTML + "</" + nodeName + ">");
+                mutated = true;
             }
         });
+        if (mutated) this._options.nodesMutated = true;
     },
 
     _actionSupportSaveSelectionBeforeMutate: function (selection) {
