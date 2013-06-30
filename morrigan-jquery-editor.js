@@ -520,7 +520,6 @@ $.widget( "morrigan.morrigan_editor", {
 
             this._actionSupportMutateNodes(topNodes, nodeName);
             if (this._options.nodesMutated) {
-                console.log("restore")
                 this._actionSupportRestoreSelectionAfterMutateOldIE();
             }
         } else {
@@ -586,7 +585,10 @@ $.widget( "morrigan.morrigan_editor", {
         var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
         preCaretTextRange.moveToElementText(parentNode);
         preCaretTextRange.setEndPoint("EndToStart", range);
-        var nodesBeforeFirstSelectedCount = $(topNodes[0].parentNode).contents().index(topNodes[0]);
+        var nodesBeforeFirstSelectedCount = 0;
+        if (parentNode.nodeName == 'BODY') {
+            nodesBeforeFirstSelectedCount = $(topNodes[0].parentNode).contents().index(topNodes[0]);
+        }
         var offsetToStart = preCaretTextRange.text.length + nodesBeforeFirstSelectedCount;
         var rangeLength = range.text.length;
         var parentNodePath = this._actionSupportGetNodePathFromTopElement(parentNode);
