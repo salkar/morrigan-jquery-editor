@@ -470,7 +470,8 @@ $.widget( "morrigan.morrigan_editor", {
     _selectionGetSelectedTopNodesIE7: function (range) {
         var iframeBody = this.element.find('iframe').contents().find('body');
         var bodyOffsetTop = iframeBody.offset().top;
-        var rangeTopOffset = range.boundingTop - bodyOffsetTop;
+        var iframeScrollTop = this.element.find('iframe').contents().find('html')[0].scrollTop;
+        var rangeTopOffset = range.offsetTop + iframeScrollTop - bodyOffsetTop;
         var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
 
         var topNodes = iframeBody.children();
@@ -485,7 +486,8 @@ $.widget( "morrigan.morrigan_editor", {
 
     _selectionGetSelectedTopNodesIE8: function (range) {
         var iframeBody = this.element.find('iframe').contents().find('body');
-        var rangeTopOffset = range.boundingTop;
+        var iframeScrollTop = this.element.find('iframe').contents().find('html')[0].scrollTop;
+        var rangeTopOffset = range.boundingTop + iframeScrollTop;
         var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
 
         var topNodes = iframeBody.children();
@@ -511,7 +513,7 @@ $.widget( "morrigan.morrigan_editor", {
 
             if (this.browser.ie7) {
                 topNodes = this._selectionGetSelectedTopNodesIE7(selection);
-                this._actionSupportSaveSelectionBeforeMutateIE7(selection);
+                this._actionSupportSaveSelectionBeforeMutateIE7(selection, topNodes);
             }
             else if (this.browser.ie8) {
                 topNodes = this._selectionGetSelectedTopNodesIE8(selection);
@@ -565,12 +567,16 @@ $.widget( "morrigan.morrigan_editor", {
         }
     },
 
-    _actionSupportSaveSelectionBeforeMutateIE7: function (range) {
+    _actionSupportSaveSelectionBeforeMutateIE7: function (range, topNodes) {
         var parentNode = range.parentElement();
         var preCaretTextRange = this.element.find('iframe').get(0).contentWindow.document.body.createTextRange();
         preCaretTextRange.moveToElementText(parentNode);
         preCaretTextRange.setEndPoint("EndToStart", range);
         var offsetToStart = preCaretTextRange.text.replace(/\r\n/g," ").length;
+//        console.log(range.text)
+//        console.log($(topNodes[0]).text())
+//        console.log(range.text.indexOf($(topNodes[0]).text()))
+        if (range.text.indexOf($(topNodes[0]).text()) == 0) offsetToStart += 1;
         var rangeLength = range.text.replace(/\r\n/g," ").length;
         var parentNodePath = this._actionSupportGetNodePathFromTopElement(parentNode);
         this._options.savedSelectionBeforeAction = {
