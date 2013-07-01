@@ -427,7 +427,8 @@ $.widget( "morrigan.morrigan_editor", {
         var focusNode = selection.focusNode;
         var anchorElement = (anchorNode.nodeType == 3 ? anchorNode.parentNode : anchorNode);
         var focusElement = (focusNode.nodeType == 3 ? focusNode.parentNode : focusNode);
-        return anchorElement.offsetTop < focusElement.offsetTop;
+        if (anchorElement.offsetTop != focusElement.offsetTop) return anchorElement.offsetTop < focusElement.offsetTop;
+        return selection.anchorOffset < selection.focusOffset;
     },
 
     _selectionIsLastSingleEmptyPSelected: function (selection) {
