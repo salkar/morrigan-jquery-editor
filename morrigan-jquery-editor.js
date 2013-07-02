@@ -70,6 +70,14 @@ $.widget( "morrigan.morrigan_editor", {
                 text: 'Format',
                 title: 'Paragraph format'
             },
+            selectionHandler: {
+                onCaretSelectionChange: function () {
+                    console.log(111)
+                },
+                onRangeSelectionChange: function () {
+                    console.log(222)
+                }
+            },
             dropdown: {
                 width: '150px',
                 actionList: [
@@ -155,8 +163,9 @@ $.widget( "morrigan.morrigan_editor", {
     _bindEventToAction: function (action_name) {
         var config = this._getActionConfig(action_name);
         var id = this._generateActionId(action_name);
+        var selectionHandler = config.selectionHandler
+        if (selectionHandler) this._bindEventToSelectionChangedHandler(selectionHandler);
         if (config.dropdown) {
-
             this._bindEventToDropDown(config, id);
         } else {
             this._bindEventToSimpleAction(config, id);
@@ -186,8 +195,26 @@ $.widget( "morrigan.morrigan_editor", {
         });
     },
 
-    _generateActionId: function (action_name) {
-        return this.options.prefix + '_' + action_name;
+    _bindEventToSelectionChangedHandler: function (selectionHandler) {
+        var iframe = this.element.find('iframe');
+        var self = this;
+        iframe.contents().on("mouseup", function (e) {
+            self._bindEventHandlersToSelectionChanged(selectionHandler, e);
+        }).on("keyup", function (e) {
+            var keyCodesAffectedDomChanges = [8,13,33,34,35,36,37,38,39,40,46];
+            if ($.inArray(e.keyCode, keyCodesAffectedDomChanges) != -1)
+                self._bindEventHandlersToSelectionChanged(selectionHandler, e);
+        });
+    },
+
+    _bindEventHandlersToSelectionChanged: function (selectionHandler, e) {
+        var selection = this._selectionGet();
+        if (this._selectionIsCaret(selection)) selectionHandler.onCaretSelectionChange();
+        else selectionHandler.onRangeSelectionChange();
+    },
+
+    _generateActionId: function (actionName) {
+        return this.options.prefix + '_' + actionName;
     },
 
     _getActionNameFromId: function (id) {
