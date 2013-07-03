@@ -71,10 +71,17 @@ $.widget( "morrigan.morrigan_editor", {
                 title: 'Paragraph format'
             },
             selectionHandler: {
-                onCaretSelectionChange: function () {
-                    console.log(111)
+                onCaretSelectionChange: function (self, config, e) {
+                    var topNode = $(e.target).closest('body > *').get(0);
+                    if (topNode) {
+                        var topNodeName = $(e.target).closest('body > *').get(0).nodeName;
+                        var actionStatusText = self._configGetTextForNameFromActionList(config, topNodeName);
+                        var actionId = self._generateActionId(config.name);
+                        self._actionChangeDropDownCurrentState(actionId, actionStatusText);
+                    }
+
                 },
-                onRangeSelectionChange: function () {
+                onRangeSelectionChange: function (self, config, e) {
                     console.log(222)
                 }
             },
@@ -82,28 +89,28 @@ $.widget( "morrigan.morrigan_editor", {
                 width: '150px',
                 actionList: [
                     {
-                        name: 'p',
+                        name: 'P',
                         text: 'Paragraph',
                         onClickHandler: function (self) {
                             self._actionMutateTopSelectedNodes("P");
                         }
                     },
                     {
-                        name: 'h1',
+                        name: 'H1',
                         text: 'Heading 1',
                         onClickHandler: function (self) {
                             self._actionMutateTopSelectedNodes("H1");
                         }
                     },
                     {
-                        name: 'h2',
+                        name: 'H2',
                         text: 'Heading 2',
                         onClickHandler: function (self) {
                             self._actionMutateTopSelectedNodes("H2");
                         }
                     },
                     {
-                        name: 'h3',
+                        name: 'H3',
                         text: 'Heading 3',
                         onClickHandler: function (self) {
                             self._actionMutateTopSelectedNodes("H3");
@@ -163,8 +170,7 @@ $.widget( "morrigan.morrigan_editor", {
     _bindEventToAction: function (action_name) {
         var config = this._getActionConfig(action_name);
         var id = this._generateActionId(action_name);
-        var selectionHandler = config.selectionHandler
-        if (selectionHandler) this._bindEventToSelectionChangedHandler(selectionHandler);
+        if (config.selectionHandler) this._bindEventToSelectionChangedHandler(config);
         if (config.dropdown) {
             this._bindEventToDropDown(config, id);
         } else {
@@ -182,7 +188,7 @@ $.widget( "morrigan.morrigan_editor", {
     _bindEventToDropDown: function (config, id) {
         var self = this;
         $('#' + id).on("mousedown", function (e) {
-            var target_id = $(e.target).attr('id');
+            var target_id = $(e.target).attr('id') || (($(e.target).hasClass('mrge-dropdown-text')) ?  $(e.target.parentNode).attr('id') : null);
             if (target_id == id) {
                 var dropdown = $(this).children('.mrge-action-dropdown');
                 if (dropdown.is(':visible')) dropdown.hide();
@@ -195,22 +201,22 @@ $.widget( "morrigan.morrigan_editor", {
         });
     },
 
-    _bindEventToSelectionChangedHandler: function (selectionHandler) {
+    _bindEventToSelectionChangedHandler: function (config) {
         var iframe = this.element.find('iframe');
         var self = this;
         iframe.contents().on("mouseup", function (e) {
-            self._bindEventHandlersToSelectionChanged(selectionHandler, e);
+            self._bindEventHandlersToSelectionChanged(config, e);
         }).on("keyup", function (e) {
             var keyCodesAffectedDomChanges = [8,13,33,34,35,36,37,38,39,40,46];
             if ($.inArray(e.keyCode, keyCodesAffectedDomChanges) != -1)
-                self._bindEventHandlersToSelectionChanged(selectionHandler, e);
+                self._bindEventHandlersToSelectionChanged(config, e);
         });
     },
 
-    _bindEventHandlersToSelectionChanged: function (selectionHandler, e) {
+    _bindEventHandlersToSelectionChanged: function (config, e) {
         var selection = this._selectionGet();
-        if (this._selectionIsCaret(selection)) selectionHandler.onCaretSelectionChange();
-        else selectionHandler.onRangeSelectionChange();
+        if (this._selectionIsCaret(selection)) config.selectionHandler.onCaretSelectionChange(this, config, e);
+        else config.selectionHandler.onRangeSelectionChange(this, config, e);
     },
 
     _generateActionId: function (actionName) {
@@ -264,7 +270,7 @@ $.widget( "morrigan.morrigan_editor", {
         }
         result += ">";
         if (config.view.text) {
-            result += config['view']['text'];
+            result += '<span class="mrge-dropdown-text">' + config['view']['text'] + '</span>';
         }
         if (config.dropdown) {
             result += "<div class='mrge-action-dropdown' style='display: none; width:" + config.dropdown.width + "'>";
@@ -407,7 +413,7 @@ $.widget( "morrigan.morrigan_editor", {
         }
     },
 
-    // Support
+    // Config
 
     _getActionConfig: function (name) {
         return $.grep(this._actions, function (action) {
@@ -415,11 +421,17 @@ $.widget( "morrigan.morrigan_editor", {
         })[0];
     },
 
+    _configGetTextForNameFromActionList: function (config, name) {
+        return this._getDropDownActionConfig(config, name).text;
+    },
+
     _getDropDownActionConfig: function (dropDownConfig, name) {
         return $.grep(dropDownConfig.dropdown.actionList, function (action) {
             return action["name"] == name;
         })[0];
     },
+
+    // Selection
 
     _selectionGet: function () {
         var window = this.element.find('iframe').get(0).contentWindow;
@@ -561,6 +573,10 @@ $.widget( "morrigan.morrigan_editor", {
             }
         }
 
+    },
+
+    _actionChangeDropDownCurrentState: function (id, state) {
+        $('#' + id).children('span').text(state);
     },
 
     _actionSupportMutateNodes: function (nodes, nodeName) {
