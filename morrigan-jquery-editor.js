@@ -82,7 +82,23 @@ $.widget( "morrigan.morrigan_editor", {
 
                 },
                 onRangeSelectionChange: function (self, config, e) {
-                    console.log(222)
+                    var selection = self._selectionGet();
+                    var topNodes = self._selectionGetSelectedTopNodes(selection);
+                    var topNodesName, differentTopNodes, actionStatusText;
+                    $(topNodes).each(function () {
+                        if (topNodesName) {
+                            if (topNodesName != this.nodeName) differentTopNodes = true;
+                            return;
+                        } else topNodesName = this.nodeName;
+                    });
+
+                    if (differentTopNodes) {
+                        actionStatusText = self._configGetDefaultText(config);
+                    } else {
+                        actionStatusText = self._configGetTextForNameFromActionList(config, topNodesName);
+                    }
+                    var actionId = self._generateActionId(config.name);
+                    self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                 }
             },
             dropdown: {
@@ -423,6 +439,10 @@ $.widget( "morrigan.morrigan_editor", {
 
     _configGetTextForNameFromActionList: function (config, name) {
         return this._getDropDownActionConfig(config, name).text;
+    },
+
+    _configGetDefaultText: function (config) {
+        return config.view.text;
     },
 
     _getDropDownActionConfig: function (dropDownConfig, name) {
