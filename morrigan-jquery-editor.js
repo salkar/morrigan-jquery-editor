@@ -111,29 +111,41 @@ $.widget( "morrigan.morrigan_editor", {
                     {
                         name: 'P',
                         text: 'Paragraph',
-                        onClickHandler: function (self) {
+                        onClickHandler: function (self, config) {
                             self._actionMutateTopSelectedNodes("P");
+                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'P');
+                            var actionId = self._generateActionId(config.name);
+                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         name: 'H1',
                         text: 'Heading 1',
-                        onClickHandler: function (self) {
+                        onClickHandler: function (self, config) {
                             self._actionMutateTopSelectedNodes("H1");
+                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H1');
+                            var actionId = self._generateActionId(config.name);
+                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         name: 'H2',
                         text: 'Heading 2',
-                        onClickHandler: function (self) {
+                        onClickHandler: function (self, config) {
                             self._actionMutateTopSelectedNodes("H2");
+                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H2');
+                            var actionId = self._generateActionId(config.name);
+                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         name: 'H3',
                         text: 'Heading 3',
-                        onClickHandler: function (self) {
+                        onClickHandler: function (self, config) {
                             self._actionMutateTopSelectedNodes("H3");
+                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H3');
+                            var actionId = self._generateActionId(config.name);
+                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     }
                 ]
@@ -237,7 +249,7 @@ $.widget( "morrigan.morrigan_editor", {
             } else {
                 var action_name = self._getActionNameFromId(target_id);
                 var action_config = self._getDropDownActionConfig(config, action_name);
-                action_config.onClickHandler(self);
+                action_config.onClickHandler(self, config);
             }
         });
     },
