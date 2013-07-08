@@ -58,6 +58,11 @@
     padding-bottom: 2px;
 }
 
+.morrigan-editor .mrge-toolbox .mrge-disabled {
+    background-color: orange;
+    color: white;
+}
+
 /* Content */
 
 .morrigan-editor .mrge-content {

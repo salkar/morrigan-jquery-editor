@@ -20,7 +20,8 @@ $.widget( "morrigan.morrigan_editor", {
         rangeSelection: false,
         partOfEndElementSelected: false,
         savedSelectionBeforeAction: {},
-        nodesMutated: false
+        nodesMutated: false,
+        selectionInIframe: false
     },
 
     browser: {
@@ -37,6 +38,7 @@ $.widget( "morrigan.morrigan_editor", {
         {
             name: 'bold',
             view: {
+                disabledIcon: 'orange',
                 icon: 'black',
                 title: 'Bold'
             },
@@ -47,6 +49,7 @@ $.widget( "morrigan.morrigan_editor", {
         {
             name: 'italy',
             view: {
+                disabledIcon: 'orange',
                 icon: 'red',
                 title: 'Italy'
             },
@@ -57,6 +60,7 @@ $.widget( "morrigan.morrigan_editor", {
         {
             name: 'strike',
             view: {
+                disabledIcon: 'orange',
                 icon: 'gray',
                 title: 'Strike'
             },
@@ -181,6 +185,25 @@ $.widget( "morrigan.morrigan_editor", {
                 });
             });
         });
+        this._bindEventsToIframeDocument();
+    },
+
+    _bindEventsToIframeDocument: function () {
+        var self = this;
+        this.element.find('iframe').contents().find('body').on("focus", function () {
+            if (!self._options.selectionInIframe) {
+                self._options.selectionInIframe = true;
+                var disabledActions = self.element.find('.mrge-disabled');
+                disabledActions.removeClass('mrge-disabled');
+                disabledActions.each(function () {
+                    var elementId = $(this).attr('id');
+                    var actionName = self._getActionNameFromId(elementId);
+                    var config = self._getActionConfig(actionName);
+                    var icon = self._configGetIcon(config);
+                    if (icon) $(this).css("background", icon);
+                });
+            }
+        });
     },
 
     _bindEventToAction: function (action_name) {
@@ -197,6 +220,7 @@ $.widget( "morrigan.morrigan_editor", {
     _bindEventToSimpleAction: function (config, id) {
         var self = this;
         $('#' + id).on("click", function () {
+            if (!self._options.selectionInIframe) return;
             config.onClickHandler(self);
         });
     },
@@ -204,6 +228,7 @@ $.widget( "morrigan.morrigan_editor", {
     _bindEventToDropDown: function (config, id) {
         var self = this;
         $('#' + id).on("mousedown", function (e) {
+            if (!self._options.selectionInIframe) return;
             var target_id = $(e.target).attr('id') || (($(e.target).hasClass('mrge-dropdown-text')) ?  $(e.target.parentNode).attr('id') : null);
             if (target_id == id) {
                 var dropdown = $(this).children('.mrge-action-dropdown');
@@ -277,9 +302,10 @@ $.widget( "morrigan.morrigan_editor", {
         var config = this._getActionConfig(name);
         var result = "<a title='" + config['view']['title'] + "'";
         result += " id='" + this._generateActionId(config.name) + "'";
-        if (config.dropdown) result += " class='mrge-action-list'";
-        if (config.view.icon) {
-            result += " style='background: " + config['view']['icon'] + "'";
+        if (config.dropdown) result += " class='mrge-action-list mrge-disabled'";
+        else result += " class='mrge-disabled'";
+        if (config.view.disabledIcon) {
+            result += " style='background: " + config['view']['disabledIcon'] + "'";
         }
         if (this.browser.ie) {
             result += " unselectable='on'"
@@ -439,6 +465,10 @@ $.widget( "morrigan.morrigan_editor", {
 
     _configGetTextForNameFromActionList: function (config, name) {
         return this._getDropDownActionConfig(config, name).text;
+    },
+
+    _configGetIcon: function (config) {
+        return config.view.icon;
     },
 
     _configGetDefaultText: function (config) {
