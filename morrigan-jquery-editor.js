@@ -21,7 +21,9 @@ $.widget( "morrigan.morrigan_editor", {
         partOfEndElementSelected: false,
         savedSelectionBeforeAction: {},
         nodesMutated: false,
-        selectionInIframe: false
+        selectionInIframe: false,
+        currentGlobalSelection:null,
+        currentEditorSelection: null
     },
 
     browser: {
@@ -198,6 +200,7 @@ $.widget( "morrigan.morrigan_editor", {
             });
         });
         this._bindEventsToIframeDocument();
+        this._bindEventsToMainElement();
     },
 
     _bindEventsToIframeDocument: function () {
@@ -214,6 +217,23 @@ $.widget( "morrigan.morrigan_editor", {
                     var icon = self._configGetIcon(config);
                     if (icon) $(this).css("background", icon);
                 });
+            }
+        });
+
+    },
+
+    _bindEventsToMainElement: function () {
+        var self = this;
+        this.element.on("mouseenter", function () {
+            if (self.browser.ie) {
+                self._selectionSaveGlobalSelection();
+                self._selectionRestoreEditorSelection();
+
+            }
+        }).on("mouseleave", function () {
+            if (self.browser.ie) {
+                self._selectionSaveEditorSelection();
+                self._selectionRestoreGlobalSelection();
             }
         });
     },
@@ -324,7 +344,11 @@ $.widget( "morrigan.morrigan_editor", {
         }
         result += ">";
         if (config.view.text) {
-            result += '<span class="mrge-dropdown-text">' + config['view']['text'] + '</span>';
+            result += '<span class="mrge-dropdown-text"';
+            if (this.browser.ie) {
+                result += " unselectable='on'"
+            }
+            result += '>' + config['view']['text'] + '</span>';
         }
         if (config.dropdown) {
             result += "<div class='mrge-action-dropdown' style='display: none; width:" + config.dropdown.width + "'>";
@@ -499,6 +523,72 @@ $.widget( "morrigan.morrigan_editor", {
         var window = this.element.find('iframe').get(0).contentWindow;
         if (window.getSelection) return window.getSelection();
         return window.document.selection.createRange();
+    },
+
+    _textRangeGetGlobal: function () {
+        return document.selection.createRange();
+    },
+
+    _textRangeGetIframe: function () {
+        return this.element.find('iframe').get(0).contentDocument.selection.createRange();
+    },
+
+    _textRangeEmpty: function (textRange) {
+        return textRange.boundingHeight == 0 && textRange.boundingWidth == 0;
+    },
+
+    _textRangeInIframe: function (textRange) {
+        return $(textRange.parentElement()).closest('.mrge-iframe-body').length == 1;
+    },
+
+    _selectionSaveGlobalSelection: function () {
+        console.log("save global selection");
+        var textRange = this._textRangeGetGlobal();
+        this._options.currentGlobalSelection = ((this._textRangeEmpty(textRange) || this._textRangeInIframe(textRange)) ? null : textRange);
+    },
+
+    _selectionSaveEditorSelection: function () {
+        console.log("save editor selection");
+        var textRange = this._textRangeGetIframe();
+        this._options.currentEditorSelection = (this._textRangeEmpty(textRange) ? null : textRange);
+    },
+
+    _selectionRestoreGlobalSelection: function () {
+        var textRange = this._options.currentGlobalSelection;
+        if (textRange != null) textRange.select();
+    },
+
+    _selectionRestoreEditorSelection: function () {
+        var textRange = this._options.currentEditorSelection;
+        if (textRange != null) textRange.select();
+    },
+
+//    _selectionSaveCurrentSelection: function () {
+//        console.log("save")
+//        var selection = this._selectionGet();
+//        this._options.currentSelection = selection.getRangeAt(0);
+//    },
+
+    _selectionRestoreCurrentSelection: function () {
+        var selection = this._options.currentSelection;
+        if (this._selectionIsTextRange(selection)) {
+            this._selectionRestoreCurrentSelectionOldIE(selection);
+        } else {
+            this._selectionRestoreCurrentSelectionNewIE(selection);
+        }
+    },
+
+    _selectionRestoreCurrentSelectionOldIE: function () {
+        console.log("old ie")
+    },
+
+    _selectionRestoreCurrentSelectionNewIE: function () {
+        console.log("new ie")
+        var rangeToRestore = this._options.currentSelection;
+        var currentSelection = this._selectionGet();
+        currentSelection.removeAllRanges();
+        console.log(this._options.currentSelection);
+        currentSelection.addRange(this._options.currentSelection);
     },
 
     _selectionIsCaret: function (selection) {
