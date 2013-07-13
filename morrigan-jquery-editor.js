@@ -530,7 +530,7 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _textRangeGetIframe: function () {
-        return this.element.find('iframe').get(0).contentDocument.selection.createRange();
+        return this.element.find('iframe').get(0).contentWindow.document.selection.createRange();
     },
 
     _textRangeEmpty: function (textRange) {
@@ -569,27 +569,27 @@ $.widget( "morrigan.morrigan_editor", {
 //        this._options.currentSelection = selection.getRangeAt(0);
 //    },
 
-    _selectionRestoreCurrentSelection: function () {
-        var selection = this._options.currentSelection;
-        if (this._selectionIsTextRange(selection)) {
-            this._selectionRestoreCurrentSelectionOldIE(selection);
-        } else {
-            this._selectionRestoreCurrentSelectionNewIE(selection);
-        }
-    },
-
-    _selectionRestoreCurrentSelectionOldIE: function () {
-        console.log("old ie")
-    },
-
-    _selectionRestoreCurrentSelectionNewIE: function () {
-        console.log("new ie")
-        var rangeToRestore = this._options.currentSelection;
-        var currentSelection = this._selectionGet();
-        currentSelection.removeAllRanges();
-        console.log(this._options.currentSelection);
-        currentSelection.addRange(this._options.currentSelection);
-    },
+//    _selectionRestoreCurrentSelection: function () {
+//        var selection = this._options.currentSelection;
+//        if (this._selectionIsTextRange(selection)) {
+//            this._selectionRestoreCurrentSelectionOldIE(selection);
+//        } else {
+//            this._selectionRestoreCurrentSelectionNewIE(selection);
+//        }
+//    },
+//
+//    _selectionRestoreCurrentSelectionOldIE: function () {
+//        console.log("old ie")
+//    },
+//
+//    _selectionRestoreCurrentSelectionNewIE: function () {
+//        console.log("new ie")
+//        var rangeToRestore = this._options.currentSelection;
+//        var currentSelection = this._selectionGet();
+//        currentSelection.removeAllRanges();
+//        console.log(this._options.currentSelection);
+//        currentSelection.addRange(this._options.currentSelection);
+//    },
 
     _selectionIsCaret: function (selection) {
         if (selection.boundingWidth != undefined) return selection.boundingWidth == 0;
@@ -630,6 +630,8 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _selectionGetSelectedTopNodes: function (selection) {
+        if (this.browser.ie7) return this._selectionGetSelectedTopNodesIE7(selection);
+        if (this.browser.ie8) return this._selectionGetSelectedTopNodesIE8(selection);
         var startElement = selection.anchorNode;
         var startE = (startElement.parentNode.nodeName == 'BODY' ? startElement : $(startElement).closest('body > *').get(0));
         var endElement = selection.focusNode;
