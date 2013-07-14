@@ -395,9 +395,8 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _getDefaultIframeBodyContent: function () {
-//        if (this.browser.ie || this.browser.opera) return "<p></p>";
-        //else return "<p><br></p>";
-        return "<p>ololo 1 <strong>strong1</strong></p><p>paragraph 2</p><p>paragraph3 <strong>strong 2</strong></p><p>paragraph 3</p><p>paragraph 4</p><p>paragraph 5</p>";
+        if (this.browser.ie || this.browser.opera) return "<p></p>";
+        else return "<p><br></p>";
     },
 
     // Content field custom behavior
@@ -845,6 +844,13 @@ $.widget( "morrigan.morrigan_editor", {
             currentNode = currentNode.contents().eq(currentChildIndex);
         }
         return currentNode.get(0);
+    },
+
+    //Public API
+
+    addHTML: function (html) {
+        var body = this.element.find('iframe').contents().find('body');
+        body.empty().append(html);
     }
 
 });
