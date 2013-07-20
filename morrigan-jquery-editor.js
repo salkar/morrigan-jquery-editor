@@ -228,7 +228,6 @@ $.widget( "morrigan.morrigan_editor", {
             if (self.browser.ie) {
                 self._selectionSaveGlobalSelection();
                 self._selectionRestoreEditorSelection();
-
             }
         }).on("mouseleave", function () {
             if (self.browser.ie) {
