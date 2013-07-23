@@ -1,6 +1,6 @@
 $(document).ready(function () {
     editor = $('#test').morrigan_editor();
-    editor.morrigan_editor("addHTML", "<p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 2</p><p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 3</p><p>paragraph 4</p><p>paragraph 5</p>")
+    editor.morrigan_editor("addHTML", "<p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 2</p><p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p><span style='text-decoration: line-through;'><strong>pa</strong>ra<strong>gr</strong>ap<strong>h 3</strong></span></p><p>paragrap<strong>h 4</strong></p><p>paragraph 5</p>")
     editor1 = $('#test1').morrigan_editor({height:'500px', prefix:"mrge1"});
 
 //    $($('iframe').get(0).contentWindow).on('mouseleave', function (e) {

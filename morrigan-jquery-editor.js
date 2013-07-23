@@ -612,12 +612,16 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _selectionFromTopToBottom: function (selection) {
-        var anchorNode = selection.anchorNode;
-        var focusNode = selection.focusNode;
-        var anchorElement = (anchorNode.nodeType == 3 ? anchorNode.parentNode : anchorNode);
-        var focusElement = (focusNode.nodeType == 3 ? focusNode.parentNode : focusNode);
-        if (anchorElement.offsetTop != focusElement.offsetTop) return anchorElement.offsetTop < focusElement.offsetTop;
-        return selection.anchorOffset < selection.focusOffset;
+//        var anchorNode = selection.anchorNode;
+//        var focusNode = selection.focusNode;
+//        var anchorElement = (anchorNode.nodeType == 3 ? anchorNode.parentNode : anchorNode);
+//        var focusElement = (focusNode.nodeType == 3 ? focusNode.parentNode : focusNode);
+//        if (anchorElement.offsetTop != focusElement.offsetTop) return anchorElement.offsetTop < focusElement.offsetTop;
+//        return anchorElement.offsetLeft < focusElement.offsetLeft;
+        var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
+        rng.setStart(selection.anchorNode, selection.anchorOffset);
+        rng.setEnd(selection.focusNode, selection.focusOffset);
+        return rng.startOffset == selection.anchorOffset && rng.startContainer == selection.anchorNode;
     },
 
     _selectionIsLastSingleEmptyPSelected: function (selection) {
@@ -843,29 +847,44 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _actionInsertTags: function (newElement) {
-        var selection = this._selectionGet();
-        var parentElement = selection.getRangeAt(0).commonAncestorContainer;
-        if (this._selectionFromTopToBottom(selection)) {
-            var startPreParentNode = this._actionSupportInsertTagsForStartNodes(selection.anchorNode, selection.anchorOffset, parentElement, newElement);
-            var endPreParentNode = this._actionSupportInsertTagsForEndNodes(selection.focusNode, selection.focusOffset, parentElement, newElement);
-            var startIndex = $(parentElement).contents().index(startPreParentNode);
-            var endIndex = $(parentElement).contents().index(endPreParentNode);
-            while (endIndex - startIndex > 1) {
-                startIndex += 1;
-                this._actionSupportInsertTagsForMiddleNodes($(parentElement).contents()[startIndex], newElement);
-            }
-        }
+        this.element.find('iframe').get(0).contentWindow.document.execCommand('bold', false, null);
+//        var self = this;
+//        var selection = this._selectionGet();
+//        var parentElement = selection.getRangeAt(0).commonAncestorContainer;
+//
+//        if (selection.anchorNode == selection.focusNode) this._actionSupportInsertTagForSelectionInSameElement(selection, newElement);
+//        else if (this._selectionFromTopToBottom(selection)) {
+//            var startPreParentNode = this._actionSupportInsertTagsForStartNodes(selection.anchorNode, selection.anchorOffset, parentElement, newElement);
+////            var endPreParentNode = this._actionSupportInsertTagsForEndNodes(selection.focusNode, selection.focusOffset, parentElement, newElement);
+////            var startIndex = $(parentElement).contents().index(startPreParentNode);
+////            var endIndex = $(parentElement).contents().index(endPreParentNode);
+////            var elementsToTagInsertion = [];
+////            this._actionSupportInsertTagsForMiddleNodes($(parentElement).contents()[4], newElement);
+////            if (startIndex != -1 && endIndex != -1) {
+////                while (endIndex - startIndex > 1) {
+////                    startIndex += 1;
+////                    elementsToTagInsertion.push($(parentElement).contents()[startIndex]);
+////                }
+////            }
+////            $(elementsToTagInsertion).each(function () {
+////                self._actionSupportInsertTagsForMiddleNodes(this, newElement);
+////            })
+//        }
 
     },
 
     _actionSupportInsertTagsForStartNodes: function (node, offset, parent, newElement) {
-        this._actionSupportInsertTagsForStartNode(node, offset, newElement);
         var childNode = $(node).parent();
+        var childNodeIndex = childNode.contents().index(node);
+        this._actionSupportInsertTagsForStartNode(node, offset, parent, newElement);
+
         var currentNode = childNode.parent();
-        while (currentNode[0] != parent) {
+
+        while (childNode[0] != parent && currentNode[0] != parent) {
             var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
             var contents = currentNode.contents();
-            var childNodeIndex = contents.index(childNode);
+            childNodeIndex = contents.index(childNode);
+//            console.log(childNodeIndex)
             rng.setStart(currentNode[0], childNodeIndex+1);
             rng.setEnd(currentNode[0], contents.length);
             rng.surroundContents(newElement.cloneNode(true));
@@ -873,13 +892,28 @@ $.widget( "morrigan.morrigan_editor", {
             childNode = currentNode;
             currentNode = currentNode.parent();
         }
+//        var preChildNodeIndex = (preChildNode ? childNode.index(preChildNode.get(0)) : childNode.index(node));
+//        console.log(childNode.index(node))
+        console.log(childNodeIndex);
         return childNode;
     },
 
-    _actionSupportInsertTagsForStartNode: function (node, offset, newElement) {
+    _actionSupportInsertTagsForStartNode: function (node, offset, parent, newElement) {
         var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
         rng.setStart(node, offset);
-        rng.setEnd(node, $(node).text().length);
+//        if ($(node).parents().get(1) == parent) {
+//            var currentParent = $(node).parent();
+//            var currentParentContent = currentParent.contents();
+//            if (currentParentContent.length > currentParentContent.index(node) + 1) {
+//                var lastElement = currentParentContent[currentParentContent.length-1];
+//                if (lastElement.nodeType == 3) rng.setEnd(lastElement, $(lastElement).text().length);
+//                else rng.setEnd(lastElement, 1);
+//            } else {
+//                rng.setEnd(node, $(node).text().length);
+//            }
+//        } else {
+            rng.setEnd(node, $(node).text().length);
+//        }
         rng.surroundContents(newElement.cloneNode(true));
     },
 
@@ -887,7 +921,7 @@ $.widget( "morrigan.morrigan_editor", {
         this._actionSupportInsertTagsForEndNode(node, offset, newElement);
         var childNode = $(node).parent();
         var currentNode = childNode.parent();
-        while (currentNode[0] != parent) {
+        while (currentNode[0] != parent && childNode[0] != parent) {
             var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
             var contents = currentNode.contents();
             var childNodeIndex = contents.index(childNode);
@@ -911,7 +945,13 @@ $.widget( "morrigan.morrigan_editor", {
     _actionSupportInsertTagsForMiddleNodes: function (element, newElement) {
         var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
         rng.setStart(element, 0);
-        rng.setEnd(element, $(element).contents().length);
+        if (element.nodeType == 3) rng.setEnd(element, $(element).text().length);
+        else rng.setEnd(element, 1);
+        rng.surroundContents(newElement.cloneNode(true));
+    },
+
+    _actionSupportInsertTagForSelectionInSameElement: function (selection, newElement) {
+        var rng = selection.getRangeAt(0);
         rng.surroundContents(newElement.cloneNode(true));
     },
 
