@@ -52,11 +52,27 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'italy',
             view: {
                 disabledIcon: 'orange',
+                activeIcon: 'green',
                 icon: 'red',
                 title: 'Italy'
             },
-            onClickHandler: function (self) {
-                self._actionInsertTags($('<em></em>')[0]);
+            onClickHandler: function (self, config) {
+                var actionId = self._generateActionId(config.name);
+                var isActive = self._actionIsActive(actionId);
+                self.element.find('iframe').get(0).contentWindow.document.execCommand('italic', false, null);
+                if (isActive) self._actionDeactivate(actionId, config);
+                else self._actionActivate(actionId, config);
+            },
+            selectionHandler: {
+                onSelectionChange: function (self, config, e) {
+                    var actionId = self._generateActionId(config.name);
+                    var isActive = self._actionIsActive(actionId);
+                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('italic')) {
+                        if (!isActive) self._actionActivate(actionId, config);
+                    } else {
+                        if (isActive) self._actionDeactivate(actionId, config);
+                    }
+                }
             }
         },
         {
@@ -252,7 +268,7 @@ $.widget( "morrigan.morrigan_editor", {
         var self = this;
         $('#' + id).on("click", function () {
             if (!self._options.selectionInIframe) return;
-            config.onClickHandler(self);
+            config.onClickHandler(self, config);
         });
     },
 
@@ -286,9 +302,12 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _bindEventHandlersToSelectionChanged: function (config, e) {
-        var selection = this._selectionGet();
-        if (this._selectionIsCaret(selection)) config.selectionHandler.onCaretSelectionChange(this, config, e);
-        else config.selectionHandler.onRangeSelectionChange(this, config, e);
+        if (config.selectionHandler.onSelectionChange) config.selectionHandler.onSelectionChange(this, config, e);
+        else {
+            var selection = this._selectionGet();
+            if (this._selectionIsCaret(selection)) config.selectionHandler.onCaretSelectionChange(this, config, e);
+            else config.selectionHandler.onRangeSelectionChange(this, config, e);
+        }
     },
 
     _generateActionId: function (actionName) {
@@ -503,6 +522,10 @@ $.widget( "morrigan.morrigan_editor", {
 
     _configGetIcon: function (config) {
         return config.view.icon;
+    },
+
+    _configGetActiveIcon: function (config) {
+        return config.view.activeIcon;
     },
 
     _configGetDefaultText: function (config) {
@@ -735,6 +758,24 @@ $.widget( "morrigan.morrigan_editor", {
         $('#' + id).children('span').text(state);
     },
 
+    _actionIsActive: function (id) {
+        return $('#' + id).hasClass('mrge-active');
+    },
+
+    _actionActivate: function (id, config) {
+        var action = $('#' + id);
+        var icon = this._configGetActiveIcon(config);
+        if (icon) action.css("background", icon);
+        action.addClass('mrge-active');
+    },
+
+    _actionDeactivate: function (id, config) {
+        var action = $('#' + id);
+        var icon = this._configGetIcon(config);
+        if (icon) action.css("background", icon);
+        action.removeClass('mrge-active');
+    },
+
     _actionSupportMutateNodes: function (nodes, nodeName) {
         this._options.nodesMutated = false;
         var mutated = false;
@@ -844,115 +885,6 @@ $.widget( "morrigan.morrigan_editor", {
             currentNode = currentNode.contents().eq(currentChildIndex);
         }
         return currentNode.get(0);
-    },
-
-    _actionInsertTags: function (newElement) {
-        this.element.find('iframe').get(0).contentWindow.document.execCommand('bold', false, null);
-//        var self = this;
-//        var selection = this._selectionGet();
-//        var parentElement = selection.getRangeAt(0).commonAncestorContainer;
-//
-//        if (selection.anchorNode == selection.focusNode) this._actionSupportInsertTagForSelectionInSameElement(selection, newElement);
-//        else if (this._selectionFromTopToBottom(selection)) {
-//            var startPreParentNode = this._actionSupportInsertTagsForStartNodes(selection.anchorNode, selection.anchorOffset, parentElement, newElement);
-////            var endPreParentNode = this._actionSupportInsertTagsForEndNodes(selection.focusNode, selection.focusOffset, parentElement, newElement);
-////            var startIndex = $(parentElement).contents().index(startPreParentNode);
-////            var endIndex = $(parentElement).contents().index(endPreParentNode);
-////            var elementsToTagInsertion = [];
-////            this._actionSupportInsertTagsForMiddleNodes($(parentElement).contents()[4], newElement);
-////            if (startIndex != -1 && endIndex != -1) {
-////                while (endIndex - startIndex > 1) {
-////                    startIndex += 1;
-////                    elementsToTagInsertion.push($(parentElement).contents()[startIndex]);
-////                }
-////            }
-////            $(elementsToTagInsertion).each(function () {
-////                self._actionSupportInsertTagsForMiddleNodes(this, newElement);
-////            })
-//        }
-
-    },
-
-    _actionSupportInsertTagsForStartNodes: function (node, offset, parent, newElement) {
-        var childNode = $(node).parent();
-        var childNodeIndex = childNode.contents().index(node);
-        this._actionSupportInsertTagsForStartNode(node, offset, parent, newElement);
-
-        var currentNode = childNode.parent();
-
-        while (childNode[0] != parent && currentNode[0] != parent) {
-            var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
-            var contents = currentNode.contents();
-            childNodeIndex = contents.index(childNode);
-//            console.log(childNodeIndex)
-            rng.setStart(currentNode[0], childNodeIndex+1);
-            rng.setEnd(currentNode[0], contents.length);
-            rng.surroundContents(newElement.cloneNode(true));
-
-            childNode = currentNode;
-            currentNode = currentNode.parent();
-        }
-//        var preChildNodeIndex = (preChildNode ? childNode.index(preChildNode.get(0)) : childNode.index(node));
-//        console.log(childNode.index(node))
-        console.log(childNodeIndex);
-        return childNode;
-    },
-
-    _actionSupportInsertTagsForStartNode: function (node, offset, parent, newElement) {
-        var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
-        rng.setStart(node, offset);
-//        if ($(node).parents().get(1) == parent) {
-//            var currentParent = $(node).parent();
-//            var currentParentContent = currentParent.contents();
-//            if (currentParentContent.length > currentParentContent.index(node) + 1) {
-//                var lastElement = currentParentContent[currentParentContent.length-1];
-//                if (lastElement.nodeType == 3) rng.setEnd(lastElement, $(lastElement).text().length);
-//                else rng.setEnd(lastElement, 1);
-//            } else {
-//                rng.setEnd(node, $(node).text().length);
-//            }
-//        } else {
-            rng.setEnd(node, $(node).text().length);
-//        }
-        rng.surroundContents(newElement.cloneNode(true));
-    },
-
-    _actionSupportInsertTagsForEndNodes: function (node, offset, parent, newElement) {
-        this._actionSupportInsertTagsForEndNode(node, offset, newElement);
-        var childNode = $(node).parent();
-        var currentNode = childNode.parent();
-        while (currentNode[0] != parent && childNode[0] != parent) {
-            var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
-            var contents = currentNode.contents();
-            var childNodeIndex = contents.index(childNode);
-            rng.setStart(currentNode[0], 0);
-            rng.setEnd(currentNode[0], childNodeIndex);
-            rng.surroundContents(newElement.cloneNode(true));
-
-            childNode = currentNode;
-            currentNode = currentNode.parent();
-        }
-        return childNode;
-    },
-
-    _actionSupportInsertTagsForEndNode: function (node, offset, newElement) {
-        var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
-        rng.setStart(node, 0);
-        rng.setEnd(node, offset);
-        rng.surroundContents(newElement.cloneNode(true));
-    },
-
-    _actionSupportInsertTagsForMiddleNodes: function (element, newElement) {
-        var rng = this.element.find('iframe').get(0).contentWindow.document.createRange();
-        rng.setStart(element, 0);
-        if (element.nodeType == 3) rng.setEnd(element, $(element).text().length);
-        else rng.setEnd(element, 1);
-        rng.surroundContents(newElement.cloneNode(true));
-    },
-
-    _actionSupportInsertTagForSelectionInSameElement: function (selection, newElement) {
-        var rng = selection.getRangeAt(0);
-        rng.surroundContents(newElement.cloneNode(true));
     },
 
     //Public API
