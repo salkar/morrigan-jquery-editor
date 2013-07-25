@@ -1,7 +1,9 @@
 $(document).ready(function () {
     editor = $('#test').morrigan_editor();
-    editor.morrigan_editor("addHTML", "<p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 2</p><p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p><span style='text-decoration: line-through;'><strong>pa</strong>ra<strong>gr</strong>ap<strong>h 3</strong></span></p><p>paragrap<strong>h 4</strong></p><p>paragraph 5</p>")
+    //editor.morrigan_editor("addHTML", "<p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 2</p><p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p><span style='text-decoration: line-through;'><strong>pa</strong>ra<strong>gr</strong>ap<strong>h 3</strong></span></p><p>paragrap<strong>h 4</strong></p><p>paragraph 5</p>")
+    editor.morrigan_editor("addHTML", "<p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p>");
     editor1 = $('#test1').morrigan_editor({height:'500px', prefix:"mrge1"});
+//    console.log(editor.morrigan_editor("html"));
 
 //    $($('iframe').get(0).contentWindow).on('mouseleave', function (e) {
 //        if (e.target.nodeName == 'HTML') {

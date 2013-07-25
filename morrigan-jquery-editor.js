@@ -41,11 +41,27 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'bold',
             view: {
                 disabledIcon: 'orange',
+                activeIcon:'#3366CC',
                 icon: 'black',
                 title: 'Bold'
             },
-            onClickHandler: function (self) {
-                console.log(self.options.height)
+            onClickHandler: function (self, config, e) {
+                var actionId = self._generateActionId(config.name);
+                var isActive = self._actionIsActive(actionId);
+                self.element.find('iframe').get(0).contentWindow.document.execCommand('bold', false, null);
+                if (isActive) self._actionDeactivate(actionId, config);
+                else self._actionActivate(actionId, config);
+            },
+            selectionHandler: {
+                onSelectionChange: function (self, config, e) {
+                    var actionId = self._generateActionId(config.name);
+                    var isActive = self._actionIsActive(actionId);
+                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('bold')) {
+                        if (!isActive) self._actionActivate(actionId, config);
+                    } else {
+                        if (isActive) self._actionDeactivate(actionId, config);
+                    }
+                }
             }
         },
         {
@@ -79,11 +95,27 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'strike',
             view: {
                 disabledIcon: 'orange',
+                activeIcon: "#66FF00",
                 icon: 'gray',
                 title: 'Strike'
             },
-            onClickHandler: function (self) {
-                console.log('Strike' + self.options.height)
+            onClickHandler: function (self, config) {
+                var actionId = self._generateActionId(config.name);
+                var isActive = self._actionIsActive(actionId);
+                self.element.find('iframe').get(0).contentWindow.document.execCommand('strikethrough', false, null);
+                if (isActive) self._actionDeactivate(actionId, config);
+                else self._actionActivate(actionId, config);
+            },
+            selectionHandler: {
+                onSelectionChange: function (self, config, e) {
+                    var actionId = self._generateActionId(config.name);
+                    var isActive = self._actionIsActive(actionId);
+                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('strikethrough')) {
+                        if (!isActive) self._actionActivate(actionId, config);
+                    } else {
+                        if (isActive) self._actionDeactivate(actionId, config);
+                    }
+                }
             }
         },
         {
@@ -887,11 +919,27 @@ $.widget( "morrigan.morrigan_editor", {
         return currentNode.get(0);
     },
 
+    //Get valid HTML
+
+    _validatorGet: function (body) {
+        $(body).find('i').each(function () {
+            var html = this.innerHTML;
+            $(this).replaceWith($('<em></em>').html(html))
+        });
+    },
+
     //Public API
 
     addHTML: function (html) {
         var body = this.element.find('iframe').contents().find('body');
         body.empty().append(html);
+    },
+
+    html: function () {
+        var body = this.element.find('iframe').contents().find('body').get(0);
+        var bodyClone = body.cloneNode(true);
+        this._validatorGet(bodyClone);
+        return bodyClone.innerHTML;
     }
 
 });
