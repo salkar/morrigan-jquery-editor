@@ -8,7 +8,7 @@ $.widget( "morrigan.morrigan_editor", {
         iframeStyles: 'assets/morrigan_editor/iframe.css',
         toolbox: [
             [
-                ['bold', 'italy', 'format']
+                ['bold', 'italy', 'format'], ['img']
             ],
             [
                 ['strike']
@@ -23,7 +23,8 @@ $.widget( "morrigan.morrigan_editor", {
         nodesMutated: false,
         selectionInIframe: false,
         currentGlobalSelection:null,
-        currentEditorSelection: null
+        currentEditorSelection: null,
+        currentPopupAction: null
     },
 
     browser: {
@@ -37,6 +38,20 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _actions: [
+        {
+            name: 'img',
+            view: {
+                disabledIcon: 'orange',
+                icon: '#CCCC99',
+                title: 'Image'
+            },
+            popup: {
+                html: '<form><input type="file" name="upload_img"/></form>',
+                onClickHandler: function (self, config, e) {
+                    console.log('ololo')
+                }
+            }
+        },
         {
             name: 'bold',
             view: {
@@ -209,6 +224,8 @@ $.widget( "morrigan.morrigan_editor", {
 
         var toolbox = this._formToolbox();
         this.element.append(toolbox);
+        var popup = this._formPopup();
+        this.element.append(popup);
         var content = this._formContentField();
         this.element.append(content);
         this._setupIframe();
@@ -249,6 +266,7 @@ $.widget( "morrigan.morrigan_editor", {
         });
         this._bindEventsToIframeDocument();
         this._bindEventsToMainElement();
+        this._bindEventToPopupActions();
     },
 
     _bindEventsToIframeDocument: function () {
@@ -291,6 +309,8 @@ $.widget( "morrigan.morrigan_editor", {
         if (config.selectionHandler) this._bindEventToSelectionChangedHandler(config);
         if (config.dropdown) {
             this._bindEventToDropDown(config, id);
+        } else if (config.popup) {
+            this._bindEventToPopup(config, id);
         } else {
             this._bindEventToSimpleAction(config, id);
         }
@@ -318,6 +338,30 @@ $.widget( "morrigan.morrigan_editor", {
                 var action_config = self._getDropDownActionConfig(config, action_name);
                 action_config.onClickHandler(self, config);
             }
+        });
+    },
+
+    _bindEventToPopup: function (config, id) {
+        var self = this;
+        $('#' + id).on("mousedown", function (e) {
+            if (self._options.selectionInIframe) self._popupShow(id);
+        });
+    },
+
+    _bindEventToPopupActions: function () {
+        var self = this;
+        this.element.find('.mrge-popup').find('.mrge-popup-ok').on("mousedown", function (e) {
+            var config = self._getActionConfig(self._options.currentPopupAction);
+            config.popup.onClickHandler(self, config, e);
+        });
+        this.element.find('.mrge-popup').find('.mrge-popup-cancel').on("mousedown", function (e) {
+            self._popupHide();
+        });
+        this.element.find('.mrge-popup').find('.mrge-popup-close').on("mousedown", function (e) {
+            self._popupHide();
+        });
+        this.element.find('.mrge-popup-overlay').on("mousedown", function (e) {
+            self._popupHide();
         });
     },
 
@@ -349,6 +393,47 @@ $.widget( "morrigan.morrigan_editor", {
     _getActionNameFromId: function (id) {
         return id.replace(this.options.prefix, '').substring(1);
     },
+
+    // Popup
+
+    _popupShow: function (id) {
+        var name = this._getActionNameFromId(id);
+        this._options.currentPopupAction = name;
+        this._popupConfigure(name);
+        this._popupLocateAndShow();
+    },
+
+    _popupHide: function () {
+        this.element.find('.mrge-popup-wrapper').hide();
+    },
+
+    _popupConfigure: function (name) {
+        var config = this._getActionConfig(name);
+        $('.mrge-popup').find('.mrge-popup-content').empty().append(config.popup.html);
+    },
+
+    _popupLocateAndShow: function () {
+        var popup = $('.mrge-popup');
+        var y = this.element.height() / 2 - popup.height() / 2;
+        var x = this.element.width() / 2 - popup.width() / 2;
+        y = (y < 0 ? 0 : y);
+        x = (x < 0 ? 0 : x);
+        popup.css('top', y);
+        popup.css('left', x);
+        popup.parent().show();
+    },
+
+    _formPopup: function () {
+        return "<div class='mrge-popup-wrapper'>" +
+            "<div class='mrge-popup-overlay'></div>" +
+            "<div class='mrge-popup'>" +
+            "<div class='mrge-popup-header'><div class='mrge-popup-close'></div><div class='clear'></div></div>" +
+            "<div class='mrge-popup-content'></div>" +
+            "<div class='mrge-popup-actions'><div class='mrge-popup-ok mrge-popup-btn'>Ok</div><div class='mrge-popup-cancel mrge-popup-btn'>Cancel</div></div>" +
+            "</div>";
+    },
+
+
 
     // Form toolbox
 
