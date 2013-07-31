@@ -1,7 +1,7 @@
 $(document).ready(function () {
     editor = $('#test').morrigan_editor();
     //editor.morrigan_editor("addHTML", "<p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p>paragraph 2</p><p>ololo 1 <strong>stro<span style='text-decoration: line-through;'>ng1</span>rtyu</strong> iop iop</p><p><span style='text-decoration: line-through;'><strong>pa</strong>ra<strong>gr</strong>ap<strong>h 3</strong></span></p><p>paragrap<strong>h 4</strong></p><p>paragraph 5</p>")
-    editor.morrigan_editor("addHTML", "<p>paragraph 1</p><p>paragraph 2</p><p>paragraph 3</p>");
+    editor.morrigan_editor("addHTML", "<h1>paragraph 1</h1><p>paragraph 2</p><p>paragraph 3</p><ul><li>li 1</li><li>li 2</li></ul>");
     editor1 = $('#test1').morrigan_editor({height:'500px', prefix:"mrge1"});
 //    console.log(editor.morrigan_editor("html"));
 

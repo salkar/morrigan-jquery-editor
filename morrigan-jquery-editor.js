@@ -56,7 +56,7 @@ $.widget( "morrigan.morrigan_editor", {
                         imgUrl = self._loaderGetData();
                         if (imgUrl) {
                             clearInterval(timerId);
-                            console.log(imgUrl['data']);
+                            self._actionInsertImg(imgUrl['data']);
                         }
                     }, 100);
 
@@ -1032,6 +1032,13 @@ $.widget( "morrigan.morrigan_editor", {
             currentNode = currentNode.contents().eq(currentChildIndex);
         }
         return currentNode.get(0);
+    },
+
+    _actionInsertImg: function (url) {
+        var selection = this._selectionGet();
+        var topNodes = this._selectionGetSelectedTopNodes(selection);
+        $(topNodes[0]).append("<img style='float: left' src='" + url + "'>");
+        console.log(url)
     },
 
     //Get valid HTML
