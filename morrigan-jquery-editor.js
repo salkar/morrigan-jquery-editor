@@ -237,6 +237,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.exec = function () {
             this._setupMainElement();
             this._buildToolbox();
+            this._buildContentField();
         };
         this._setupMainElement = function () {
             editor.element.width(editor.options.width).height(editor.options.height).addClass('morrigan-editor');
@@ -292,7 +293,38 @@ $.widget( "morrigan.morrigan_editor", {
             };
 
             editor.element.append(formToolbox());
-        }
+        };
+
+        this._buildContentField = function () {
+            contentFieldHeight = function () {
+                var toolboxHeight = editor.element.find('.mrge-toolbox').outerHeight(true);
+                return editor.element.height() - toolboxHeight;
+            };
+            iframeBodyHeight = function (iframe) {
+                var body = iframe.contents().find('body');
+                var diff = body.outerHeight(true) - body.height();
+                return iframe.height() - diff
+            };
+            defaultContentFieldContent = function () {
+                if (editor._browser.ie || editor._browser.opera) return "<p></p>";
+                else return "<p><br></p>";
+            };
+
+            setupIframe = function (iframe) {
+                var idoc = iframe.get(0).contentWindow.document;
+                idoc.open();
+                idoc.write(editor.options.doctype);
+                idoc.write("<html style='cursor: text;height: 100%;'>");
+                idoc.write("<head><link href='" + editor.options.iframeStyles + "' media='all' rel='stylesheet' type='text/css'></head>");
+                idoc.write("<body contenteditable='true' class='mrge-iframe-body'>" + defaultContentFieldContent() + "</body></html>");
+                idoc.close();
+                iframe.contents().find('body').height(iframeBodyHeight(iframe));
+            };
+
+            var contentField = $("<div class='mrge-content' style='height: " + contentFieldHeight() + "px'><iframe frameborder='0' class='mrge-content-iframe'></iframe></div>");
+            editor.element.append(contentField);
+            setupIframe(contentField.find('iframe'));
+        };
     },
 
     _create: function() {
