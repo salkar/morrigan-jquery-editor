@@ -8,10 +8,10 @@ $.widget( "morrigan.morrigan_editor", {
         iframeStyles: 'assets/morrigan_editor/iframe.css',
         toolbox: [
             [
-                ['bold', 'italy', 'format'], ['img']
+                ['bold', 'italy', 'strike'], ['img']
             ],
             [
-                ['strike']
+                ['format']
             ]
         ]
     },
@@ -22,7 +22,7 @@ $.widget( "morrigan.morrigan_editor", {
         img: {
             name: 'img',
             view: {
-                disabledIcon: 'orange',
+                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -167px 2px',
                 icon: '#CCCC99',
                 title: 'Image'
             },
@@ -47,7 +47,7 @@ $.widget( "morrigan.morrigan_editor", {
         bold: {
             name: 'bold',
             view: {
-                disabledIcon: 'orange',
+                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee 2px 2px',
                 activeIcon: '#3366CC',
                 icon: 'black',
                 title: 'Bold'
@@ -74,7 +74,7 @@ $.widget( "morrigan.morrigan_editor", {
         italy: {
             name: 'italy',
             view: {
-                disabledIcon: 'orange',
+                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -18px 2px',
                 activeIcon: 'green',
                 icon: 'red',
                 title: 'Italy'
@@ -101,7 +101,7 @@ $.widget( "morrigan.morrigan_editor", {
         strike: {
             name: 'strike',
             view: {
-                disabledIcon: 'orange',
+                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -39px 2px',
                 activeIcon: "#66FF00",
                 icon: 'gray',
                 title: 'Strike'
