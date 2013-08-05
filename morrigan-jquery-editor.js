@@ -5,7 +5,7 @@ $.widget( "morrigan.morrigan_editor", {
         width: '700px',
         idPrefix: 'mrge_',
         doctype: '<!DOCTYPE html>',
-        iframeStyles: 'assets/morrigan_editor/iframe.css',
+        iframeStyles: '/iframe.css',
         toolbox: [
             [
                 ['bold', 'italy', 'strike'], ['img']
