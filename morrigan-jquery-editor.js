@@ -17,6 +17,7 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _browser: {},
+    _content: null,
 
     _actions: {
         img: {
@@ -318,7 +319,8 @@ $.widget( "morrigan.morrigan_editor", {
                 idoc.write("<head><link href='" + editor.options.iframeStyles + "' media='all' rel='stylesheet' type='text/css'></head>");
                 idoc.write("<body contenteditable='true' class='mrge-iframe-body'>" + defaultContentFieldContent() + "</body></html>");
                 idoc.close();
-                iframe.contents().find('body').height(iframeBodyHeight(iframe));
+                editor._content = iframe.contents().find('body');
+                editor._content.height(iframeBodyHeight(iframe));
             };
 
             var contentField = $("<div class='mrge-content' style='height: " + contentFieldHeight() + "px'><iframe frameborder='0' class='mrge-content-iframe'></iframe></div>");
@@ -327,9 +329,18 @@ $.widget( "morrigan.morrigan_editor", {
         };
     },
 
-    _create: function() {
+    _create: function () {
         this._browser = (new this.Browser()).list;
         (new this.Builder(this)).exec();
+    },
+
+    // Public API
+    html: function (html) {
+        if (html) {
+            return this._content.empty().append(html).get(0);
+        } else {
+            return this._content.get(0);
+        }
     }
 
 });
