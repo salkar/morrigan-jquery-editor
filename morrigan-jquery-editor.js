@@ -215,6 +215,17 @@ $.widget( "morrigan.morrigan_editor", {
 
     // Classes
 
+    ActionManager: function (editor) {
+        this.editor = editor;
+        this.actions = [];
+        this.disabledActions = [];
+        this.addAction = function (config, item) {
+            var action = new this.editor.Action(config, item);
+            this.actions.push(action);
+            if (!action.enabled) this.disabledActions.push(this.actions.length - 1);
+        }
+    },
+
     Action: function (config, element) {
         this.element = element;
         this.config = config;
@@ -222,7 +233,7 @@ $.widget( "morrigan.morrigan_editor", {
 
     },
 
-    actionMethodsInitialize: function () {
+    _actionMethodsInitialize: function () {
         this.Action.prototype.actionEnable = function () {
             this.element.removeClass('mrge-disabled');
             $(this.element).css("background", this.config.view.icon);
@@ -230,23 +241,18 @@ $.widget( "morrigan.morrigan_editor", {
         }
     },
 
-    Browser: function () {
-        this.list = {
-            opera:null,
-            ff:null,
-            ie:null,
-            chrome:null
-        };
-
+    _getBrowser: function () {
+        var list = {};
         var agent = navigator.userAgent;
-        if (agent.indexOf('Opera') != -1) this.list.opera = true;
-        else if (agent.indexOf('Chrome') != -1) this.list.chrome = true;
-        else if (agent.indexOf('Firefox') != -1) this.list.ff = true;
+        if (agent.indexOf('Opera') != -1) list.opera = true;
+        else if (agent.indexOf('Chrome') != -1) list.chrome = true;
+        else if (agent.indexOf('Firefox') != -1) list.ff = true;
         else if (agent.indexOf('MSIE') != -1) {
-            if (agent.indexOf('MSIE 8') != -1) this.list.ie = 8;
-            else if (agent.indexOf('MSIE 7') != -1) this.list.ie = 7;
-            else this.list.ie = true;
+            if (agent.indexOf('MSIE 8') != -1) this.ie = 8;
+            else if (agent.indexOf('MSIE 7') != -1) this.ie = 7;
+            else list.ie = true;
         }
+        return list;
     },
 
     Builder: function (editor) {
@@ -281,7 +287,7 @@ $.widget( "morrigan.morrigan_editor", {
                     item.attr('unselectable', 'on');
                     item.find('*').attr('unselectable', 'on');
                 }
-                editor._currentActions.push(new editor.Action(config, item));
+                editor._actionManager.addAction(config, item);
                 item.attr('id', editor.options.idPrefix + (editor._currentActions.length-1));
                 return item;
             };
@@ -355,9 +361,12 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     _create: function () {
-        this.actionMethodsInitialize();
-        this._browser = (new this.Browser()).list;
+        this._actionMethodsInitialize();
+        this._browser = this._getBrowser();
+        this._actionManager = new this.ActionManager(this);
         (new this.Builder(this)).exec();
+        console.log(this._actionManager.actions);
+        console.log(this._actionManager.disabledActions);
         //(new this.EventBinder(this)).exec();
         //this._currentActions[0].actionEnable();
     },
