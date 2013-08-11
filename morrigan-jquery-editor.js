@@ -18,6 +18,7 @@ $.widget( "morrigan.morrigan_editor", {
 
     _browser: {},
     _content: null,
+    _currentActions: [],
 
     _actions: {
         img: {
@@ -50,7 +51,7 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee 2px 2px',
                 activeIcon: '#3366CC',
-                icon: 'black',
+                icon: 'url(/actions.png) no-repeat no-repeat #eee 2px 2px',
                 title: 'Bold'
             },
             onClickHandler: function (self, config, e) {
@@ -214,6 +215,21 @@ $.widget( "morrigan.morrigan_editor", {
 
     // Classes
 
+    Action: function (config, element) {
+        this.element = element;
+        this.config = config;
+        this.enabled = false;
+
+    },
+
+    actionMethodsInitialize: function () {
+        this.Action.prototype.actionEnable = function () {
+            this.element.removeClass('mrge-disabled');
+            $(this.element).css("background", this.config.view.icon);
+            this.enabled = true;
+        }
+    },
+
     Browser: function () {
         this.list = {
             opera:null,
@@ -250,7 +266,7 @@ $.widget( "morrigan.morrigan_editor", {
                 if (config.view.title) item.attr('title', config.view.title);
                 if (config.view.disabledIcon) item.css("background", config.view.disabledIcon);
                 if (config.view.text) item.text(config.view.text).addClass('mrge-action-text');
-                item.addClass('mrge-disabled').attr('id', editor.options.idPrefix + config.name);
+                item.addClass('mrge-disabled mrge-action');
                 if (config.dropdown) {
                     item.addClass('mrge-action-list');
                     dropdown = $('<div class="mrge-action-dropdown" style="display: none;"></div>');
@@ -265,6 +281,8 @@ $.widget( "morrigan.morrigan_editor", {
                     item.attr('unselectable', 'on');
                     item.find('*').attr('unselectable', 'on');
                 }
+                editor._currentActions.push(new editor.Action(config, item));
+                item.attr('id', editor.options.idPrefix + (editor._currentActions.length-1));
                 return item;
             };
 
@@ -329,9 +347,19 @@ $.widget( "morrigan.morrigan_editor", {
         };
     },
 
+    EventBinder: function (editor) {
+//        this.editor = editor;
+//        this.exec = function () {
+//            var actions = editor.options.toolbox
+//        }
+    },
+
     _create: function () {
+        this.actionMethodsInitialize();
         this._browser = (new this.Browser()).list;
         (new this.Builder(this)).exec();
+        //(new this.EventBinder(this)).exec();
+        //this._currentActions[0].actionEnable();
     },
 
     // Public API
