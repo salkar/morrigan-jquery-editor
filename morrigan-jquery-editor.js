@@ -233,28 +233,6 @@ $.widget( "morrigan.morrigan_editor", {
 
     },
 
-    _actionMethodsInitialize: function () {
-        this.Action.prototype.actionEnable = function () {
-            this.element.removeClass('mrge-disabled');
-            $(this.element).css("background", this.config.view.icon);
-            this.enabled = true;
-        }
-    },
-
-    _getBrowser: function () {
-        var list = {};
-        var agent = navigator.userAgent;
-        if (agent.indexOf('Opera') != -1) list.opera = true;
-        else if (agent.indexOf('Chrome') != -1) list.chrome = true;
-        else if (agent.indexOf('Firefox') != -1) list.ff = true;
-        else if (agent.indexOf('MSIE') != -1) {
-            if (agent.indexOf('MSIE 8') != -1) this.ie = 8;
-            else if (agent.indexOf('MSIE 7') != -1) this.ie = 7;
-            else list.ie = true;
-        }
-        return list;
-    },
-
     Builder: function (editor) {
         this.editor = editor;
         this.exec = function () {
@@ -360,13 +338,57 @@ $.widget( "morrigan.morrigan_editor", {
 //        }
     },
 
-    _create: function () {
-        this._actionMethodsInitialize();
+    EditorError: function (editor) {
+        this.editor = editor;
+        this.exec = function (msg) {
+            editor.element.text(msg);
+        }
+    },
+
+    _actionMethodsInitialize: function () {
+        this.Action.prototype.actionEnable = function () {
+            this.element.removeClass('mrge-disabled');
+            $(this.element).css("background", this.config.view.icon);
+            this.enabled = true;
+        }
+    },
+
+    _getBrowser: function () {
+        var list = {};
+        var agent = navigator.userAgent;
+        if (agent.indexOf('WebKit') != -1) list.webkit = true;
+        else if (agent.indexOf('Firefox') != -1) list.ff = true;
+        else if (agent.indexOf('MSIE') != -1) {
+            if (/MSIE\s([\d.]+)/.test(navigator.userAgent)) {
+                var version = parseInt(RegExp.$1);
+                if (version == 8) list.ie = 8;
+                else if (version > 8) list.ie = true;
+            }
+        }
+        if (!(list.ie || list.ff || list.webkit)) list.nonSupported = true;
+        return list;
+    },
+
+    _prepare: function () {
         this._browser = this._getBrowser();
+        if (this._browser.nonSupported) {
+            (new this.EditorError(this)).exec('Your browser is not supported.');
+            return false;
+        }
+        this._actionMethodsInitialize();
+        return true;
+    },
+
+    _build: function () {
         this._actionManager = new this.ActionManager(this);
         (new this.Builder(this)).exec();
-        console.log(this._actionManager.actions);
-        console.log(this._actionManager.disabledActions);
+    },
+
+    _create: function () {
+        if (!this._prepare()) return;
+        this._build();
+//        console.log(this._actionManager.actions);
+//        console.log(this._actionManager.disabledActions);
         //(new this.EventBinder(this)).exec();
         //this._currentActions[0].actionEnable();
     },
