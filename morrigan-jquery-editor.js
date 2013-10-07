@@ -5,6 +5,7 @@ $.widget( "morrigan.morrigan_editor", {
         width: '700px',
         idPrefix: 'mrge_',
         doctype: '<!DOCTYPE html>',
+        notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
         toolbox: [
             [
@@ -372,7 +373,7 @@ $.widget( "morrigan.morrigan_editor", {
     _prepare: function () {
         this._browser = this._getBrowser();
         if (this._browser.nonSupported) {
-            (new this.EditorError(this)).exec('Your browser is not supported.');
+            (new this.EditorError(this)).exec(this.options.notSupportedMsg);
             return false;
         }
         this._actionMethodsInitialize();
