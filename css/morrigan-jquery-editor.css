@@ -31,7 +31,7 @@
 }
 
 .morrigan-editor .mrge-toolbox li a {
-    background-color: red;
+    /*background-color: red;*/
     height: 24px;
     width:24px;
     display: inline-block;

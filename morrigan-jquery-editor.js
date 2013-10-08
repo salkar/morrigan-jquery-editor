@@ -26,7 +26,7 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'img',
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -167px 2px',
-                icon: '#CCCC99',
+                icon: 'url(/actions.png) no-repeat no-repeat #eee -167px 2px',
                 title: 'Image'
             },
             popup: {
@@ -79,7 +79,7 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -18px 2px',
                 activeIcon: 'green',
-                icon: 'red',
+                icon: 'url(/actions.png) no-repeat no-repeat #eee -18px 2px',
                 title: 'Italy'
             },
             onClickHandler: function (self, config) {
@@ -106,7 +106,7 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -39px 2px',
                 activeIcon: "#66FF00",
-                icon: 'gray',
+                icon: 'url(/actions.png) no-repeat no-repeat #eee -39px 2px',
                 title: 'Strike'
             },
             onClickHandler: function (self, config) {
@@ -223,7 +223,8 @@ $.widget( "morrigan.morrigan_editor", {
         this.addAction = function (config, item) {
             var action = new this.editor.Action(config, item);
             this.actions.push(action);
-            if (!action.enabled) this.disabledActions.push(this.actions.length - 1);
+            var actionIndex = this.actions.length - 1;
+            if (!action.enabled) this.disabledActions.push(actionIndex);
         }
     },
 
@@ -231,7 +232,6 @@ $.widget( "morrigan.morrigan_editor", {
         this.element = element;
         this.config = config;
         this.enabled = false;
-
     },
 
     Builder: function (editor) {
@@ -333,16 +333,38 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     EventBinder: function (editor) {
-//        this.editor = editor;
-//        this.exec = function () {
-//            var actions = editor.options.toolbox
-//        }
+        this.editor = editor;
+        this.bindDefaultEvents = function () {
+            this.defaultActivateWidgetsEvent();
+        };
+        this.defaultActivateWidgetsEvent = function () {
+            editor.element.find('iframe').contents().find('body').on("focus", function () {
+                var actionManager = editor._actionManager;
+                var actionsToEnable = actionManager.disabledActions.slice();
+                $.each(actionsToEnable, function (i, val) {
+                    actionManager.enableAction(val);
+                })
+            });
+        };
+        this.bindCustomEvents = function () {
+
+        };
     },
 
     EditorError: function (editor) {
         this.editor = editor;
         this.exec = function (msg) {
             editor.element.text(msg);
+        }
+    },
+
+    _actionManagerMethodInitialize: function () {
+        this.ActionManager.prototype.enableAction = function (i) {
+            var action = this.actions[i];
+            action.actionEnable();
+            var indexToRemove = $.inArray(i, this.disabledActions);
+            if (indexToRemove != -1) this.disabledActions.splice(indexToRemove, 1);
+            console.log(this.disabledActions)
         }
     },
 
@@ -377,20 +399,26 @@ $.widget( "morrigan.morrigan_editor", {
             return false;
         }
         this._actionMethodsInitialize();
+        this._actionManagerMethodInitialize();
         return true;
     },
 
-    _build: function () {
+    _buildHTML: function () {
         this._actionManager = new this.ActionManager(this);
         (new this.Builder(this)).exec();
     },
 
+    _bindEvents: function () {
+        var eventBinder = new this.EventBinder(this);
+        eventBinder.bindDefaultEvents();
+    },
+
     _create: function () {
         if (!this._prepare()) return;
-        this._build();
+        this._buildHTML();
+        this._bindEvents();
 //        console.log(this._actionManager.actions);
 //        console.log(this._actionManager.disabledActions);
-        //(new this.EventBinder(this)).exec();
         //this._currentActions[0].actionEnable();
     },
 
