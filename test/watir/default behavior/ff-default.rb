@@ -4,8 +4,11 @@ require 'rubygems'
 
 describe "FF default container behavior" do
 
-	before :each do
-		@b = Watir::Browser.new :firefox
+	before :all do
+    @b = Watir::Browser.new :firefox
+  end
+
+  before :each do
 		@b.goto 'http://192.168.56.101:3000/single_test'
 		@iframe = @b.frame :index => 0
 	end
@@ -1312,7 +1315,7 @@ describe "FF default container behavior" do
 		@iframe.p(:index => 0).text.should == "asdaa"
 	end
 	
-	after(:each) do
+	after(:all) do
 		@b.close
 	end
 
