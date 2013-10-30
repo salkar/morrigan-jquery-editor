@@ -19,7 +19,9 @@ $.widget( "morrigan.morrigan_editor", {
 
     _browser: {},
     _content: null,
-    _currentActions: [],
+    _window: null,
+    _actionManager: null,
+    _selectionManager: null,
 
     _actions: {
         img: {
@@ -267,7 +269,7 @@ $.widget( "morrigan.morrigan_editor", {
                     item.find('*').attr('unselectable', 'on');
                 }
                 editor._actionManager.addAction(config, item);
-                item.attr('id', editor.options.idPrefix + (editor._currentActions.length-1));
+                item.attr('id', editor.options.idPrefix + (editor._actionManager.actions.length-1));
                 return item;
             };
 
@@ -315,7 +317,8 @@ $.widget( "morrigan.morrigan_editor", {
             };
 
             setupIframe = function (iframe) {
-                var idoc = iframe.get(0).contentWindow.document;
+                editor._window = iframe.get(0).contentWindow;
+                var idoc = editor._window.document;
                 idoc.open();
                 idoc.write(editor.options.doctype);
                 idoc.write("<html style='cursor: text;height: 100%;'>");
@@ -335,9 +338,11 @@ $.widget( "morrigan.morrigan_editor", {
     EventBinder: function (editor) {
         this.editor = editor;
         this.bindDefaultEvents = function () {
-            this.defaultActivateWidgetsEvent();
+            this._defaultActivateWidgetsEvent();
+            this._defaultBehaviorEvents();
         };
-        this.defaultActivateWidgetsEvent = function () {
+
+        this._defaultActivateWidgetsEvent = function () {
             editor.element.find('iframe').contents().find('body').on("focus", function () {
                 var actionManager = editor._actionManager;
                 var actionsToEnable = actionManager.disabledActions.slice();
@@ -346,6 +351,33 @@ $.widget( "morrigan.morrigan_editor", {
                 })
             });
         };
+
+        this._defaultBehaviorEvents = function () {
+            var self = this;
+            this.editor._content.on('keydown',function (e) {
+                self._defaultBehaviorKeyDownHandler(e);
+            }).on('keyup', function (e) {
+                self._defaultBehaviorKeyUpHandler(e);
+            });
+        };
+
+        this._defaultBehaviorKeyUpHandler = function (e) {
+            console.log('up')
+        };
+
+        this._defaultBehaviorKeyDownHandler = function (e) {
+            console.log('down');
+            if (editor._browser.ff || editor._browser.webkit) {
+                var cSelection = editor._selectionManager.getCustomSelection();
+                if (e.keyCode == 8) {
+                    if (editor._selectionManager.isLastEmptyPTagSelected(cSelection)) {
+                        console.log('prevented');
+                        e.preventDefault();
+                    }
+                }
+            }
+        };
+
         this.bindCustomEvents = function () {
 
         };
@@ -358,13 +390,45 @@ $.widget( "morrigan.morrigan_editor", {
         }
     },
 
+    SelectionManager: function (editor) {
+        this.editor = editor;
+
+        this.getCustomSelection = function () {
+            var cSelection = {};
+            var window = this.editor._window;
+            if (window.getSelection) {
+                cSelection.selection = window.getSelection();
+            } else {
+                cSelection.range = window.document.selection.createRange();
+            }
+            return cSelection;
+        };
+
+        this.isLastEmptyPTagSelected = function (cSelection) {
+            var selection = cSelection.selection;
+            return this.isCaret(cSelection) &&
+                selection.focusNode.nodeName == 'P' &&
+                selection.focusNode.innerHTML == '<br>' &&
+                $(selection.focusNode).closest('body').children('p').length == 1;
+        };
+
+        this.isCaret = function (cSelection) {
+            if (cSelection.range) {
+                return cSelection.range.boundingWidth == 0;
+            } else {
+                var selection = cSelection.selection;
+                return selection.anchorOffset == selection.focusOffset &&
+                    selection.anchorNode == selection.focusNode;
+            }
+        }
+    },
+
     _actionManagerMethodInitialize: function () {
         this.ActionManager.prototype.enableAction = function (i) {
             var action = this.actions[i];
             action.actionEnable();
             var indexToRemove = $.inArray(i, this.disabledActions);
             if (indexToRemove != -1) this.disabledActions.splice(indexToRemove, 1);
-            console.log(this.disabledActions)
         }
     },
 
@@ -403,8 +467,12 @@ $.widget( "morrigan.morrigan_editor", {
         return true;
     },
 
-    _buildHTML: function () {
+    _createSupportObjects: function () {
         this._actionManager = new this.ActionManager(this);
+        this._selectionManager = new this.SelectionManager(this);
+    },
+
+    _buildHTML: function () {
         (new this.Builder(this)).exec();
     },
 
@@ -415,11 +483,11 @@ $.widget( "morrigan.morrigan_editor", {
 
     _create: function () {
         if (!this._prepare()) return;
+        this._createSupportObjects();
         this._buildHTML();
         this._bindEvents();
 //        console.log(this._actionManager.actions);
 //        console.log(this._actionManager.disabledActions);
-        //this._currentActions[0].actionEnable();
     },
 
     // Public API
