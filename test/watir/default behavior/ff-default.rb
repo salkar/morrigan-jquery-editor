@@ -9,13 +9,8 @@ describe "FF default container behavior" do
   end
 
   before :each do
-		@b.goto 'http://192.168.56.101:3000/single_test'
+		@b.goto 'http://192.168.0.102:3000/single_test'
 		@iframe = @b.frame :index => 0
-	end
-	
-	it "There is a default <p> tag in contenteditable body should be" do
-		@iframe.ps.size.should == 1
-		@iframe.p(:index => 0).html.should == "<p><br></p>"
 	end
 	
 	it "Content should be put in the default <p>" do

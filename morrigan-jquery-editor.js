@@ -22,6 +22,7 @@ $.widget( "morrigan.morrigan_editor", {
     _window: null,
     _actionManager: null,
     _selectionManager: null,
+    _options: {},
 
     _actions: {
         img: {
@@ -312,7 +313,8 @@ $.widget( "morrigan.morrigan_editor", {
                 return iframe.height() - diff
             };
             defaultContentFieldContent = function () {
-                if (editor._browser.ie || editor._browser.opera) return "<p></p>";
+                if (editor._browser.ie) return "<p></p>";
+                else if (editor._browser.ff) return "";
                 else return "<p><br></p>";
             };
 
@@ -354,7 +356,7 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._defaultBehaviorEvents = function () {
             var self = this;
-            this.editor._content.on('keydown',function (e) {
+            editor._content.on('keydown',function (e) {
                 self._defaultBehaviorKeyDownHandler(e);
             }).on('keyup', function (e) {
                 self._defaultBehaviorKeyUpHandler(e);
@@ -362,16 +364,16 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this._defaultBehaviorKeyUpHandler = function (e) {
-            console.log('up')
+            if (editor._browser.ff) {
+                editor._window.document.execCommand("formatBlock", false, "p");
+            }
         };
 
         this._defaultBehaviorKeyDownHandler = function (e) {
-            console.log('down');
-            if (editor._browser.ff || editor._browser.webkit) {
+            if (editor._browser.webkit) {
                 var cSelection = editor._selectionManager.getCustomSelection();
                 if (e.keyCode == 8) {
                     if (editor._selectionManager.isLastEmptyPTagSelected(cSelection)) {
-                        console.log('prevented');
                         e.preventDefault();
                     }
                 }
@@ -420,7 +422,7 @@ $.widget( "morrigan.morrigan_editor", {
                 return selection.anchorOffset == selection.focusOffset &&
                     selection.anchorNode == selection.focusNode;
             }
-        }
+        };
     },
 
     _actionManagerMethodInitialize: function () {
