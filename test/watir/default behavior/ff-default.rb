@@ -23,47 +23,6 @@ describe "FF default container behavior" do
 		@iframe.p(:index => 1).text.should == "bbbbb"
 	end
 	
-	it "First p tag should not be removed" do
-		@iframe.click
-		@iframe.send_keys 'a'
-		@iframe.send_keys :enter
-		@iframe.send_keys 'b'
-		@iframe.ps.size.should == 2
-		@iframe.send_keys :backspace
-		@iframe.ps.size.should == 2
-		@iframe.send_keys :backspace
-		@iframe.ps.size.should == 1
-		@iframe.send_keys :backspace
-		@iframe.ps.size.should == 1
-		(0..3).each { @iframe.send_keys :backspace }
-		@iframe.ps.size.should == 1
-		@iframe.p(:index => 0).html.should == "<p><br></p>"
-	end
-	
-	it "First P tag should be left when selection deleted by backspace" do
-		@iframe.click
-		@iframe.send_keys 'aaaaa'
-		@iframe.ps.size.should == 1
-		
-		@b.body.click
-		selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
-		selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
-		selection_script << "var a = $('iframe').contents().find('p')[0];"
-		selection_script << "rng.setStart(a.firstChild,0);"
-		selection_script << "rng.setEnd(a.firstChild,5);"
-		selection_script << "selection.removeAllRanges();"
-		selection_script << "selection.addRange(rng);"
-		@b.execute_script selection_script
-		@iframe.send_keys :backspace
-		
-		@iframe.ps.size.should == 1
-		@iframe.p(:index => 0).html.should == "<p><br></p>"
-		
-		@iframe.send_keys :backspace
-		@iframe.ps.size.should == 1
-		@iframe.p(:index => 0).html.should == "<p><br></p>"
-	end
-	
 	it "All text should be in P tag when selection deleted by backspace (middle of first p and middle of second p)" do
 		@iframe.click
 		@iframe.send_keys 'aaaaa'
