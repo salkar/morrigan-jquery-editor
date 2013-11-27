@@ -137,19 +137,7 @@ $.widget( "morrigan.morrigan_editor", {
                 text: 'Format',
                 title: 'Paragraph format'
             },
-            selectionHandler: function (editor, data, e) {
-                var resultTagName, firstElementTag, correctTopElements, resultItemIndex;
-                var topElements = data.topElements;
-                if (topElements.length > 0 && topElements[0]) {
-                    firstElementTag = topElements[0].nodeName;
-                    correctTopElements = $(topElements).filter(function () {
-                        return this.nodeName === firstElementTag;
-                    });
-                    if (correctTopElements.length == topElements.length) resultTagName = firstElementTag;
-                } else {
-                    resultTagName = 'P';
-                }
-                console.log(topElements);
+            changeStatus: function (resultTagName) {
                 if (resultTagName) {
                     resultItemIndex = this.config.dropdown.matchList[resultTagName];
                     if (!isNaN(resultItemIndex) && this.config.dropdown.currentActionItemIndex != resultItemIndex) {
@@ -165,6 +153,21 @@ $.widget( "morrigan.morrigan_editor", {
                         $(this.element).children('span.mrge-action-text').text(this.config.view.text);
                     }
                 }
+            },
+            selectionHandler: function (editor, data, e) {
+                var resultTagName, firstElementTag, correctTopElements, resultItemIndex;
+                var topElements = data.topElements;
+                if (topElements.length > 0 && topElements[0]) {
+                    firstElementTag = topElements[0].nodeName;
+                    correctTopElements = $(topElements).filter(function () {
+                        return this.nodeName === firstElementTag;
+                    });
+                    if (correctTopElements.length == topElements.length) resultTagName = firstElementTag;
+                } else {
+                    resultTagName = 'P';
+                }
+
+                this.changeStatus(resultTagName);
 
 //                console.log(firstElementTag);
 //                console.log(this.config.dropdown.matchList);
@@ -208,8 +211,9 @@ $.widget( "morrigan.morrigan_editor", {
                     {
                         text: 'Paragraph',
                         tag: 'P',
-                        onClickHandler: function (editor) {
+                        onClickHandler: function (editor, action) {
                             editor._window.document.execCommand("formatblock", false, "<p>");
+                            action.changeStatus('P');
 //                            self._actionMutateTopSelectedNodes("P");
 //                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'P');
 //                            var actionId = self._generateActionId(config.name);
@@ -219,8 +223,9 @@ $.widget( "morrigan.morrigan_editor", {
                     {
                         text: 'Heading 1',
                         tag: 'H2',
-                        onClickHandler: function (editor) {
+                        onClickHandler: function (editor, action) {
                             editor._window.document.execCommand("formatblock", false, "<h2>");
+                            action.changeStatus('H2');
 //                            self._actionMutateTopSelectedNodes("H1");
 //                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H1');
 //                            var actionId = self._generateActionId(config.name);
@@ -230,8 +235,9 @@ $.widget( "morrigan.morrigan_editor", {
                     {
                         text: 'Heading 2',
                         tag: 'H3',
-                        onClickHandler: function (editor) {
+                        onClickHandler: function (editor, action) {
                             editor._window.document.execCommand("formatblock", false, "<h3>");
+                            action.changeStatus('H3');
 //                            self._actionMutateTopSelectedNodes("H2");
 //                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H2');
 //                            var actionId = self._generateActionId(config.name);
@@ -241,8 +247,9 @@ $.widget( "morrigan.morrigan_editor", {
                     {
                         text: 'Heading 3',
                         tag: 'H4',
-                        onClickHandler: function (editor) {
+                        onClickHandler: function (editor, action) {
                             editor._window.document.execCommand("formatblock", false, "<h4>");
+                            action.changeStatus('H4');
 //                            self._actionMutateTopSelectedNodes("H3");
 //                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H3');
 //                            var actionId = self._generateActionId(config.name);
@@ -276,6 +283,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.element = element;
         this.config = config;
         this.enabled = false;
+        this.changeStatus = config.changeStatus;
         if (this.config.dropdown) {
             this.config.dropdown.shown = false;
             this.config.dropdown.currentActionItemIndex = -1;
@@ -486,14 +494,14 @@ $.widget( "morrigan.morrigan_editor", {
             });
 
             $(action.config.dropdown.actionList).each(function () {
-                self._bindEventsToDropDownAction(this);
+                self._bindEventsToDropDownAction(this, action);
             });
 
         };
 
-        this._bindEventsToDropDownAction = function (dropdownAction) {
+        this._bindEventsToDropDownAction = function (dropdownAction, action) {
             dropdownAction.element.on('click', function () {
-                dropdownAction.onClickHandler(editor);
+                dropdownAction.onClickHandler(editor, action);
             });
         };
     },
