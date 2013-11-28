@@ -22,6 +22,7 @@ $.widget( "morrigan.morrigan_editor", {
     _window: null,
     _actionManager: null,
     _selectionManager: null,
+    _actionSupport: null,
     _options: {},
 
     _actions: {
@@ -168,42 +169,6 @@ $.widget( "morrigan.morrigan_editor", {
                 }
 
                 this.changeStatus(resultTagName);
-
-//                console.log(firstElementTag);
-//                console.log(this.config.dropdown.matchList);
-
-//                onCaretSelectionChange: function (self, config, e) {
-////                    var topNode = $(e.target).closest('body > *').get(0);
-////                    if (topNode) {
-////                        var topNodeName = $(e.target).closest('body > *').get(0).nodeName;
-////                        var actionStatusText = self._configGetTextForNameFromActionList(config, topNodeName);
-////                        var actionId = self._generateActionId(config.name);
-////                        self._actionChangeDropDownCurrentState(actionId, actionStatusText);
-////                    }
-//
-//                },
-//                onRangeSelectionChange: function (self, config, e) {
-////                    var selection = self._selectionGet();
-////                    var topNodes = self._selectionGetSelectedTopNodes(selection);
-////                    var topNodesName, differentTopNodes, actionStatusText;
-////                    $(topNodes).each(function () {
-////                        if (topNodesName) {
-////                            if (topNodesName != this.nodeName) differentTopNodes = true;
-////                            return;
-////                        } else topNodesName = this.nodeName;
-////                    });
-////
-////                    if (differentTopNodes) {
-////                        actionStatusText = self._configGetDefaultText(config);
-////                    } else {
-////                        actionStatusText = self._configGetTextForNameFromActionList(config, topNodesName);
-////                    }
-////                    var actionId = self._generateActionId(config.name);
-////                    self._actionChangeDropDownCurrentState(actionId, actionStatusText);
-//                },
-//                onSelectionChange: function (editor, data, e) {
-                    console.log('selection change handler');
-//                }
             },
             dropdown: {
                 width: '150px',
@@ -212,48 +177,61 @@ $.widget( "morrigan.morrigan_editor", {
                         text: 'Paragraph',
                         tag: 'P',
                         onClickHandler: function (editor, action) {
-                            editor._window.document.execCommand("formatblock", false, "<p>");
+                            if (editor._browser.webkit) {
+                                var cSelection = editor._selectionManager.getCustomSelection();
+                                var isCaret = editor._selectionManager.isCaret(cSelection);
+                                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                                editor._actionSupport.mutateBlock(topElements, 'P', cSelection);
+                            } else {
+                                editor._window.document.execCommand("formatblock", false, "<p>");
+                            }
+
                             action.changeStatus('P');
-//                            self._actionMutateTopSelectedNodes("P");
-//                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'P');
-//                            var actionId = self._generateActionId(config.name);
-//                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         text: 'Heading 1',
                         tag: 'H2',
                         onClickHandler: function (editor, action) {
-                            editor._window.document.execCommand("formatblock", false, "<h2>");
+                            if (editor._browser.webkit) {
+                                var cSelection = editor._selectionManager.getCustomSelection();
+                                var isCaret = editor._selectionManager.isCaret(cSelection);
+                                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                                editor._actionSupport.mutateBlock(topElements, 'H2', cSelection);
+                            } else {
+                                editor._window.document.execCommand("formatblock", false, "<h2>");
+                            }
                             action.changeStatus('H2');
-//                            self._actionMutateTopSelectedNodes("H1");
-//                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H1');
-//                            var actionId = self._generateActionId(config.name);
-//                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         text: 'Heading 2',
                         tag: 'H3',
                         onClickHandler: function (editor, action) {
-                            editor._window.document.execCommand("formatblock", false, "<h3>");
+                            if (editor._browser.webkit) {
+                                var cSelection = editor._selectionManager.getCustomSelection();
+                                var isCaret = editor._selectionManager.isCaret(cSelection);
+                                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                                editor._actionSupport.mutateBlock(topElements, 'H3', cSelection);
+                            } else {
+                                editor._window.document.execCommand("formatblock", false, "<h3>");
+                            }
                             action.changeStatus('H3');
-//                            self._actionMutateTopSelectedNodes("H2");
-//                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H2');
-//                            var actionId = self._generateActionId(config.name);
-//                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     },
                     {
                         text: 'Heading 3',
                         tag: 'H4',
                         onClickHandler: function (editor, action) {
-                            editor._window.document.execCommand("formatblock", false, "<h4>");
+                            if (editor._browser.webkit) {
+                                var cSelection = editor._selectionManager.getCustomSelection();
+                                var isCaret = editor._selectionManager.isCaret(cSelection);
+                                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                                editor._actionSupport.mutateBlock(topElements, 'H4', cSelection);
+                            } else {
+                                editor._window.document.execCommand("formatblock", false, "<h4>");
+                            }
                             action.changeStatus('H4');
-//                            self._actionMutateTopSelectedNodes("H3");
-//                            var actionStatusText = self._configGetTextForNameFromActionList(config, 'H3');
-//                            var actionId = self._generateActionId(config.name);
-//                            self._actionChangeDropDownCurrentState(actionId, actionStatusText);
                         }
                     }
                 ]
@@ -301,6 +279,80 @@ $.widget( "morrigan.morrigan_editor", {
             });
         }
         this.selectionHandler = this.config.selectionHandler;
+    },
+
+    ActionSupport: function (editor) {
+        this.editor = editor;
+        this.mutateBlock = function (topNodes, nodeName, cSelection) {
+            var savedSelection = this._saveSelection(cSelection);
+            var mutated = false;
+            $(topNodes).each(function () {
+                if (this.nodeName != nodeName) {
+                    $(this).replaceWith("<" + nodeName + ">" + this.innerHTML + "</" + nodeName + ">");
+                    mutated = true;
+                }
+            });
+            if (mutated) this._restoreSelection(savedSelection);
+        };
+        this._saveSelection = function (cSelection) {
+            var selection = cSelection.selection;
+            var anchorNodePath = this._getNodePath(selection.anchorNode);
+            var focusNodePath = this._getNodePath(selection.focusNode);
+            if (this._isCorrectSequenceSelection(selection)) {
+                return {
+                    anchorNodePath: anchorNodePath,
+                    anchorOffset: selection.anchorOffset,
+                    focusNodePath: focusNodePath,
+                    focusOffset: selection.focusOffset
+                };
+            } else {
+                return {
+                    anchorNodePath: focusNodePath,
+                    anchorOffset: selection.focusOffset,
+                    focusNodePath: anchorNodePath,
+                    focusOffset: selection.anchorOffset
+                };
+            }
+        };
+        this._isCorrectSequenceSelection = function (selection) {
+            var rng = this.editor._window.document.createRange();
+            rng.setStart(selection.anchorNode, selection.anchorOffset);
+            rng.setEnd(selection.focusNode, selection.focusOffset);
+            return rng.startOffset == selection.anchorOffset && rng.startContainer == selection.anchorNode;
+        };
+        this._restoreSelection = function (savedSelection) {
+            var anchorNode = this._getNodeFromPath(savedSelection.anchorNodePath);
+            var focusNode = this._getNodeFromPath(savedSelection.focusNodePath);
+
+            var selection = this.editor._window.getSelection();
+            var rng = this.editor._window.document.createRange();
+
+            rng.setStart(anchorNode, savedSelection.anchorOffset);
+            rng.setEnd(focusNode, savedSelection.focusOffset);
+            selection.removeAllRanges();
+            selection.addRange(rng);
+        };
+        this._getNodeFromPath = function (path) {
+            var currentNode = this.editor._content;
+            while (path.length != 0) {
+                var currentChildIndex = path.pop();
+                currentNode = currentNode.contents().eq(currentChildIndex);
+            }
+            return currentNode.get(0);
+        };
+        this._getNodePath = function (node) {
+            var result = [];
+            var currentNode = node;
+            while (currentNode.nodeName != 'BODY') {
+                result.push($(currentNode.parentNode).contents().index(currentNode));
+                currentNode = currentNode.parentNode;
+            }
+            return result;
+        };
+        this._getElementFromNode = function (node) {
+            if (node.nodeType == 3) return $(node).parent()[0];
+            else return node;
+        };
     },
 
     Builder: function (editor) {
@@ -623,6 +675,7 @@ $.widget( "morrigan.morrigan_editor", {
     _createSupportObjects: function () {
         this._actionManager = new this.ActionManager(this);
         this._selectionManager = new this.SelectionManager(this);
+        this._actionSupport = new this.ActionSupport(this);
     },
 
     _buildHTML: function () {
