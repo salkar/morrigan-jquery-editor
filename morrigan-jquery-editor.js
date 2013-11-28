@@ -405,6 +405,7 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     EventBinder: function (editor) {
+        this.keyCodesAffectedDomChanges = [8,13,33,34,35,36,37,38,39,40,46];
         this.editor = editor;
         this.bindDefaultEvents = function () {
             this._defaultActivateWidgetsEvent();
@@ -436,15 +437,13 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._defaultBehaviorMouseEvent = function (e) {
             var cSelection = editor._selectionManager.getCustomSelection();
-            console.log(cSelection);
             var isCaret = editor._selectionManager.isCaret(cSelection);
-            console.log(isCaret);
             var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
             this._onSelectionChangedHandlers(e, topElements, isCaret);
         };
 
         this._defaultBehaviorKeyUpHandler = function (e) {
-            if (editor._browser.ff) {
+            if (editor._browser.ff || $.inArray(e.keyCode, this.keyCodesAffectedDomChanges) != -1) {
                 var cSelection = editor._selectionManager.getCustomSelection();
                 var isCaret = editor._selectionManager.isCaret(cSelection);
                 var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
