@@ -109,27 +109,17 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'strike',
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -39px 2px',
-                activeIcon: "#66FF00",
                 icon: 'url(/actions.png) no-repeat no-repeat #eee -39px 2px',
-                title: 'Strike'
+                title: 'Strike',
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee'
             },
-            onClickHandler: function (self, config) {
-//                var actionId = self._generateActionId(config.name);
-//                var isActive = self._actionIsActive(actionId);
-//                self.element.find('iframe').get(0).contentWindow.document.execCommand('strikethrough', false, null);
-//                if (isActive) self._actionDeactivate(actionId, config);
-//                else self._actionActivate(actionId, config);
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('strikethrough', false, null);
+                action.changeActiveIcon();
             },
-            selectionHandler1: {
-                onSelectionChange: function (self, config, e) {
-//                    var actionId = self._generateActionId(config.name);
-//                    var isActive = self._actionIsActive(actionId);
-//                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('strikethrough')) {
-//                        if (!isActive) self._actionActivate(actionId, config);
-//                    } else {
-//                        if (isActive) self._actionDeactivate(actionId, config);
-//                    }
-                }
+            selectionHandler: function (editor, data, e) {
+                this.changeActiveIcon(editor._window.document.queryCommandState('strikethrough'));
             }
         },
         format: {
@@ -140,7 +130,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             changeStatus: function (resultTagName) {
                 if (resultTagName) {
-                    resultItemIndex = this.config.dropdown.matchList[resultTagName];
+                    var resultItemIndex = this.config.dropdown.matchList[resultTagName];
                     if (!isNaN(resultItemIndex) && this.config.dropdown.currentActionItemIndex != resultItemIndex) {
                         this.config.dropdown.currentActionItemIndex = resultItemIndex;
                         $(this.element).children('span.mrge-action-text').text(this.config.dropdown.actionList[resultItemIndex].text);
@@ -156,7 +146,7 @@ $.widget( "morrigan.morrigan_editor", {
                 }
             },
             selectionHandler: function (editor, data, e) {
-                var resultTagName, firstElementTag, correctTopElements, resultItemIndex;
+                var resultTagName, firstElementTag, correctTopElements;
                 var topElements = data.topElements;
                 if (topElements.length > 0 && topElements[0]) {
                     firstElementTag = topElements[0].nodeName;
@@ -261,6 +251,31 @@ $.widget( "morrigan.morrigan_editor", {
         this.element = element;
         this.config = config;
         this.enabled = false;
+        if (config.view.activeBackground && config.view.inactiveBackground) {
+            this.activeState = false;
+            this.changeActiveIcon = function (isActive) {
+                console.log(isActive);
+                if (isActive == undefined) {
+                    if (this.activeState) {
+                        this.setInactiveIcon();
+                    } else {
+                        this.setActiveIcon();
+                    }
+                } else {
+                    if (isActive && !this.activeState) this.setActiveIcon();
+                    else if (!isActive && this.activeState) this.setInactiveIcon();
+                }
+
+            };
+            this.setActiveIcon = function () {
+                this.element.css('background-color', config.view.activeBackground);
+                this.activeState = true;
+            };
+            this.setInactiveIcon = function () {
+                this.element.css('background-color', config.view.inactiveBackground);
+                this.activeState = false;
+            };
+        }
         this.changeStatus = config.changeStatus;
         if (this.config.dropdown) {
             this.config.dropdown.shown = false;
@@ -277,6 +292,8 @@ $.widget( "morrigan.morrigan_editor", {
             $(this.config.dropdown.actionList).each(function (i) {
                 self.config.dropdown.matchList[this.tag] = i;
             });
+        } else {
+            this.onClickHandler = config.onClickHandler;
         }
         this.selectionHandler = this.config.selectionHandler;
     },
@@ -348,10 +365,6 @@ $.widget( "morrigan.morrigan_editor", {
                 currentNode = currentNode.parentNode;
             }
             return result;
-        };
-        this._getElementFromNode = function (node) {
-            if (node.nodeType == 3) return $(node).parent()[0];
-            else return node;
         };
     },
 
@@ -481,9 +494,7 @@ $.widget( "morrigan.morrigan_editor", {
             }).on('keyup', function (e) {
                 self._defaultBehaviorKeyUpHandler(e);
             }).on('mouseup', function (e) {
-                self._defaultBehaviorMouseEvent(e);
-            }).on('click', function (e) {
-                self._defaultBehaviorMouseEvent(e);
+                window.setTimeout(function () {self._defaultBehaviorMouseEvent(e)}, 10);
             });
         };
 
@@ -528,7 +539,15 @@ $.widget( "morrigan.morrigan_editor", {
             $(editor._actionManager.actions).each(function () {
                 if (this.config.dropdown) {
                     self._bindEventsToDropDown(this);
+                } else {
+                    self._bindEventsToSimpleAction(this);
                 }
+            });
+        };
+
+        this._bindEventsToSimpleAction = function (action) {
+            action.element.on('click', function () {
+                action.onClickHandler(editor, action);
             });
         };
 
