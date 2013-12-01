@@ -31,6 +31,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -167px 2px',
                 icon: 'url(/actions.png) no-repeat no-repeat #eee -167px 2px',
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
                 title: 'Image'
             },
             popup: {
@@ -55,54 +57,35 @@ $.widget( "morrigan.morrigan_editor", {
             name: 'bold',
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee 2px 2px',
-                activeIcon: '#3366CC',
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
                 icon: 'url(/actions.png) no-repeat no-repeat #eee 2px 2px',
                 title: 'Bold'
             },
-            onClickHandler: function (self, config, e) {
-//                var actionId = self._generateActionId(config.name);
-//                var isActive = self._actionIsActive(actionId);
-//                self.element.find('iframe').get(0).contentWindow.document.execCommand('bold', false, null);
-//                if (isActive) self._actionDeactivate(actionId, config);
-//                else self._actionActivate(actionId, config);
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('bold', false, null);
+                action.changeActiveIcon(editor._window.document.queryCommandState('bold'));
             },
-            selectionHandler1: {
-                onSelectionChange: function (self, config, e) {
-//                    var actionId = self._generateActionId(config.name);
-//                    var isActive = self._actionIsActive(actionId);
-//                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('bold')) {
-//                        if (!isActive) self._actionActivate(actionId, config);
-//                    } else {
-//                        if (isActive) self._actionDeactivate(actionId, config);
-//                    }
-                }
+            selectionHandler: function (editor, data, e) {
+                console.log(editor._window.document.queryCommandState('bold'));
+                this.changeActiveIcon(editor._window.document.queryCommandState('bold'));
             }
         },
         italy: {
             name: 'italy',
             view: {
                 disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -18px 2px',
-                activeIcon: 'green',
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
                 icon: 'url(/actions.png) no-repeat no-repeat #eee -18px 2px',
                 title: 'Italy'
             },
-            onClickHandler: function (self, config) {
-//                var actionId = self._generateActionId(config.name);
-//                var isActive = self._actionIsActive(actionId);
-//                self.element.find('iframe').get(0).contentWindow.document.execCommand('italic', false, null);
-//                if (isActive) self._actionDeactivate(actionId, config);
-//                else self._actionActivate(actionId, config);
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('italic', false, null);
+                action.changeActiveIcon(editor._window.document.queryCommandState('italic'));
             },
-            selectionHandler1: {
-                onSelectionChange: function (self, config, e) {
-//                    var actionId = self._generateActionId(config.name);
-//                    var isActive = self._actionIsActive(actionId);
-//                    if (self.element.find('iframe').get(0).contentWindow.document.queryCommandState('italic')) {
-//                        if (!isActive) self._actionActivate(actionId, config);
-//                    } else {
-//                        if (isActive) self._actionDeactivate(actionId, config);
-//                    }
-                }
+            selectionHandler: function (editor, data, e) {
+                this.changeActiveIcon(editor._window.document.queryCommandState('italic'));
             }
         },
         strike: {
@@ -116,7 +99,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('strikethrough', false, null);
-                action.changeActiveIcon();
+                action.changeActiveIcon(editor._window.document.queryCommandState('strikethrough'));
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('strikethrough'));
@@ -254,7 +237,6 @@ $.widget( "morrigan.morrigan_editor", {
         if (config.view.activeBackground && config.view.inactiveBackground) {
             this.activeState = false;
             this.changeActiveIcon = function (isActive) {
-                console.log(isActive);
                 if (isActive == undefined) {
                     if (this.activeState) {
                         this.setInactiveIcon();
@@ -268,11 +250,11 @@ $.widget( "morrigan.morrigan_editor", {
 
             };
             this.setActiveIcon = function () {
-                this.element.css('background-color', config.view.activeBackground);
+                this.element.css('background-color', config.view.activeBackground).addClass('mrge-active');
                 this.activeState = true;
             };
             this.setInactiveIcon = function () {
-                this.element.css('background-color', config.view.inactiveBackground);
+                this.element.css('background-color', config.view.inactiveBackground).removeClass('mrge-active');
                 this.activeState = false;
             };
         }
