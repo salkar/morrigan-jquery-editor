@@ -250,7 +250,43 @@ describe "FF main execCommand behavior" do
     @b.a(:title => 'Bold').attribute_value("class").include?('mrge-active').should be
     @b.a(:title => 'Italy').attribute_value("class").include?('mrge-active').should be
   end
-	
+
+  it 'several action\'s states should be shown (i into b)' do
+    html = '<p><b><i>Paragraph</i></b> 1</p>'
+    @b.send_keys :tab
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+    selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+    selection_script << "var a = $('iframe').contents().find('i')[0];"
+    selection_script << "rng.setStart(a.firstChild,3);"
+    selection_script << "rng.setEnd(a.firstChild,3);"
+    selection_script << "selection.removeAllRanges();"
+    selection_script << "selection.addRange(rng);"
+    @b.execute_script selection_script
+    @b.send_keys :tab
+
+    @b.a(:title => 'Bold').attribute_value("class").include?('mrge-active').should be
+    @b.a(:title => 'Italy').attribute_value("class").include?('mrge-active').should be
+  end
+
+  it 'several action\'s states should be shown (b into i)' do
+    html = '<p><i><b>Paragraph</b></i> 1</p>'
+    @b.send_keys :tab
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    selection_script = "var rng = $('iframe')[0].contentWindow.document.createRange();"
+    selection_script << "var selection = $('iframe').get(0).contentWindow.getSelection();"
+    selection_script << "var a = $('iframe').contents().find('b')[0];"
+    selection_script << "rng.setStart(a.firstChild,3);"
+    selection_script << "rng.setEnd(a.firstChild,3);"
+    selection_script << "selection.removeAllRanges();"
+    selection_script << "selection.addRange(rng);"
+    @b.execute_script selection_script
+    @b.send_keys :tab
+
+    @b.a(:title => 'Bold').attribute_value("class").include?('mrge-active').should be
+    @b.a(:title => 'Italy').attribute_value("class").include?('mrge-active').should be
+  end
+
 	after(:all) do
 		@b.close
 	end
