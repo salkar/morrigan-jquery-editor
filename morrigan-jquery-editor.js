@@ -14,7 +14,17 @@ $.widget( "morrigan.morrigan_editor", {
             [
                 ['format']
             ]
-        ]
+        ],
+        popup: {
+            actions: {
+                ok:{
+                    caption:'Ok'
+                },
+                cancel:{
+                    caption:'Cancel'
+                }
+            }
+        }
     },
 
     _browser: {},
@@ -23,6 +33,7 @@ $.widget( "morrigan.morrigan_editor", {
     _actionManager: null,
     _selectionManager: null,
     _actionSupport: null,
+    _popup: null,
     _options: {},
 
     _actions: {
@@ -558,6 +569,24 @@ $.widget( "morrigan.morrigan_editor", {
         };
     },
 
+    Popup: function (editor) {
+        this.editor = editor;
+        this.formSelf = function () {
+            var result = $("<div class='mrge-popup-wrapper'>" +
+                        "<div class='mrge-popup-overlay'></div></div>");
+            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-close'></div>" +
+                "<div class='clear'></div></div><div class='mrge-popup-content'></div>");
+            var actionContainer = $("<div class='mrge-popup-actions'></div>");
+            $.each(editor.options.popup.actions, function (key, value) {
+                actionContainer.append("<div class='mrge-popup-" + key + " mrge-popup-btn'>" + this.caption + "</div>");
+            });
+            popup.append(actionContainer);
+            result.append(popup);
+            editor.element.append(result);
+        };
+        this.formSelf();
+    },
+
     EditorError: function (editor) {
         this.editor = editor;
         this.exec = function (msg) {
@@ -677,6 +706,7 @@ $.widget( "morrigan.morrigan_editor", {
         this._actionManager = new this.ActionManager(this);
         this._selectionManager = new this.SelectionManager(this);
         this._actionSupport = new this.ActionSupport(this);
+        this._popup = new this.Popup(this);
     },
 
     _buildHTML: function () {

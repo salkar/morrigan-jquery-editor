@@ -103,7 +103,7 @@
 
 .morrigan-editor .mrge-popup .mrge-popup-btn {
     cursor: pointer;
-
+    display: none;
 }
 
 /* Content */
