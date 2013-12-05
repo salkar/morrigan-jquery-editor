@@ -48,6 +48,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             popup: {
                 html: '<form action="/image/create" method="post" id="mrge-img-form-ok" enctype="multipart/form-data" target="mrge-support-iframe"><input type="file" name="upload_img"/></form>',
+                actions: ['ok', 'cancel'],
                 onClickHandler: function (self, config, e) {
 //                    var imgUrl;
 //                    self._loaderPrepare();
@@ -78,7 +79,6 @@ $.widget( "morrigan.morrigan_editor", {
                 action.changeActiveIcon(editor._window.document.queryCommandState('bold'));
             },
             selectionHandler: function (editor, data, e) {
-                console.log(editor._window.document.queryCommandState('bold'));
                 this.changeActiveIcon(editor._window.document.queryCommandState('bold'));
             }
         },
@@ -532,9 +532,17 @@ $.widget( "morrigan.morrigan_editor", {
             $(editor._actionManager.actions).each(function () {
                 if (this.config.dropdown) {
                     self._bindEventsToDropDown(this);
+                } else if (this.config.popup) {
+                    self._bindEventsToPopupAction(this);
                 } else {
                     self._bindEventsToSimpleAction(this);
                 }
+            });
+        };
+
+        this._bindEventsToPopupAction = function (action) {
+            action.element.on('click', function () {
+                editor._popup.showPopup(action);
             });
         };
 
@@ -571,20 +579,46 @@ $.widget( "morrigan.morrigan_editor", {
 
     Popup: function (editor) {
         this.editor = editor;
-        this.formSelf = function () {
+        this.currentAction = null;
+        this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
                         "<div class='mrge-popup-overlay'></div></div>");
             var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-close'></div>" +
-                "<div class='clear'></div></div><div class='mrge-popup-content'></div>");
+                "<div class='mrge-clear'></div></div><div class='mrge-popup-content'></div>");
             var actionContainer = $("<div class='mrge-popup-actions'></div>");
             $.each(editor.options.popup.actions, function (key, value) {
-                actionContainer.append("<div class='mrge-popup-" + key + " mrge-popup-btn'>" + this.caption + "</div>");
+                var action = $("<div class='mrge-popup-" + key + " mrge-popup-btn'>" + this.caption + "</div>");
+                this.element = action;
+                actionContainer.append(action);
             });
             popup.append(actionContainer);
             result.append(popup);
             editor.element.append(result);
+            this.element = result;
         };
-        this.formSelf();
+        this._formSelf();
+        this.showPopup = function (action) {
+            this.currentAction = action;
+            this._configure(action.config.popup);
+            this._locateAndShow();
+        };
+        this._configure = function (config) {
+            this.element.find('.mrge-popup-content').empty().append(config.html);
+            this.element.find('.mrge-popup-actions .mrge-popup-btn.mrge-active').removeClass('mrge-active');
+            $.each(config.actions, function () {
+                editor.options.popup.actions[this].element.addClass('mrge-active');
+            });
+        };
+        this._locateAndShow = function () {
+            var popup = this.element.find('.mrge-popup');
+            var y = editor.element.height() / 2 - popup.height() / 2;
+            var x = editor.element.width() / 2 - popup.width() / 2;
+            y = (y < 0 ? 0 : y);
+            x = (x < 0 ? 0 : x);
+            popup.css('top', y);
+            popup.css('left', x);
+            this.element.show();
+        };
     },
 
     EditorError: function (editor) {

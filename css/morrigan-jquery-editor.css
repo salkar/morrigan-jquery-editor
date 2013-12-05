@@ -106,6 +106,10 @@
     display: none;
 }
 
+.morrigan-editor .mrge-popup .mrge-popup-btn.mrge-active {
+    display: block;
+}
+
 /* Content */
 
 .morrigan-editor .mrge-content {
