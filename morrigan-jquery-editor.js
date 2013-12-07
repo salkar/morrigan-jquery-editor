@@ -40,14 +40,14 @@ $.widget( "morrigan.morrigan_editor", {
         img: {
             name: 'img',
             view: {
-                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -167px 2px',
-                icon: 'url(/actions.png) no-repeat no-repeat #eee -167px 2px',
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
                 title: 'Image'
             },
             popup: {
-                html: '<form action="/image/create" method="post" id="mrge-img-form-ok" enctype="multipart/form-data" target="mrge-support-iframe"><input type="file" name="upload_img"/></form>',
+                title: 'Add image',
+                html: '<form action="/image/create" method="post" id="mrge-img-form-ok" enctype="multipart/form-data" target="mrge-support-iframe">' +
+                    '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div><div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>',
                 actions: ['ok', 'cancel'],
                 onClickHandler: function (self, config, e) {
 //                    var imgUrl;
@@ -68,10 +68,8 @@ $.widget( "morrigan.morrigan_editor", {
         bold: {
             name: 'bold',
             view: {
-                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee 2px 2px',
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                icon: 'url(/actions.png) no-repeat no-repeat #eee 2px 2px',
                 title: 'Bold'
             },
             onClickHandler: function (editor, action) {
@@ -85,10 +83,8 @@ $.widget( "morrigan.morrigan_editor", {
         italy: {
             name: 'italy',
             view: {
-                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -18px 2px',
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                icon: 'url(/actions.png) no-repeat no-repeat #eee -18px 2px',
                 title: 'Italy'
             },
             onClickHandler: function (editor, action) {
@@ -102,8 +98,6 @@ $.widget( "morrigan.morrigan_editor", {
         strike: {
             name: 'strike',
             view: {
-                disabledIcon: 'url(/disabled-actions.png) no-repeat no-repeat #eee -39px 2px',
-                icon: 'url(/actions.png) no-repeat no-repeat #eee -39px 2px',
                 title: 'Strike',
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee'
@@ -378,7 +372,7 @@ $.widget( "morrigan.morrigan_editor", {
                 if (config.view.title) item.attr('title', config.view.title);
                 if (config.view.disabledIcon) item.css("background", config.view.disabledIcon);
                 if (config.view.text) item.append($('<span></span>').text(config.view.text).addClass('mrge-action-text'));
-                item.addClass('mrge-disabled mrge-action');
+                item.addClass('mrge-disabled mrge-action mrge-action-' + config.name);
                 if (config.dropdown) {
                     item.addClass('mrge-action-list');
                     dropdown = $('<div class="mrge-action-dropdown" style="display: none;"></div>');
@@ -395,7 +389,6 @@ $.widget( "morrigan.morrigan_editor", {
                     item.find('*').attr('unselectable', 'on');
                 }
                 editor._actionManager.addAction(config, item);
-                item.attr('id', editor.options.idPrefix + (editor._actionManager.actions.length-1));
                 return item;
             };
 
@@ -583,7 +576,7 @@ $.widget( "morrigan.morrigan_editor", {
         this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
                         "<div class='mrge-popup-overlay'></div></div>");
-            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-close'></div>" +
+            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><span class='mrge-header-name'></span><div class='mrge-popup-close'></div>" +
                 "<div class='mrge-clear'></div></div><div class='mrge-popup-content'></div>");
             var actionContainer = $("<div class='mrge-popup-actions'></div>");
             $.each(editor.options.popup.actions, function (key, value) {
@@ -591,6 +584,7 @@ $.widget( "morrigan.morrigan_editor", {
                 this.element = action;
                 actionContainer.append(action);
             });
+            actionContainer.append('<div class="mrge-clear"></div>');
             popup.append(actionContainer);
             result.append(popup);
             editor.element.append(result);
@@ -603,6 +597,7 @@ $.widget( "morrigan.morrigan_editor", {
             this._locateAndShow();
         };
         this._configure = function (config) {
+            this.element.find('.mrge-header-name').text(config.title);
             this.element.find('.mrge-popup-content').empty().append(config.html);
             this.element.find('.mrge-popup-actions .mrge-popup-btn.mrge-active').removeClass('mrge-active');
             $.each(config.actions, function () {
