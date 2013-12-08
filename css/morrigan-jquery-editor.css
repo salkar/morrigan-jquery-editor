@@ -145,12 +145,12 @@
     width: 18px;
     height: 18px;
     float: right;
-    background: url(main.png) no-repeat no-repeat #eee -25px -49px;
+    background: url(main.png) no-repeat no-repeat #eee -21px -52px;
     cursor: pointer;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-header .mrge-popup-close:hover {
-    background: url(main.png) no-repeat no-repeat #eee -1px -49px;
+    background: url(main.png) no-repeat no-repeat #eee 2px -52px;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-content {
