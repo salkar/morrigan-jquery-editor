@@ -127,16 +127,18 @@
     z-index: 100;
     position: absolute;
     width: 350px;
-    height: 250px;
     background: white;
 }
 
-.morrigan-editor .mrge-popup > * {
+.morrigan-editor .mrge-popup-box-wrapper {
     padding: 10px;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-header {
     background-color: #eee;
+    position: absolute;
+    width: 100%;
+    top:0;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-header .mrge-popup-close {
@@ -152,16 +154,11 @@
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-content {
-    height: 140px;
-    margin: 10px 0 0 0;
-}
-
-.morrigan-editor .mrge-popup .mrge-popup-content .mrge-option {
-    margin-bottom: 10px;
+    margin: 46px 0 46px 0;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-content .mrge-divider {
-    margin: 20px 0 20px 15px;
+    margin: 10px 0 10px 10px;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-content input {
@@ -176,6 +173,9 @@
 
 .morrigan-editor .mrge-popup .mrge-popup-actions {
     padding-top: 0;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
 }
 
 .morrigan-editor .mrge-popup .mrge-popup-btn {

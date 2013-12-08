@@ -46,6 +46,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             popup: {
                 title: 'Add image',
+                height: '200px',
                 html: '<form action="/image/create" method="post" id="mrge-img-form-ok" enctype="multipart/form-data" target="mrge-support-iframe">' +
                     '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div><div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>',
                 actions: ['ok', 'cancel'],
@@ -576,15 +577,15 @@ $.widget( "morrigan.morrigan_editor", {
         this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
                         "<div class='mrge-popup-overlay'></div></div>");
-            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><span class='mrge-header-name'></span><div class='mrge-popup-close'></div>" +
-                "<div class='mrge-clear'></div></div><div class='mrge-popup-content'></div>");
-            var actionContainer = $("<div class='mrge-popup-actions'></div>");
+            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-box-wrapper'><span class='mrge-header-name'></span><div class='mrge-popup-close'></div></div>" +
+                "<div class='mrge-clear'></div></div><div class='mrge-popup-content'><div class='mrge-popup-box-wrapper'></div></div>");
+            var actionContainer = $("<div class='mrge-popup-actions'><div class='mrge-popup-box-wrapper'></div></div>");
             $.each(editor.options.popup.actions, function (key, value) {
                 var action = $("<div class='mrge-popup-" + key + " mrge-popup-btn'>" + this.caption + "</div>");
                 this.element = action;
-                actionContainer.append(action);
+                actionContainer.children('.mrge-popup-box-wrapper').append(action);
             });
-            actionContainer.append('<div class="mrge-clear"></div>');
+            actionContainer.children('.mrge-popup-box-wrapper').append('<div class="mrge-clear"></div>');
             popup.append(actionContainer);
             result.append(popup);
             editor.element.append(result);
@@ -598,7 +599,8 @@ $.widget( "morrigan.morrigan_editor", {
         };
         this._configure = function (config) {
             this.element.find('.mrge-header-name').text(config.title);
-            this.element.find('.mrge-popup-content').empty().append(config.html);
+            this.element.find('.mrge-popup').height(config.height);
+            this.element.find('.mrge-popup-content .mrge-popup-box-wrapper').empty().append(config.html);
             this.element.find('.mrge-popup-actions .mrge-popup-btn.mrge-active').removeClass('mrge-active');
             $.each(config.actions, function () {
                 editor.options.popup.actions[this].element.addClass('mrge-active');
