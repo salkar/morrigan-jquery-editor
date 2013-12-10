@@ -50,6 +50,17 @@ $.widget( "morrigan.morrigan_editor", {
                 html: '<form action="/image/create" method="post" id="mrge-img-form-ok" enctype="multipart/form-data" target="mrge-support-iframe">' +
                     '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div><div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>',
                 actions: ['ok', 'cancel'],
+                onShow: function (element) {
+                    element.find('input[type="file"]').on('change', function () {
+                        alert(111);
+                    });
+                    element.find('.mrge-popup-ok').on('click', function () {
+                        alert(222);
+                    });
+                },
+                onHide:function (element) {
+                    element.find('.mrge-popup-ok').off('click');
+                },
                 onClickHandler: function (self, config, e) {
 //                    var imgUrl;
 //                    self._loaderPrepare();
@@ -574,6 +585,7 @@ $.widget( "morrigan.morrigan_editor", {
     Popup: function (editor) {
         this.editor = editor;
         this.currentAction = null;
+        this.element = null;
         this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
                         "<div class='mrge-popup-overlay'></div></div>");
@@ -591,11 +603,37 @@ $.widget( "morrigan.morrigan_editor", {
             editor.element.append(result);
             this.element = result;
         };
+
+        this._bindMainEvents = function () {
+            var self = this;
+            this.element.on('click', '.mrge-popup-close', function () {
+                self.hidePopup();
+            }).on('click', '.mrge-popup-cancel', function () {
+                self.hidePopup();
+            });
+        };
+
         this._formSelf();
+        this._bindMainEvents();
+
+        this._bindCustomEvents = function (action) {
+            action.config.popup.onShow(this.element);
+        };
+
+        this._unbindCustomEvents = function (action) {
+            if (action.config.popup.onHide) action.config.popup.onHide(this.element);
+        };
+
         this.showPopup = function (action) {
             this.currentAction = action;
             this._configure(action.config.popup);
+            this._bindCustomEvents(action);
             this._locateAndShow();
+        };
+        this.hidePopup = function () {
+            this._unbindCustomEvents(this.currentAction);
+            this.currentAction = null;
+            this.element.hide();
         };
         this._configure = function (config) {
             this.element.find('.mrge-header-name').text(config.title);
