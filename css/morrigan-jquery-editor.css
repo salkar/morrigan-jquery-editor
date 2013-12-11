@@ -206,6 +206,12 @@
     display: block;
 }
 
+/* Support elements */
+
+.morrigan-editor .mrge-support-elements {
+    display: none;
+}
+
 /* Content */
 
 .morrigan-editor .mrge-content {
