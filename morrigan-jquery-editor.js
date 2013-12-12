@@ -35,6 +35,7 @@ $.widget( "morrigan.morrigan_editor", {
     _actionSupport: null,
     _popup: null,
     _uploader: null,
+    _loader: null,
     _options: {},
 
     _actions: {
@@ -61,10 +62,12 @@ $.widget( "morrigan.morrigan_editor", {
                         var imgUrl;
                         editor._uploader.prepareToLoad();
                         element.find('form').submit();
+                        editor._loader.showLoader();
                         var timerId = setInterval(function () {
                             imgUrl = editor._uploader.getData();
                             if (imgUrl) {
                                 clearInterval(timerId);
+                                editor._loader.hideLoader();
 //                                self._actionInsertImg(imgUrl['data']);
                                 alert(imgUrl['data']);
                             }
@@ -86,21 +89,6 @@ $.widget( "morrigan.morrigan_editor", {
                 onHide:function (element) {
                     element.find('.mrge-popup-ok').off('click');
                 }
-//                ,
-//                onClickHandler: function (self, config, e) {
-////                    var imgUrl;
-////                    self._loaderPrepare();
-////                    $('#mrge-img-form-ok').submit();
-////                    self._popupHide();
-////                    var timerId = setInterval(function () {
-////                        imgUrl = self._loaderGetData();
-////                        if (imgUrl) {
-////                            clearInterval(timerId);
-////                            self._actionInsertImg(imgUrl['data']);
-////                        }
-////                    }, 100);
-//
-//                }
             }
         },
         bold: {
@@ -700,12 +688,30 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this.getData = function () {
-            console.log(this.element.contents().text());
-            console.log(JSON.parse(this.element.contents().text()));
             return (this.element.contents().text() ? JSON.parse(this.element.contents().text()) : null);
         };
 
         this._formSelf();
+    },
+
+    Loader: function (editor) {
+        this.editor = editor;
+        this.element = null;
+        this._formSelf = function () {
+            var result = $("<div class='mrge-loader-wrapper'><div class='mrge-loader-background'></div><div class='mrge-loader-icon'></div></div>");
+            editor.element.append(result);
+            this.element = result;
+        };
+
+        this._formSelf();
+
+        this.showLoader = function () {
+            this.element.addClass('active');
+        };
+
+        this.hideLoader = function () {
+            this.element.removeClass('active');
+        };
     },
 
     EditorError: function (editor) {
@@ -832,6 +838,7 @@ $.widget( "morrigan.morrigan_editor", {
     _createSupportObjectsAfterBuildHTML: function () {
         this._popup = new this.Popup(this);
         this._uploader = new this.Uploader(this);
+        this._loader = new this.Loader(this);
     },
 
     _buildHTML: function () {
