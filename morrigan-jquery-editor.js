@@ -1,8 +1,8 @@
 $.widget( "morrigan.morrigan_editor", {
 
     options: {
-        height: '300px',
-        width: '700px',
+        height: '600px',
+        width: '900px',
         idPrefix: 'mrge_',
         doctype: '<!DOCTYPE html>',
         notSupportedMsg: 'Your browser is not supported.',
@@ -24,6 +24,18 @@ $.widget( "morrigan.morrigan_editor", {
                     caption:'Cancel'
                 }
             }
+        },
+        block: {
+            mediaBlock: {
+                width: {
+                    default:'150px',
+                    max:'200px'
+                },
+                height: {
+                    default:'170px',
+                    max:'230px'
+                }
+            }
         }
     },
 
@@ -36,6 +48,7 @@ $.widget( "morrigan.morrigan_editor", {
     _popup: null,
     _uploader: null,
     _loader: null,
+    _blockManager: null,
     _options: {},
 
     _actions: {
@@ -68,8 +81,7 @@ $.widget( "morrigan.morrigan_editor", {
                             if (imgUrl) {
                                 clearInterval(timerId);
                                 editor._loader.hideLoader();
-//                                self._actionInsertImg(imgUrl['data']);
-                                alert(imgUrl['data']);
+                                editor._blockManager.addBlock({imageUrl:imgUrl['data']});
                             }
                         }, 100);
                     };
@@ -377,6 +389,40 @@ $.widget( "morrigan.morrigan_editor", {
                 result.push($(currentNode.parentNode).contents().index(currentNode));
                 currentNode = currentNode.parentNode;
             }
+            return result;
+        };
+    },
+
+    BlockManager: function (editor) {
+        this.blocks = [];
+        this.addBlock = function (data) {
+            var cSelection = editor._selectionManager.getCustomSelection();
+            var isCaret = editor._selectionManager.isCaret(cSelection);
+            var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+            var block = new editor.Block(editor, topElements[0], data);
+            this.blocks.push(block);
+        };
+        this.removeBlock = function () {
+
+        };
+    },
+
+    Block: function (editor, topNode, data) {
+        this.editor = editor;
+        this.element = this._formSelf(data);
+        this.element.insertBefore(topNode);
+    },
+
+    _blockMethodsInitialize: function () {
+        this.Block.prototype._formSelf = function (data) {
+            var dataResult, result;
+            if (data['imageUrl']) {
+                dataResult = $('<img src="' + data['imageUrl'] + '">');
+                dataResult.css('max-width', this.editor.options.block.mediaBlock.width.default);
+                dataResult.css('max-height', this.editor.options.block.mediaBlock.height.default);
+            }
+            result = $('<div class="mrge-content-block"><div class="mrge-content-block-item"></div></div>');
+            result.children().append(dataResult);
             return result;
         };
     },
@@ -826,6 +872,7 @@ $.widget( "morrigan.morrigan_editor", {
         }
         this._actionMethodsInitialize();
         this._actionManagerMethodInitialize();
+        this._blockMethodsInitialize();
         return true;
     },
 
@@ -833,6 +880,7 @@ $.widget( "morrigan.morrigan_editor", {
         this._actionManager = new this.ActionManager(this);
         this._selectionManager = new this.SelectionManager(this);
         this._actionSupport = new this.ActionSupport(this);
+        this._blockManager = new this.BlockManager(this);
     },
 
     _createSupportObjectsAfterBuildHTML: function () {

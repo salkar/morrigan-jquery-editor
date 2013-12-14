@@ -7,3 +7,9 @@ body.mrge-iframe-body {
     padding: 0;
     margin: 0;
 }
+
+/* Blocks */
+
+.mrge-content-block {
+    float: left;
+}
