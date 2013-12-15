@@ -395,6 +395,16 @@ $.widget( "morrigan.morrigan_editor", {
 
     BlockManager: function (editor) {
         this.blocks = [];
+
+        this._bindEvents = function () {
+            editor._content.on('dragstart', 'img', function (e) {
+                e.preventDefault();
+                return false;
+            });
+        };
+
+        this._bindEvents();
+
         this.addBlock = function (data) {
             var cSelection = editor._selectionManager.getCustomSelection();
             var isCaret = editor._selectionManager.isCaret(cSelection);
@@ -421,7 +431,7 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult.css('max-width', this.editor.options.block.mediaBlock.width.default);
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.default);
             }
-            result = $('<div class="mrge-content-block"><div class="mrge-content-block-item"></div></div>');
+            result = $('<div class="mrge-content-block" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
             result.children().append(dataResult);
             return result;
         };
@@ -880,13 +890,13 @@ $.widget( "morrigan.morrigan_editor", {
         this._actionManager = new this.ActionManager(this);
         this._selectionManager = new this.SelectionManager(this);
         this._actionSupport = new this.ActionSupport(this);
-        this._blockManager = new this.BlockManager(this);
     },
 
     _createSupportObjectsAfterBuildHTML: function () {
         this._popup = new this.Popup(this);
         this._uploader = new this.Uploader(this);
         this._loader = new this.Loader(this);
+        this._blockManager = new this.BlockManager(this);
     },
 
     _buildHTML: function () {
