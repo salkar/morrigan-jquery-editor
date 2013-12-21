@@ -28,11 +28,11 @@ $.widget( "morrigan.morrigan_editor", {
         block: {
             mediaBlock: {
                 width: {
-                    default:'150px',
+                    def:'150px',
                     max:'200px'
                 },
                 height: {
-                    default:'170px',
+                    def:'170px',
                     max:'230px'
                 }
             }
@@ -66,6 +66,7 @@ $.widget( "morrigan.morrigan_editor", {
                     '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div><div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>',
                 actions: ['ok', 'cancel'],
                 onShow: function (element, editor) {
+                    var savedTextRange;
                     haveFileToUpload = function () {
                         var input_file = element.find('[name="upload_img"]');
                         var url_string = element.find('[name="upload_url"]');
@@ -81,6 +82,7 @@ $.widget( "morrigan.morrigan_editor", {
                             if (imgUrl) {
                                 clearInterval(timerId);
                                 editor._loader.hideLoader();
+                                if (editor._browser.ie) editor._selectionManager.restoreInternalRange(savedTextRange);
                                 editor._blockManager.addBlock({imageUrl:imgUrl['data']});
                             }
                         }, 100);
@@ -97,6 +99,9 @@ $.widget( "morrigan.morrigan_editor", {
                     element.find('.mrge-popup-ok').on('click', function () {
                         exec();
                     });
+                    if (editor._browser.ie) {
+                        savedTextRange = editor._selectionManager.getInternalRange();
+                    }
                 },
                 onHide:function (element) {
                     element.find('.mrge-popup-ok').off('click');
@@ -428,8 +433,8 @@ $.widget( "morrigan.morrigan_editor", {
             var dataResult, result;
             if (data['imageUrl']) {
                 dataResult = $('<img src="' + data['imageUrl'] + '">');
-                dataResult.css('max-width', this.editor.options.block.mediaBlock.width.default);
-                dataResult.css('max-height', this.editor.options.block.mediaBlock.height.default);
+                dataResult.css('max-width', this.editor.options.block.mediaBlock.width.def);
+                dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
             }
             result = $('<div class="mrge-content-block" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
             result.children().append(dataResult);
@@ -780,6 +785,41 @@ $.widget( "morrigan.morrigan_editor", {
     SelectionManager: function (editor) {
         this.editor = editor;
 
+        this.getInternalRange = function () {
+//            var range = editor._window.document.createRange();
+//            var selection = editor._window.document.getSelection()
+//            var range = selection.getRangeAt(0);
+//            console.log(this.editor.element.find('iframe')[0].contentWindow);
+//            return (this._textRangeEmpty(range) ? null : range);
+            var sel;
+            if (editor._window.getSelection) {
+                sel = editor._window.getSelection();
+                if (sel.rangeCount) {
+                    return sel.getRangeAt(0);
+                }
+            } else if (editor._window.document.selection) {
+                return editor._window.document.selection.createRange();
+            }
+            return null;
+        };
+
+        this.restoreInternalRange = function (range) {
+//            if (textRange != null) textRange.select();
+            if (range != null) {
+                if (range.select) {
+                    range.select();
+                } else {
+                    var sel = editor._window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        };
+
+//        this._textRangeEmpty = function (textRange) {
+//            return textRange.boundingHeight == 0 && textRange.boundingWidth == 0;
+//        };
+
         this.getCustomSelection = function () {
             var cSelection = {};
             var window = this.editor._window;
@@ -820,7 +860,25 @@ $.widget( "morrigan.morrigan_editor", {
                     this._getElementBetween(startElement, endElement)
                     :
                     this._getElementBetween(endElement, startElement);
+            } else {
+                return this._ie8GetTopSelectedElements(cSelection.range);
             }
+        };
+
+        this._ie8GetTopSelectedElements = function (range) {
+            var iframeBody = editor._content;
+            var iframeScrollTop = editor.element.find('iframe').contents().find('html')[0].scrollTop;
+            var rangeTopOffset = range.boundingTop + iframeScrollTop;
+            var rangeBottomOffset = rangeTopOffset + range.boundingHeight;
+
+            var topNodes = iframeBody.children();
+            var result = [];
+            $(topNodes).each(function () {
+                if ((this.offsetTop >= rangeTopOffset || (this.offsetTop + this.offsetHeight > rangeTopOffset)) && this.offsetTop < rangeBottomOffset) {
+                    result.push(this);
+                }
+            });
+            return result;
         };
 
         this._getPreBodyNode = function (node) {
@@ -909,12 +967,21 @@ $.widget( "morrigan.morrigan_editor", {
         eventBinder.bindCustomEvents();
     },
 
+    _setupForBrowser: function () {
+        if (this._browser.ie) {
+            $.each(this.element.find('*'), function () {
+                $(this).attr('unselectable', 'on');
+            });
+        }
+    },
+
     _create: function () {
         if (!this._prepare()) return;
         this._createSupportObjects();
         this._buildHTML();
         this._createSupportObjectsAfterBuildHTML();
         this._bindEvents();
+        this._setupForBrowser();
     },
 
     // Public API
