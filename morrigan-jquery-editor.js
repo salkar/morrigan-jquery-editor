@@ -188,7 +188,6 @@ $.widget( "morrigan.morrigan_editor", {
                 } else {
                     resultTagName = 'P';
                 }
-
                 this.changeStatus(resultTagName);
             },
             dropdown: {
@@ -437,6 +436,14 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
             }
             result = $('<div class="mrge-content-block" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
+            if (this.editor._browser.ie == 8) {
+                var defWidth = this.editor.options.block.mediaBlock.width.def;
+                var defHeight = this.editor.options.block.mediaBlock.height.def;
+                result.css('max-width', defWidth);
+                result.css('max-height', defHeight);
+                result.children().css('max-width', defWidth);
+                result.children().css('max-height', defHeight);
+            }
             result.children().append(dataResult);
             return result;
         };
@@ -850,19 +857,22 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this.getTopSelectedElements = function (cSelection, isCaret) {
-            var selection, startElement, endElement;
+            var selection, startElement, endElement, result;
             if (cSelection.selection) {
                 selection = cSelection.selection;
                 startElement = this._getPreBodyNode(selection.anchorNode);
                 if (isCaret) return [startElement];
                 endElement = this._getPreBodyNode(selection.focusNode);
-                return ($(startElement).position().top < $(endElement).position().top) ?
+                result = (($(startElement).position().top < $(endElement).position().top) ?
                     this._getElementBetween(startElement, endElement)
                     :
-                    this._getElementBetween(endElement, startElement);
+                    this._getElementBetween(endElement, startElement));
             } else {
-                return this._ie8GetTopSelectedElements(cSelection.range);
+                result = this._ie8GetTopSelectedElements(cSelection.range);
             }
+            return $.grep(result, function (item) {
+                return item.nodeName != 'DIV'
+            });
         };
 
         this._ie8GetTopSelectedElements = function (range) {
