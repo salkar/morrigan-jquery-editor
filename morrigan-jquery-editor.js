@@ -28,12 +28,12 @@ $.widget( "morrigan.morrigan_editor", {
         block: {
             mediaBlock: {
                 width: {
-                    def:'150px',
-                    max:'200px'
+                    def:'350px',
+                    max:'400px'
                 },
                 height: {
-                    def:'170px',
-                    max:'230px'
+                    def:'270px',
+                    max:'430px'
                 }
             }
         }
@@ -398,23 +398,91 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     BlockManager: function (editor) {
-        this.blocks = [];
+        this.element = null;
+        this.current_block = null;
 
         this._bindEvents = function () {
+            var self = this;
             editor._content.on('dragstart', 'img', function (e) {
                 e.preventDefault();
                 return false;
+            }).on('mouseenter', '.mrge-content-block', function (e) {
+                self.showBlockManager(this);
+            }).on('mouseleave', '.mrge-content-block-container', function (e) {
+                self.hideBlockManager(this);
+            }).on('click', '.mrge-content-block-top', function(e) {
+                self._moveUp();
+            }).on('click', '.mrge-content-block-bottom', function(e) {
+                self._moveDown();
             });
         };
 
+        this._formSelf = function () {
+            var blockElement = $('<div class="mrge-content-block-container mrge-support-element" contenteditable="false"></div>');
+            blockElement.append($('<div class="mrge-content-block-overlay" contenteditable="false"></div>'));
+            blockElement.append($('<div class="mrge-content-block-left  mrge-content-block-move-action" contenteditable="false"></div>' +
+                '<div class="mrge-content-block-top mrge-content-block-move-action" contenteditable="false"></div>' +
+                '<div class="mrge-content-block-right mrge-content-block-move-action" contenteditable="false"></div>' +
+                '<div class="mrge-content-block-bottom mrge-content-block-move-action" contenteditable="false"></div>' +
+                '<div class="mrge-content-block-close" contenteditable="false"></div>'));
+            this.element = blockElement;
+            editor._content.prepend(blockElement);
+        };
+
+        this._formSelf();
         this._bindEvents();
+
+        this.showBlockManager = function (block) {
+            this.element.hide();
+            this.current_block = block;
+            this.element.width($(block).width());
+            this.element.height($(block).height());
+            this.element.css('top', $(block).position().top);
+            this.element.css('left', $(block).position().left);
+            this.element.show();
+        };
+
+        this._moveUp = function () {
+            var prevElement = this._getPrevElementForCurrentBlock();
+            var newBlock = this._insertBlockBefore(prevElement);
+            var self = this;
+            window.setTimeout(function () {self.showBlockManager(newBlock);}, 10);
+        };
+
+        this._insertBlockBefore = function (element) {
+            var blockClone = $(this.current_block).clone();
+            this.current_block.remove();
+            blockClone.insertBefore(element);
+            return blockClone;
+        };
+
+        this._getPrevElementForCurrentBlock = function () {
+            var elements = this._getPrevElementsForCurrentBlock();
+            return $(elements).last();
+        };
+
+        this._getPrevElementsForCurrentBlock = function () {
+            var children = editor._content.children();
+            var curIndex = $(this.current_block).index();
+            var prevChildren = children.slice(0, curIndex);
+            return $.grep(prevChildren, function (item) {
+                return !$(item).hasClass('mrge-support-element');
+            });
+        };
+
+        this._moveDown = function () {
+            console.log('down');
+        };
+
+        this.hideBlockManager = function () {
+            this.element.hide();
+        };
 
         this.addBlock = function (data) {
             var cSelection = editor._selectionManager.getCustomSelection();
             var isCaret = editor._selectionManager.isCaret(cSelection);
             var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
             var block = new editor.Block(editor, topElements[0], data);
-            this.blocks.push(block);
         };
         this.removeBlock = function () {
 
@@ -793,11 +861,6 @@ $.widget( "morrigan.morrigan_editor", {
         this.editor = editor;
 
         this.getInternalRange = function () {
-//            var range = editor._window.document.createRange();
-//            var selection = editor._window.document.getSelection()
-//            var range = selection.getRangeAt(0);
-//            console.log(this.editor.element.find('iframe')[0].contentWindow);
-//            return (this._textRangeEmpty(range) ? null : range);
             var sel;
             if (editor._window.getSelection) {
                 sel = editor._window.getSelection();

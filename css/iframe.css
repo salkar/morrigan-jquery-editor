@@ -14,3 +14,51 @@ body.mrge-iframe-body {
     float: left;
     clear: left;
 }
+
+.mrge-content-block img {
+    display: block;
+}
+
+.mrge-content-block-container {
+    position: absolute;
+    display: none;
+}
+
+.mrge-content-block-container .mrge-content-block-overlay {
+    background-color: gray;
+    opacity: 0.3;
+    width: 100%;
+    height: 100%;
+}
+
+.mrge-content-block-container .mrge-content-block-move-action {
+    height: 40px;
+    width: 40px;
+    background-color: red;
+    position: absolute;
+    cursor: pointer;
+}
+
+.mrge-content-block-container .mrge-content-block-top {
+    top:0;
+    left: 50%;
+    margin-left: -20px;
+}
+
+.mrge-content-block-container .mrge-content-block-right {
+    top:50%;
+    right: 0;
+    margin-top: -20px;
+}
+
+.mrge-content-block-container .mrge-content-block-left {
+    top:50%;
+    left: 0;
+    margin-top: -20px;
+}
+
+.mrge-content-block-container .mrge-content-block-bottom {
+    bottom:0;
+    left: 50%;
+    margin-left: -20px;
+}
