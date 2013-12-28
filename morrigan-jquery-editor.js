@@ -448,28 +448,30 @@ $.widget( "morrigan.morrigan_editor", {
             var self = this;
             var prevElements = this._getPrevElementsForCurrentBlock();
             var prevElement = this._getPrevElementForCurrentBlock(prevElements);
-            var prevBlock = this._getPrevBlock(prevElements);
-            if (prevBlock && this._needToGoToBlock(prevBlock, prevElement)) {
-//                console.log(prevBlock);
-//                console.log(prevBlock.offset().top + prevBlock.outerHeight(true));
-//                console.log($(this.current_block).offset().top - prevElement.outerHeight(true));
-//                console.log(this._needToGoToBlock(prevBlock, prevElement));
-                if (prevBlock[0] == prevElement[0] && $(this.current_block).hasClass('mrge-line')) {
-//                    console.log('ololo');
-//                    var firstBlock = this._getFirstBlockInBlocks(prevBlock);
-//                    newBlock = this._insertBlockRelative(firstBlock, true);
-                    newBlock = this._insertRelativeBlocks(prevBlock, true);
+            if (prevElement.length) {
+                var prevBlock = this._getPrevBlock(prevElements);
+                if (prevBlock && this._needToGoToBlock(prevBlock, prevElement)) {
+    //                console.log(prevBlock);
+    //                console.log(prevBlock.offset().top + prevBlock.outerHeight(true));
+    //                console.log($(this.current_block).offset().top - prevElement.outerHeight(true));
+    //                console.log(this._needToGoToBlock(prevBlock, prevElement));
+                    if (prevBlock[0] == prevElement[0] && $(this.current_block).hasClass('mrge-line')) {
+    //                    console.log('ololo');
+    //                    var firstBlock = this._getFirstBlockInBlocks(prevBlock);
+    //                    newBlock = this._insertBlockRelative(firstBlock, true);
+                        newBlock = this._insertRelativeBlocks(prevBlock, true);
+                    } else {
+                        this._removeFromLine(false);
+                        newBlock = this._insertAlongSideTheBlock(prevBlock);
+                    }
                 } else {
                     this._removeFromLine(false);
-                    newBlock = this._insertAlongSideTheBlock(prevBlock);
+                    newBlock = this._insertBlockRelative(prevElement, true);
                 }
-            } else {
-                this._removeFromLine(false);
-                newBlock = this._insertBlockRelative(prevElement, true);
+                window.setTimeout(function () {
+                    self.showBlockManager(newBlock);
+                }, 10);
             }
-            window.setTimeout(function () {
-                self.showBlockManager(newBlock);
-            }, 10);
         };
 
         this._getFirstBlockInBlocks = function (oneOfTheBlocks) {
@@ -512,7 +514,6 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._removeFromLine = function (before) {
             var blockLineSibling = this._getNearLineBlockRelative($(this.current_block), before);
-            console.log(blockLineSibling);
             if (blockLineSibling) {
                 blockLineSibling.removeClass('mrge-line');
             }
@@ -522,7 +523,6 @@ $.widget( "morrigan.morrigan_editor", {
             var sibling;
             if (before) sibling = block.prev();
             else sibling = block.next();
-            console.log(sibling);
 
             return (sibling.length > 0 && sibling.hasClass('mrge-content-block') && sibling.hasClass('mrge-line') ? sibling : null);
         };
