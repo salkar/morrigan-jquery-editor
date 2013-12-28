@@ -11,8 +11,17 @@ body.mrge-iframe-body {
 /* Blocks */
 
 .mrge-content-block {
+
+}
+
+.mrge-content-block.mrge-left-side {
     float: left;
     clear: left;
+    margin: 15px 15px 15px 0;
+}
+
+.mrge-content-block.mrge-left-side.mrge-line {
+    clear: none;
 }
 
 .mrge-content-block img {

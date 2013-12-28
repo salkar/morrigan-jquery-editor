@@ -437,27 +437,105 @@ $.widget( "morrigan.morrigan_editor", {
             this.current_block = block;
             this.element.width($(block).width());
             this.element.height($(block).height());
-            this.element.css('top', $(block).position().top);
+            var topMargin = $(block).outerWidth(true) - $(block).outerWidth();
+            this.element.css('top', $(block).position().top + topMargin);
             this.element.css('left', $(block).position().left);
             this.element.show();
         };
 
         this._moveUp = function () {
-            var prevElement = this._getPrevElementForCurrentBlock();
-            var newBlock = this._insertBlockBefore(prevElement);
+            var newBlock;
             var self = this;
-            window.setTimeout(function () {self.showBlockManager(newBlock);}, 10);
+            var prevElements = this._getPrevElementsForCurrentBlock();
+            var prevElement = this._getPrevElementForCurrentBlock(prevElements);
+            var prevBlock = this._getPrevBlock(prevElements);
+            if (prevBlock && this._needToGoToBlock(prevBlock, prevElement)) {
+//                console.log(prevBlock);
+//                console.log(prevBlock.offset().top + prevBlock.outerHeight(true));
+//                console.log($(this.current_block).offset().top - prevElement.outerHeight(true));
+//                console.log(this._needToGoToBlock(prevBlock, prevElement));
+                if (prevBlock[0] == prevElement[0] && $(this.current_block).hasClass('mrge-line')) {
+//                    console.log('ololo');
+//                    var firstBlock = this._getFirstBlockInBlocks(prevBlock);
+//                    newBlock = this._insertBlockRelative(firstBlock, true);
+                    newBlock = this._insertRelativeBlocks(prevBlock, true);
+                } else {
+                    this._removeFromLine(false);
+                    newBlock = this._insertAlongSideTheBlock(prevBlock);
+                }
+            } else {
+                this._removeFromLine(false);
+                newBlock = this._insertBlockRelative(prevElement, true);
+            }
+            window.setTimeout(function () {
+                self.showBlockManager(newBlock);
+            }, 10);
         };
 
-        this._insertBlockBefore = function (element) {
+        this._getFirstBlockInBlocks = function (oneOfTheBlocks) {
+            var prev;
+            var result = oneOfTheBlocks;
+            while ((prev = result.prev()).length > 0 && prev.hasClass('mrge-content-block')) {
+                result = prev;
+            }
+            return result;
+        };
+
+        this._needToGoToBlock = function (nearBlock, nearElement) {
+            var blockBottomCoord = nearBlock.offset().top + nearBlock.outerHeight(true);
+            var curBlockTopCoord = $(this.current_block).offset().top - nearElement.outerHeight(true);
+            return blockBottomCoord >= curBlockTopCoord;
+        };
+
+        this._insertRelativeBlocks = function (oneOfTheBlocks, before) {
+            if (before) {
+                var targetBlock = this._getFirstBlockInBlocks(oneOfTheBlocks);
+            }
+            var newBlock = this._insertBlockRelative(targetBlock, before);
+            newBlock.removeClass('mrge-line');
+            return newBlock;
+        };
+
+        this._insertAlongSideTheBlock = function (block) {
+            var newBlock = this._insertBlockRelative(block, false);
+            newBlock.addClass('mrge-line');
+            return newBlock;
+        };
+
+        this._insertBlockRelative = function (element, before) {
             var blockClone = $(this.current_block).clone();
             this.current_block.remove();
-            blockClone.insertBefore(element);
+            if (before) blockClone.insertBefore(element);
+            else blockClone.insertAfter(element);
             return blockClone;
         };
 
-        this._getPrevElementForCurrentBlock = function () {
-            var elements = this._getPrevElementsForCurrentBlock();
+        this._removeFromLine = function (before) {
+            var blockLineSibling = this._getNearLineBlockRelative($(this.current_block), before);
+            console.log(blockLineSibling);
+            if (blockLineSibling) {
+                blockLineSibling.removeClass('mrge-line');
+            }
+        };
+
+        this._getNearLineBlockRelative = function (block, before) {
+            var sibling;
+            if (before) sibling = block.prev();
+            else sibling = block.next();
+            console.log(sibling);
+
+            return (sibling.length > 0 && sibling.hasClass('mrge-content-block') && sibling.hasClass('mrge-line') ? sibling : null);
+        };
+
+        this._getPrevBlock = function (elements) {
+            var blocks = $.grep(elements, function (item) {
+                return $(item).hasClass('mrge-content-block');
+            });
+            if (blocks.length > 0) return $(blocks).last();
+            else return null;
+        };
+
+        this._getPrevElementForCurrentBlock = function (elements) {
             return $(elements).last();
         };
 
@@ -503,7 +581,7 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult.css('max-width', this.editor.options.block.mediaBlock.width.def);
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
             }
-            result = $('<div class="mrge-content-block" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
+            result = $('<div class="mrge-content-block mrge-left-side" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
             if (this.editor._browser.ie == 8) {
                 var defWidth = this.editor.options.block.mediaBlock.width.def;
                 var defHeight = this.editor.options.block.mediaBlock.height.def;
@@ -1060,9 +1138,10 @@ $.widget( "morrigan.morrigan_editor", {
     // Public API
     html: function (html) {
         if (html) {
-            return this._content.empty().append(html).get(0);
+//            this._content.children('').detach();
+            return this._content.append(html).get(0);
         } else {
-            return this._content.get(0);
+            return this._content.get(0).html();
         }
     }
 
