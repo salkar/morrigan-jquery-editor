@@ -506,7 +506,7 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._insertBlockRelative = function (element, before) {
             var blockClone = $(this.current_block).clone();
-            this.current_block.remove();
+            $(this.current_block).remove();
             if (before) blockClone.insertBefore(element);
             else blockClone.insertAfter(element);
             return blockClone;
