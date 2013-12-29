@@ -1,0 +1,274 @@
+require 'watir-webdriver'
+require 'rspec'
+require 'rubygems'
+
+describe "Firefox left blocks move top action" do
+
+  before :all do
+    @b = Watir::Browser.new
+  end
+
+  before :each do
+    @b.goto 'http://192.168.0.102:3000/single_test'
+    @i = @b.frame :index => 0
+  end
+
+  it 'move top action should work' do
+    html = '<p>Line 1</p><p>Line 2</p><p>Line 3</p><div class="mrge-content-block mrge-left-side" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block_index = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').index();")
+    block_top = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').position().top;")
+    @i.div(:class => 'mrge-content-block', :index => 0).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    @b.execute_script("return $('iframe').contents().find('.mrge-content-block').index();").should == block_index - 1
+    @b.execute_script("return $('iframe').contents().find('.mrge-content-block').position().top;").should < block_top
+  end
+
+  it 'move top action should not remove block on top of body children' do
+    html = '<p>Line 1</p><div class="mrge-content-block mrge-left-side" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @i.div(:class => 'mrge-content-block', :index => 0).when_present.fire_event 'onmouseover'
+    @b.body.click
+    block_index = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').index();")
+    block_top = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').position().top;")
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    second_index = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').index();")
+    second_index.should == block_index - 1
+    second_block_top = @b.execute_script("return $('iframe').contents().find('.mrge-content-block').position().top;")
+    second_block_top.should < block_top
+    @i.div(:class => 'mrge-content-block', :index => 0).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @i.divs(:class => 'mrge-content-block').size.should == 1
+    @b.body.click
+    @b.execute_script("return $('iframe').contents().find('.mrge-content-block').index();").should == second_index
+    @b.execute_script("return $('iframe').contents().find('.mrge-content-block').position().top;").should == second_block_top
+  end
+
+  it 'block should move to line' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>' +
+        '<div class="mrge-content-block mrge-left-side block-2" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @i.div(:class => 'mrge-content-block', :index => 1).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block1_left_position.should == block2_left_position
+    block1_top_position.should < block2_top_position
+    @b.divs(:class => 'mrge-line').size.should == 0
+    @i.div(:class => 'mrge-content-block', :index => 1).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @i.div(:class => 'mrge-line').wait_until_present
+    @b.body.click
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block1_top_position_1.should == block2_top_position_1
+    block1_left_position_1.should < block2_left_position_1
+    block1_top_position_1.should == block1_top_position
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should < block2_top_position
+    block2_left_position_1.should > block2_left_position
+  end
+
+  it 'first block should move from the line (2 blocks)' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-2 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block1_left_position, block1_top_position, block2_left_position, block2_top_position = nil, nil, nil, nil
+    Watir::Wait.until do
+      block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+      block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+      block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+      block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+      block1_left_position < block2_left_position && block1_top_position == block2_top_position
+    end
+    @i.div(:class => 'mrge-content-block', :index => 0).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @i.div(:class => 'mrge-line').wait_while_present
+    @b.body.click
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    (block1_top_position_1+100).should < block2_top_position_1
+    block1_left_position_1.should == block2_left_position_1
+    block1_top_position_1.should < block1_top_position
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should > block2_top_position
+    block2_left_position_1.should < block2_left_position
+  end
+
+  it 'second block should move from the line (2 blocks)' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-2 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block1_left_position, block1_top_position, block2_left_position, block2_top_position = nil, nil, nil, nil
+    Watir::Wait.until do
+      block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+      block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+      block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+      block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+      block1_left_position < block2_left_position && block1_top_position == block2_top_position
+    end
+    @i.div(:class => 'mrge-content-block', :index => 1).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @i.div(:class => 'mrge-line').wait_while_present
+    @b.body.click
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    (block2_top_position_1+100).should < block1_top_position_1
+    block1_left_position_1.should == block2_left_position_1
+    block1_top_position_1.should > block1_top_position
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should == block2_top_position
+    block2_left_position_1.should < block2_left_position
+  end
+
+  it 'first block should move from the line (3 blocks)' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-2 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-3 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Penguins.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block1_left_position, block1_top_position, block2_left_position, block2_top_position = nil, nil, nil, nil
+    Watir::Wait.until do
+      block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+      block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+      block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+      block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+      block3_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+      block3_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+      block1_left_position < block2_left_position && block1_top_position == block2_top_position &&
+          block3_left_position > block2_left_position && block3_top_position == block2_top_position
+    end
+    @i.div(:class => 'mrge-content-block', :index => 0).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    Watir::Wait.until{@b.execute_script("return $('iframe').contents().find('.mrge-line').size()") == 1}
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block3_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+    block3_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+    (block1_top_position_1+100).should < block2_top_position_1
+    (block1_top_position_1+100).should < block3_top_position_1
+    block1_left_position_1.should == block2_left_position_1
+    block1_left_position_1.should < block3_left_position_1
+    block1_top_position_1.should < block1_top_position
+    block1_top_position_1.should < block3_top_position_1
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should > block2_top_position
+    block2_left_position_1.should < block2_left_position
+    @i.div(:class => 'block-3').attribute_value("class").include?('mrge-line').should be
+  end
+
+  it 'second block should move from the line (3 blocks)' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-2 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-3 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Penguins.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block1_left_position, block1_top_position, block2_left_position, block2_top_position, block3_left_position, block3_top_position  = nil, nil, nil, nil, nil, nil
+    Watir::Wait.until do
+      block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+      block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+      block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+      block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+      block3_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+      block3_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+      block1_left_position < block2_left_position && block1_top_position == block2_top_position &&
+          block3_left_position > block2_left_position && block3_top_position == block2_top_position
+    end
+    @i.div(:class => 'mrge-content-block', :index => 1).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    Watir::Wait.until{@b.execute_script("return $('iframe').contents().find('.mrge-line').size()") == 1}
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block3_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+    block3_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+    (block2_top_position_1+100).should < block1_top_position_1
+    block1_left_position_1.should == block2_left_position_1
+    block1_top_position_1.should > block1_top_position
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should == block2_top_position
+    block2_left_position_1.should < block2_left_position
+    block3_left_position_1.should > block2_left_position_1
+    block3_left_position_1.should < block3_left_position
+    block3_top_position.should < block3_top_position_1
+    @i.div(:class => 'block-3').attribute_value("class").include?('mrge-line').should be
+  end
+
+  it 'third block should move from the line (3 blocks)' do
+    html = '<p>Line 1</p><p>Line 2</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-2 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<div class="mrge-content-block mrge-left-side block-3 mrge-line" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Penguins.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p><p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    @b.body.click
+    block1_left_position, block1_top_position, block2_left_position, block2_top_position, block3_left_position, block3_top_position  = nil, nil, nil, nil, nil, nil
+    Watir::Wait.until do
+      block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+      block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+      block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+      block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+      block3_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+      block3_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+      block1_left_position < block2_left_position && block1_top_position == block2_top_position &&
+          block3_left_position > block2_left_position && block3_top_position == block2_top_position
+    end
+    @i.div(:class => 'mrge-content-block', :index => 2).when_present.fire_event 'onmouseover'
+    @i.div(:class => 'mrge-content-block-top').when_present.fire_event 'onclick'
+    @b.body.click
+    Watir::Wait.until{@b.execute_script("return $('iframe').contents().find('.mrge-line').size()") == 1}
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block3_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().left;")
+    block3_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-3').position().top;")
+    (block3_top_position_1+100).should < block1_top_position_1
+    block1_left_position_1.should == block3_left_position_1
+    block1_top_position_1.should > block1_top_position
+    block1_left_position_1.should == block1_left_position
+    block2_top_position_1.should > block2_top_position
+    block2_top_position_1.should == block1_top_position_1
+    block2_left_position_1.should == block2_left_position
+    block3_left_position_1.should < block2_left_position_1
+    block3_left_position_1.should < block3_left_position
+    block3_left_position_1.should == block1_left_position_1
+    block3_top_position.should == block3_top_position_1
+    block3_top_position_1.should < block2_top_position_1
+    @i.div(:class => 'block-2').attribute_value("class").include?('mrge-line').should be
+  end
+
+  after(:all) do
+    #@b.close
+  end
+
+end
