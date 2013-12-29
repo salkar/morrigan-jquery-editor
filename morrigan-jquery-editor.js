@@ -1138,6 +1138,10 @@ $.widget( "morrigan.morrigan_editor", {
     // Public API
     html: function (html) {
         if (html) {
+            var children = this._content.children();
+            $($.grep(children, function (item) {
+                return !$(item).hasClass('mrge-support-element');
+            })).detach();
 //            this._content.children('').detach();
             return this._content.append(html).get(0);
         } else {
