@@ -451,21 +451,8 @@ $.widget( "morrigan.morrigan_editor", {
             if (prevElement.length) {
                 var prevBlock = this._getPrevBlock(prevElements);
                 if (prevBlock && this._needToGoToBlock(prevBlock, prevElement)) {
-    //                console.log(prevBlock);
-    //                console.log(prevBlock.offset().top + prevBlock.outerHeight(true));
-    //                console.log($(this.current_block).offset().top - prevElement.outerHeight(true));
-    //                console.log(this._needToGoToBlock(prevBlock, prevElement));
-                    if (prevBlock[0] == prevElement[0] && $(this.current_block).hasClass('mrge-line')) {
-    //                    console.log('ololo');
-    //                    var firstBlock = this._getFirstBlockInBlocks(prevBlock);
-    //                    newBlock = this._insertBlockRelative(firstBlock, true);
-                        newBlock = this._insertRelativeBlocks(prevBlock, true);
-                    } else {
-                        this._removeFromLine(false);
-                        newBlock = this._insertAlongSideTheBlock(prevBlock);
-                    }
+                    newBlock = this._insertBlockRelative(prevBlock, true);
                 } else {
-                    this._removeFromLine(false);
                     newBlock = this._insertBlockRelative(prevElement, true);
                 }
                 window.setTimeout(function () {
@@ -474,34 +461,10 @@ $.widget( "morrigan.morrigan_editor", {
             }
         };
 
-        this._getFirstBlockInBlocks = function (oneOfTheBlocks) {
-            var prev;
-            var result = oneOfTheBlocks;
-            while ((prev = result.prev()).length > 0 && prev.hasClass('mrge-content-block')) {
-                result = prev;
-            }
-            return result;
-        };
-
         this._needToGoToBlock = function (nearBlock, nearElement) {
             var blockBottomCoord = nearBlock.offset().top + nearBlock.outerHeight(true);
             var curBlockTopCoord = $(this.current_block).offset().top - nearElement.outerHeight(true);
             return blockBottomCoord >= curBlockTopCoord;
-        };
-
-        this._insertRelativeBlocks = function (oneOfTheBlocks, before) {
-            if (before) {
-                var targetBlock = this._getFirstBlockInBlocks(oneOfTheBlocks);
-            }
-            var newBlock = this._insertBlockRelative(targetBlock, before);
-            newBlock.removeClass('mrge-line');
-            return newBlock;
-        };
-
-        this._insertAlongSideTheBlock = function (block) {
-            var newBlock = this._insertBlockRelative(block, false);
-            newBlock.addClass('mrge-line');
-            return newBlock;
         };
 
         this._insertBlockRelative = function (element, before) {
@@ -510,21 +473,6 @@ $.widget( "morrigan.morrigan_editor", {
             if (before) blockClone.insertBefore(element);
             else blockClone.insertAfter(element);
             return blockClone;
-        };
-
-        this._removeFromLine = function (before) {
-            var blockLineSibling = this._getNearLineBlockRelative($(this.current_block), before);
-            if (blockLineSibling) {
-                blockLineSibling.removeClass('mrge-line');
-            }
-        };
-
-        this._getNearLineBlockRelative = function (block, before) {
-            var sibling;
-            if (before) sibling = block.prev();
-            else sibling = block.next();
-
-            return (sibling.length > 0 && sibling.hasClass('mrge-content-block') && sibling.hasClass('mrge-line') ? sibling : null);
         };
 
         this._getPrevBlock = function (elements) {
@@ -562,6 +510,7 @@ $.widget( "morrigan.morrigan_editor", {
             var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
             var block = new editor.Block(editor, topElements[0], data);
         };
+
         this.removeBlock = function () {
 
         };
@@ -1145,7 +1094,7 @@ $.widget( "morrigan.morrigan_editor", {
 //            this._content.children('').detach();
             return this._content.append(html).get(0);
         } else {
-            return this._content.get(0).html();
+            return this._content.html();
         }
     }
 

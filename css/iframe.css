@@ -20,12 +20,10 @@ body.mrge-iframe-body {
     margin: 15px 15px 15px 0;
 }
 
-.mrge-content-block.mrge-left-side.mrge-line {
-    clear: none;
-}
-
 .mrge-content-block img {
     display: block;
+    border: none;
+    outline: none;
 }
 
 .mrge-content-block-container {
