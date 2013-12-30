@@ -433,12 +433,14 @@ $.widget( "morrigan.morrigan_editor", {
         this._bindEvents();
 
         this.showBlockManager = function (block) {
+            if (editor._browser.ie) editor._content.attr('contenteditable', false);
             this.element.hide();
             this.current_block = block;
             this.element.width($(block).width());
             this.element.height($(block).height());
             var topMargin = $(block).outerWidth(true) - $(block).outerWidth();
-            this.element.css('top', $(block).position().top + topMargin);
+            var topPosition = $(block).position().top + topMargin;
+            this.element.css('top', topPosition);
             this.element.css('left', $(block).position().left);
             this.element.show();
         };
@@ -502,6 +504,7 @@ $.widget( "morrigan.morrigan_editor", {
 
         this.hideBlockManager = function () {
             this.element.hide();
+            if (editor._browser.ie) editor._content.attr('contenteditable', true);
         };
 
         this.addBlock = function (data) {
