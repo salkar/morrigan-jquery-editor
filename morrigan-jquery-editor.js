@@ -520,7 +520,7 @@ $.widget( "morrigan.morrigan_editor", {
             var children = editor._content.children();
             var curIndex = $(this.current_block).index();
             if (before) targetChildren = children.slice(0, curIndex);
-            else targetChildren = children.slice(curIndex+1, children.length-1);
+            else targetChildren = children.slice(curIndex+1, children.length);
             return $.grep(targetChildren, function (item) {
                 return !$(item).hasClass('mrge-support-element');
             });
