@@ -448,11 +448,11 @@ $.widget( "morrigan.morrigan_editor", {
         this._moveUp = function () {
             var newBlock;
             var self = this;
-            var prevElements = this._getPrevElementsForCurrentBlock();
-            var prevElement = this._getPrevElementForCurrentBlock(prevElements);
+            var prevElements = this._getElementsNearCurrentBlock(true);
+            var prevElement = this._getNearElementForCurrentBlock(prevElements, true);
             if (prevElement.length) {
-                var prevBlock = this._getPrevBlock(prevElements);
-                if (prevBlock && this._needToGoToBlock(prevBlock, prevElement)) {
+                var prevBlock = this._getNearBlock(prevElements, true);
+                if (prevBlock && this._needToGoToBlock(prevBlock, prevElement, true)) {
                     newBlock = this._insertBlockRelative(prevBlock, true);
                 } else {
                     newBlock = this._insertBlockRelative(prevElement, true);
@@ -463,10 +463,32 @@ $.widget( "morrigan.morrigan_editor", {
             }
         };
 
-        this._needToGoToBlock = function (nearBlock, nearElement) {
-            var blockBottomCoord = nearBlock.offset().top + nearBlock.outerHeight(true);
-            var curBlockTopCoord = $(this.current_block).offset().top - nearElement.outerHeight(true);
-            return blockBottomCoord >= curBlockTopCoord;
+        this._needToGoToBlock = function (nearBlock, nearElement, before) {
+            if (before) {
+                var blockBottomCoord = nearBlock.offset().top + nearBlock.outerHeight(true);
+                var curBlockTopCoord = $(this.current_block).offset().top - nearElement.outerHeight(true);
+                return blockBottomCoord >= curBlockTopCoord;
+            } else {
+                var blockTopCoord = nearBlock.offset().top;
+                var curBlockBottomCoord = $(this.current_block).offset().top + $(this.current_block).outerHeight(true) + nearElement.outerHeight(true);
+                return blockTopCoord <= curBlockBottomCoord;
+            }
+        };
+
+        this._needToGoFromBlocks = function (prevBlock) {
+            var prevBlockBottomCoord = prevBlock.offset().top + prevBlock.outerHeight(true);
+            var curBlockTopCoord = $(this.current_block).offset().top;
+            return prevBlockBottomCoord >= curBlockTopCoord;
+        };
+
+        this._getTargetToMoveFromBlocks = function (prevBlock) {
+            var prevBlockBottomCoord = prevBlock.offset().top + prevBlock.outerHeight(true);
+            var currentParagraph = prevBlock.next();
+            while (currentParagraph.length > 0) {
+                if (currentParagraph[0].nodeName == 'P' && currentParagraph.offset().top + currentParagraph.outerHeight(true) > prevBlockBottomCoord) return currentParagraph;
+                currentParagraph = currentParagraph.next('p');
+            }
+            return null;
         };
 
         this._insertBlockRelative = function (element, before) {
@@ -477,29 +499,57 @@ $.widget( "morrigan.morrigan_editor", {
             return blockClone;
         };
 
-        this._getPrevBlock = function (elements) {
+        this._getNearBlock = function (elements, before) {
             var blocks = $.grep(elements, function (item) {
                 return $(item).hasClass('mrge-content-block');
             });
-            if (blocks.length > 0) return $(blocks).last();
+            if (blocks.length > 0) {
+                if (before) return $(blocks).last();
+                else return $(blocks).first();
+            }
             else return null;
         };
 
-        this._getPrevElementForCurrentBlock = function (elements) {
-            return $(elements).last();
+        this._getNearElementForCurrentBlock = function (elements, before) {
+            if (before) return $(elements).last();
+            else return $(elements).first();
         };
 
-        this._getPrevElementsForCurrentBlock = function () {
+        this._getElementsNearCurrentBlock = function (before) {
+            var targetChildren;
             var children = editor._content.children();
             var curIndex = $(this.current_block).index();
-            var prevChildren = children.slice(0, curIndex);
-            return $.grep(prevChildren, function (item) {
+            if (before) targetChildren = children.slice(0, curIndex);
+            else targetChildren = children.slice(curIndex+1, children.length-1);
+            return $.grep(targetChildren, function (item) {
                 return !$(item).hasClass('mrge-support-element');
             });
         };
 
         this._moveDown = function () {
-            console.log('down');
+            var newBlock;
+            var self = this;
+            var nextElements = this._getElementsNearCurrentBlock(false);
+            var nextElement = this._getNearElementForCurrentBlock(nextElements, false);
+            if (nextElement.length) {
+                var nextBlock = this._getNearBlock(nextElements, false);
+                if (nextBlock && this._needToGoToBlock(nextBlock, nextElement, false)) {
+                    newBlock = this._insertBlockRelative(nextBlock, false);
+                } else {
+                    var prevElements = this._getElementsNearCurrentBlock(true);
+                    var prevBlock = this._getNearBlock(prevElements, true);
+                    if (prevBlock && this._needToGoFromBlocks(prevBlock)) {
+                        var targetP = this._getTargetToMoveFromBlocks(prevBlock);
+                        if (targetP) newBlock = this._insertBlockRelative(targetP, false);
+                        else return;
+                    } else {
+                        newBlock = this._insertBlockRelative(nextElement, false);
+                    }
+                }
+                window.setTimeout(function () {
+                    self.showBlockManager(newBlock);
+                }, 10);
+            }
         };
 
         this.hideBlockManager = function () {
