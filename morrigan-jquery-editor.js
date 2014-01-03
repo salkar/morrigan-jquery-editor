@@ -419,27 +419,13 @@ $.widget( "morrigan.morrigan_editor", {
             });
         };
 
-        this._formSelf = function () {
-            var blockElement = $('<div class="mrge-content-block-container mrge-support-element" contenteditable="false"></div>');
-            blockElement.append($('<div class="mrge-content-block-top mrge-content-block-move-action" contenteditable="false"></div>' +
-                '<div class="mrge-content-block-bottom mrge-content-block-move-action" contenteditable="false"></div>' +
-                '<div class="mrge-content-block-close" contenteditable="false"></div>'));
-            this.element = blockElement;
-            this.actions = blockElement.children();
-            this.moveUpAction = blockElement.children('.mrge-content-block-top');
-            this.moveDownAction = blockElement.children('.mrge-content-block-bottom');
-            this.closeAction = blockElement.children('.mrge-content-block-close');
-            editor._content.prepend(blockElement);
-        };
-
-        this._formSelf();
         this._bindEvents();
 
         this.showBlockManager = function (block) {
             this.current_block = block;
-            $(block).append(this.moveUpAction.clone().addClass('mrge-temp-support-element'));
-            $(block).append(this.moveDownAction.clone().addClass('mrge-temp-support-element'));
-            $(block).append(this.closeAction.clone().addClass('mrge-temp-support-element'));
+            $(block).append('<div class="mrge-content-block-top mrge-content-block-move-action mrge-temp-support-element" contenteditable="false"></div>');
+            $(block).append('<div class="mrge-content-block-bottom mrge-content-block-move-action mrge-temp-support-element" contenteditable="false"></div>');
+            $(block).append('<div class="mrge-content-block-close mrge-temp-support-element" contenteditable="false"></div>');
         };
 
         this._moveUp = function () {
@@ -454,9 +440,6 @@ $.widget( "morrigan.morrigan_editor", {
                 } else {
                     newBlock = this._insertBlockRelative(this.current_block, prevElement, true);
                 }
-//                window.setTimeout(function () {
-//                    self.showBlockManager(newBlock);
-//                }, 10);
             }
         };
 
@@ -545,15 +528,11 @@ $.widget( "morrigan.morrigan_editor", {
                         newBlock = this._insertBlockRelative(this.current_block, nextElement, false);
                     }
                 }
-//                window.setTimeout(function () {
-//                    self.showBlockManager(newBlock);
-//                }, 10);
             }
         };
 
         this.hideBlockManager = function () {
             editor._content.find('.mrge-temp-support-element').remove();
-//            if (editor._browser.ie) editor._content.attr('contenteditable', true);
         };
 
         this.addBlock = function (data) {
@@ -1139,11 +1118,13 @@ $.widget( "morrigan.morrigan_editor", {
     html: function (html) {
         if (html) {
             var children = this._content.children();
-            $($.grep(children, function (item) {
-                return !$(item).hasClass('mrge-support-element');
-            })).detach();
+            children.detach();
+//            $($.grep(children, function (item) {
+//                return !$(item).hasClass('mrge-support-element');
+//            })).detach();
             return this._content.append(html).get(0);
         } else {
+            this._content.find('.mrge-temp-support-element').remove();
             this._content.find('br').remove();
             return this._content.html();
         }
