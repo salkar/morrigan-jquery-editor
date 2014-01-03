@@ -442,19 +442,31 @@ $.widget( "morrigan.morrigan_editor", {
             this.current_block = block;
             this.element.width($(block).width());
             this.element.height($(block).height());
-            var topMargin = $(block).outerWidth(true) - $(block).outerWidth();
+            var topMargin = ($(block).outerHeight(true) - $(block).outerHeight()) / 2;
             var topPosition = $(block).position().top + topMargin;
             this.element.css('top', topPosition);
-            this.element.css('left', $(block).position().left);
+            var isRightBlock = $(block).hasClass('mrge-right-side');
+            var horizontalMargin = isRightBlock ? $(block).outerWidth(true) - $(block).outerWidth() : 0;
+            this.element.css('left', $(block).position().left + horizontalMargin);
             this.element.show();
         };
 
         this._moveRight = function () {
-            this.current_block.addClass('');
+            var self = this;
+            $(this.current_block).addClass('mrge-right-side');
+            $(this.current_block).removeClass('mrge-left-side');
+            window.setTimeout(function () {
+                self.showBlockManager($(self.current_block));
+            }, 10);
         };
 
         this._moveLeft = function () {
-
+            var self = this;
+            $(this.current_block).removeClass('mrge-right-side');
+            $(this.current_block).addClass('mrge-left-side');
+            window.setTimeout(function () {
+                self.showBlockManager($(self.current_block));
+            }, 10);
         };
 
         this._moveUp = function () {
