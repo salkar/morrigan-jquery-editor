@@ -2,7 +2,7 @@ require 'watir-webdriver'
 require 'rspec'
 require 'rubygems'
 
-describe "Chrome left blocks move top action" do
+describe "Chrome blocks move actions" do
 
   before :all do
     @b = Watir::Browser.new :chrome
@@ -189,6 +189,47 @@ describe "Chrome left blocks move top action" do
     block1_top_position_2.should == block1_top_position_1
     block2_top_position_2.should > block2_top_position_1
     index_2.should == index_1 + 1
+  end
+
+  it 'block should change place with bottom block' do
+    html = '<p>Line 1</p>' +
+        '<div class="mrge-content-block mrge-left-side block-1" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Chrysanthemum.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 2</p><p>Line 3</p><p>Line 4</p><p>Line 5</p><p>Line 6</p><p>Line 7</p><p>Line 8</p>' +
+        '<div class="mrge-content-block mrge-left-side block-2" contenteditable="false"><div class="mrge-content-block-item"><img src="/images/Desert.jpg" style="max-width: 150px; max-height: 270px;"></div></div>' +
+        '<p>Line 9</p><p>Line 10</p><p>Line 11</p>'
+    @b.execute_script "editor.morrigan_editor('html', '#{html}');"
+    sleep 1
+    @b.body.click
+    block1_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block1_left_position.should == block2_left_position
+    block1_top_position.should < block2_top_position
+
+    @i.img(:index => 0).when_present.hover
+    @i.div(:class => 'mrge-content-block-bottom').when_present.click
+    @b.body.click
+    block1_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_1 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block1_left_position_1.should == block2_left_position_1
+    block2_top_position_1.should < block2_top_position
+    block1_top_position_1.should == block2_top_position
+    block2_top_position_1.should == block1_top_position
+    block2_top_position_1.should < block1_top_position_1
+
+    @i.img(:index => 0).when_present.hover
+    @i.div(:class => 'mrge-content-block-bottom').when_present.click
+    @b.body.click
+    block1_left_position_2 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().left;")
+    block1_top_position_2 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-1').position().top;")
+    block2_left_position_2 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().left;")
+    block2_top_position_2 = @b.execute_script("return $('iframe').contents().find('.mrge-content-block.block-2').position().top;")
+    block1_left_position_2.should == block2_left_position_2
+    block1_top_position_2.should == block1_top_position
+    block2_top_position_2.should == block2_top_position
   end
 
   after(:all) do

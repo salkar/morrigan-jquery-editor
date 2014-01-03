@@ -414,6 +414,10 @@ $.widget( "morrigan.morrigan_editor", {
                 self._moveUp();
             }).on('click', '.mrge-content-block-bottom', function(e) {
                 self._moveDown();
+            }).on('click', '.mrge-content-block-right', function (e) {
+                self._moveRight();
+            }).on('click', '.mrge-content-block-left', function (e) {
+                self._moveLeft();
             });
         };
 
@@ -445,6 +449,14 @@ $.widget( "morrigan.morrigan_editor", {
             this.element.show();
         };
 
+        this._moveRight = function () {
+            this.current_block.addClass('');
+        };
+
+        this._moveLeft = function () {
+
+        };
+
         this._moveUp = function () {
             var newBlock;
             var self = this;
@@ -453,9 +465,9 @@ $.widget( "morrigan.morrigan_editor", {
             if (prevElement.length) {
                 var prevBlock = this._getNearBlock(prevElements, true);
                 if (prevBlock && this._needToGoToBlock(prevBlock, prevElement, true)) {
-                    newBlock = this._insertBlockRelative(prevBlock, true);
+                    newBlock = this._insertBlockRelative(this.current_block, prevBlock, true);
                 } else {
-                    newBlock = this._insertBlockRelative(prevElement, true);
+                    newBlock = this._insertBlockRelative(this.current_block, prevElement, true);
                 }
                 window.setTimeout(function () {
                     self.showBlockManager(newBlock);
@@ -491,9 +503,9 @@ $.widget( "morrigan.morrigan_editor", {
             return null;
         };
 
-        this._insertBlockRelative = function (element, before) {
-            var blockClone = $(this.current_block).clone();
-            $(this.current_block).remove();
+        this._insertBlockRelative = function (current_element, element, before) {
+            var blockClone = $(current_element).clone();
+            $(current_element).remove();
             if (before) blockClone.insertBefore(element);
             else blockClone.insertAfter(element);
             return blockClone;
@@ -534,16 +546,17 @@ $.widget( "morrigan.morrigan_editor", {
             if (nextElement.length) {
                 var nextBlock = this._getNearBlock(nextElements, false);
                 if (nextBlock && this._needToGoToBlock(nextBlock, nextElement, false)) {
-                    newBlock = this._insertBlockRelative(nextBlock, false);
+                    nextBlock = this._insertBlockRelative(nextBlock, this.current_block, true);
+                    newBlock = this._insertBlockRelative(this.current_block, nextBlock, false);
                 } else {
                     var prevElements = this._getElementsNearCurrentBlock(true);
                     var prevBlock = this._getNearBlock(prevElements, true);
                     if (prevBlock && this._needToGoFromBlocks(prevBlock)) {
                         var targetP = this._getTargetToMoveFromBlocks(prevBlock);
-                        if (targetP) newBlock = this._insertBlockRelative(targetP, false);
+                        if (targetP) newBlock = this._insertBlockRelative(this.current_block, targetP, false);
                         else return;
                     } else {
-                        newBlock = this._insertBlockRelative(nextElement, false);
+                        newBlock = this._insertBlockRelative(this.current_block, nextElement, false);
                     }
                 }
                 window.setTimeout(function () {
@@ -584,14 +597,12 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
             }
             result = $('<div class="mrge-content-block mrge-left-side" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
-            if (this.editor._browser.ie == 8) {
-                var defWidth = this.editor.options.block.mediaBlock.width.def;
-                var defHeight = this.editor.options.block.mediaBlock.height.def;
-                result.css('max-width', defWidth);
-                result.css('max-height', defHeight);
-                result.children().css('max-width', defWidth);
-                result.children().css('max-height', defHeight);
-            }
+            var defWidth = this.editor.options.block.mediaBlock.width.def;
+            var defHeight = this.editor.options.block.mediaBlock.height.def;
+            result.css('max-width', defWidth);
+            result.css('max-height', defHeight);
+            result.children().css('max-width', defWidth);
+            result.children().css('max-height', defHeight);
             result.children().append(dataResult);
             return result;
         };
@@ -1144,6 +1155,7 @@ $.widget( "morrigan.morrigan_editor", {
             $($.grep(children, function (item) {
                 return !$(item).hasClass('mrge-support-element');
             })).detach();
+//            TODO: change blocks for ie8
 //            this._content.children('').detach();
             return this._content.append(html).get(0);
         } else {

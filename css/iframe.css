@@ -20,6 +20,12 @@ body.mrge-iframe-body {
     margin: 15px 15px 15px 0;
 }
 
+.mrge-content-block.mrge-right-side {
+    float: right;
+    clear: right;
+    margin: 15px 0 15px 15px;
+}
+
 .mrge-content-block img {
     display: block;
     border: none;
