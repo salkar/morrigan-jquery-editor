@@ -1151,6 +1151,7 @@ $.widget( "morrigan.morrigan_editor", {
 //            this._content.children('').detach();
             return this._content.append(html).get(0);
         } else {
+            this._content.find('br').remove();
             return this._content.html();
         }
     }
