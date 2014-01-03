@@ -414,19 +414,15 @@ $.widget( "morrigan.morrigan_editor", {
                 self._moveUp();
             }).on('click', '.mrge-content-block-bottom', function(e) {
                 self._moveDown();
-            }).on('click', '.mrge-content-block-right', function (e) {
-                self._moveRight();
-            }).on('click', '.mrge-content-block-left', function (e) {
-                self._moveLeft();
+            }).on('click', '.mrge-content-block-close', function (e) {
+                self.removeBlock();
             });
         };
 
         this._formSelf = function () {
             var blockElement = $('<div class="mrge-content-block-container mrge-support-element" contenteditable="false"></div>');
             blockElement.append($('<div class="mrge-content-block-overlay" contenteditable="false"></div>'));
-            blockElement.append($('<div class="mrge-content-block-left  mrge-content-block-move-action" contenteditable="false"></div>' +
-                '<div class="mrge-content-block-top mrge-content-block-move-action" contenteditable="false"></div>' +
-                '<div class="mrge-content-block-right mrge-content-block-move-action" contenteditable="false"></div>' +
+            blockElement.append($('<div class="mrge-content-block-top mrge-content-block-move-action" contenteditable="false"></div>' +
                 '<div class="mrge-content-block-bottom mrge-content-block-move-action" contenteditable="false"></div>' +
                 '<div class="mrge-content-block-close" contenteditable="false"></div>'));
             this.element = blockElement;
@@ -449,24 +445,6 @@ $.widget( "morrigan.morrigan_editor", {
             var horizontalMargin = isRightBlock ? $(block).outerWidth(true) - $(block).outerWidth() : 0;
             this.element.css('left', $(block).position().left + horizontalMargin);
             this.element.show();
-        };
-
-        this._moveRight = function () {
-            var self = this;
-            $(this.current_block).addClass('mrge-right-side');
-            $(this.current_block).removeClass('mrge-left-side');
-            window.setTimeout(function () {
-                self.showBlockManager($(self.current_block));
-            }, 10);
-        };
-
-        this._moveLeft = function () {
-            var self = this;
-            $(this.current_block).removeClass('mrge-right-side');
-            $(this.current_block).addClass('mrge-left-side');
-            window.setTimeout(function () {
-                self.showBlockManager($(self.current_block));
-            }, 10);
         };
 
         this._moveUp = function () {
@@ -510,7 +488,7 @@ $.widget( "morrigan.morrigan_editor", {
             var currentParagraph = prevBlock.next();
             while (currentParagraph.length > 0) {
                 if (currentParagraph[0].nodeName == 'P' && currentParagraph.offset().top + currentParagraph.outerHeight(true) > prevBlockBottomCoord) return currentParagraph;
-                currentParagraph = currentParagraph.next('p');
+                currentParagraph = currentParagraph.next();
             }
             return null;
         };
@@ -524,8 +502,9 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this._getNearBlock = function (elements, before) {
+            var blockSideClass = $(this.current_block).hasClass('mrge-left-side') ? 'mrge-left-side' : 'mrge-right-side';
             var blocks = $.grep(elements, function (item) {
-                return $(item).hasClass('mrge-content-block');
+                return $(item).hasClass('mrge-content-block') && $(item).hasClass(blockSideClass);
             });
             if (blocks.length > 0) {
                 if (before) return $(blocks).last();
@@ -590,7 +569,8 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this.removeBlock = function () {
-
+            $(this.current_block).detach();
+            this.hideBlockManager();
         };
     },
 
