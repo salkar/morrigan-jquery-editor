@@ -408,7 +408,7 @@ $.widget( "morrigan.morrigan_editor", {
                 return false;
             }).on('mouseenter', '.mrge-content-block', function (e) {
                 self.showBlockManager(this);
-            }).on('mouseleave', '.mrge-content-block-container', function (e) {
+            }).on('mouseleave', '.mrge-content-block', function (e) {
                 self.hideBlockManager(this);
             }).on('click', '.mrge-content-block-top', function(e) {
                 self._moveUp();
@@ -421,11 +421,14 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._formSelf = function () {
             var blockElement = $('<div class="mrge-content-block-container mrge-support-element" contenteditable="false"></div>');
-            blockElement.append($('<div class="mrge-content-block-overlay" contenteditable="false"></div>'));
             blockElement.append($('<div class="mrge-content-block-top mrge-content-block-move-action" contenteditable="false"></div>' +
                 '<div class="mrge-content-block-bottom mrge-content-block-move-action" contenteditable="false"></div>' +
                 '<div class="mrge-content-block-close" contenteditable="false"></div>'));
             this.element = blockElement;
+            this.actions = blockElement.children();
+            this.moveUpAction = blockElement.children('.mrge-content-block-top');
+            this.moveDownAction = blockElement.children('.mrge-content-block-bottom');
+            this.closeAction = blockElement.children('.mrge-content-block-close');
             editor._content.prepend(blockElement);
         };
 
@@ -433,18 +436,10 @@ $.widget( "morrigan.morrigan_editor", {
         this._bindEvents();
 
         this.showBlockManager = function (block) {
-            if (editor._browser.ie) editor._content.attr('contenteditable', false);
-            this.element.hide();
             this.current_block = block;
-            this.element.width($(block).width());
-            this.element.height($(block).height());
-            var topMargin = ($(block).outerHeight(true) - $(block).outerHeight()) / 2;
-            var topPosition = $(block).position().top + topMargin;
-            this.element.css('top', topPosition);
-            var isRightBlock = $(block).hasClass('mrge-right-side');
-            var horizontalMargin = isRightBlock ? $(block).outerWidth(true) - $(block).outerWidth() : 0;
-            this.element.css('left', $(block).position().left + horizontalMargin);
-            this.element.show();
+            $(block).append(this.moveUpAction.clone().addClass('mrge-temp-support-element'));
+            $(block).append(this.moveDownAction.clone().addClass('mrge-temp-support-element'));
+            $(block).append(this.closeAction.clone().addClass('mrge-temp-support-element'));
         };
 
         this._moveUp = function () {
@@ -459,9 +454,9 @@ $.widget( "morrigan.morrigan_editor", {
                 } else {
                     newBlock = this._insertBlockRelative(this.current_block, prevElement, true);
                 }
-                window.setTimeout(function () {
-                    self.showBlockManager(newBlock);
-                }, 10);
+//                window.setTimeout(function () {
+//                    self.showBlockManager(newBlock);
+//                }, 10);
             }
         };
 
@@ -550,15 +545,15 @@ $.widget( "morrigan.morrigan_editor", {
                         newBlock = this._insertBlockRelative(this.current_block, nextElement, false);
                     }
                 }
-                window.setTimeout(function () {
-                    self.showBlockManager(newBlock);
-                }, 10);
+//                window.setTimeout(function () {
+//                    self.showBlockManager(newBlock);
+//                }, 10);
             }
         };
 
         this.hideBlockManager = function () {
-            this.element.hide();
-            if (editor._browser.ie) editor._content.attr('contenteditable', true);
+            editor._content.find('.mrge-temp-support-element').remove();
+//            if (editor._browser.ie) editor._content.attr('contenteditable', true);
         };
 
         this.addBlock = function (data) {
@@ -1147,8 +1142,6 @@ $.widget( "morrigan.morrigan_editor", {
             $($.grep(children, function (item) {
                 return !$(item).hasClass('mrge-support-element');
             })).detach();
-//            TODO: change blocks for ie8
-//            this._content.children('').detach();
             return this._content.append(html).get(0);
         } else {
             this._content.find('br').remove();

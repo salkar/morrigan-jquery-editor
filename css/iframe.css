@@ -11,7 +11,7 @@ body.mrge-iframe-body {
 /* Blocks */
 
 .mrge-content-block {
-
+    position: relative;
 }
 
 .mrge-content-block.mrge-left-side {
@@ -33,18 +33,11 @@ body.mrge-iframe-body {
 }
 
 .mrge-content-block-container {
-    position: absolute;
+    /*position: absolute;*/
     display: none;
 }
 
-.mrge-content-block-container .mrge-content-block-overlay {
-    background-color: gray;
-    opacity: 0.3;
-    width: 100%;
-    height: 100%;
-}
-
-.mrge-content-block-container .mrge-content-block-move-action {
+.mrge-content-block-move-action {
     height: 40px;
     width: 40px;
     background-color: red;
@@ -52,19 +45,19 @@ body.mrge-iframe-body {
     cursor: pointer;
 }
 
-.mrge-content-block-container .mrge-content-block-top {
+.mrge-content-block-top {
     top:0;
     left: 50%;
     margin-left: -20px;
 }
 
-.mrge-content-block-container .mrge-content-block-bottom {
+.mrge-content-block-bottom {
     bottom:0;
     left: 50%;
     margin-left: -20px;
 }
 
-.mrge-content-block-container .mrge-content-block-close {
+.mrge-content-block-close {
     top:0;
     right: 0;
     background-color: green;
