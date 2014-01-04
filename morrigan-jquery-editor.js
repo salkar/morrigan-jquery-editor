@@ -7,6 +7,7 @@ $.widget( "morrigan.morrigan_editor", {
         doctype: '<!DOCTYPE html>',
         notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
+        mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
                 ['bold', 'italy', 'strike'], ['img']
@@ -423,9 +424,9 @@ $.widget( "morrigan.morrigan_editor", {
 
         this.showBlockManager = function (block) {
             this.current_block = block;
-            $(block).append('<div class="mrge-content-block-top mrge-content-block-move-action mrge-temp-support-element" contenteditable="false"></div>');
-            $(block).append('<div class="mrge-content-block-bottom mrge-content-block-move-action mrge-temp-support-element" contenteditable="false"></div>');
-            $(block).append('<div class="mrge-content-block-close mrge-temp-support-element" contenteditable="false"></div>');
+            $(block).append('<div class="mrge-content-block-top mrge-content-block-move-action mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
+            $(block).append('<div class="mrge-content-block-bottom mrge-content-block-move-action mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
+            $(block).append('<div class="mrge-content-block-close mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
         };
 
         this._moveUp = function () {

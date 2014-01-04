@@ -33,13 +33,12 @@ body.mrge-iframe-body {
 }
 
 .mrge-content-block-container {
-    /*position: absolute;*/
     display: none;
 }
 
 .mrge-content-block-move-action {
-    height: 40px;
-    width: 40px;
+    height: 30px;
+    width: 30px;
     background-color: red;
     position: absolute;
     cursor: pointer;
@@ -49,20 +48,23 @@ body.mrge-iframe-body {
     top:0;
     left: 50%;
     margin-left: -20px;
+    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -48px -47px;
 }
 
 .mrge-content-block-bottom {
     bottom:0;
     left: 50%;
     margin-left: -20px;
+    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -86px -47px;
 }
 
 .mrge-content-block-close {
     top:0;
     right: 0;
     background-color: green;
-    height: 40px;
-    width: 40px;
+    height: 30px;
+    width: 30px;
     position: absolute;
     cursor: pointer;
+    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -123px -47px;
 }
