@@ -106,6 +106,14 @@
     background: url(main.png) no-repeat no-repeat #eee -168px -22px;
 }
 
+.morrigan-editor .mrge-toolbox .mrge-action-video {
+    background: url(main.png) no-repeat no-repeat #eee -191px 3px;
+}
+
+.morrigan-editor .mrge-toolbox .mrge-action-video.mrge-disabled {
+    background: url(main.png) no-repeat no-repeat #eee -191px -21px;
+}
+
 /* Popup */
 
 .morrigan-editor .mrge-popup-wrapper {
@@ -118,9 +126,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: #999;
+    background: white;
     z-index: 99;
-    opacity: 0.2;
+    opacity: 0.7;
 }
 
 .morrigan-editor .mrge-popup {
@@ -228,9 +236,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: #999;
+    background: white;
     z-index: 99;
-    opacity: 0.2;
+    opacity: 0.7;
 }
 
 .morrigan-editor .mrge-loader-wrapper .mrge-loader-icon {

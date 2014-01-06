@@ -10,7 +10,7 @@ $.widget( "morrigan.morrigan_editor", {
         mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
-                ['bold', 'italy', 'strike'], ['img']
+                ['bold', 'italy', 'strike'], ['img', 'video']
             ],
             [
                 ['format']
@@ -34,7 +34,8 @@ $.widget( "morrigan.morrigan_editor", {
                 },
                 height: {
                     def:'270px',
-                    max:'430px'
+                    max:'430px',
+                    video: '205px'
                 }
             }
         }
@@ -53,6 +54,49 @@ $.widget( "morrigan.morrigan_editor", {
     _options: {},
 
     _actions: {
+        video: {
+            name: 'video',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Video'
+            },
+            popup: {
+                title: 'Add video',
+                height: '200px',
+                html: '<form action="/video/create" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
+                    '<div class="mrge-option"><input type="text" placeholder=" add video HTML code here" name="video_html"></div></form>',
+                actions: ['ok', 'cancel'],
+                onShow: function (element, editor) {
+                    var savedTextRange;
+                    isIframeCodeCorrect = function (code) {
+                        return /^<iframe.* src=\".*><\/iframe>\s*$/.test(code);
+                    };
+
+                    exec = function () {
+                        var iframeCode = element.find('input[name="video_html"]').val();
+                        if (isIframeCodeCorrect(iframeCode)) {
+                            if (editor._browser.ie) editor._selectionManager.restoreInternalRange(savedTextRange);
+                            editor._blockManager.addBlock({videoHTML:iframeCode});
+                            editor._popup.hidePopup();
+                        } else {
+                            alert('Video HTML is not correct');
+                        }
+                    };
+
+                    element.find('.mrge-popup-ok').on('click', function () {
+                        exec();
+                    });
+
+                    if (editor._browser.ie) {
+                        savedTextRange = editor._selectionManager.getInternalRange();
+                    }
+                },
+                onHide:function (element) {
+                    element.find('.mrge-popup-ok').off('click');
+                }
+            }
+        },
         img: {
             name: 'img',
             view: {
@@ -562,6 +606,12 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult = $('<img src="' + data['imageUrl'] + '">');
                 dataResult.css('max-width', this.editor.options.block.mediaBlock.width.def);
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
+            } else if (data['videoHTML']) {
+                dataResult = $(data['videoHTML']);
+                dataResult.width(this.editor.options.block.mediaBlock.width.video || this.editor.options.block.mediaBlock.width.def);
+                dataResult.height(this.editor.options.block.mediaBlock.height.video);
+                dataResult.attr('wmode', 'Opaque');
+                dataResult.attr('frameborder', '0');
             }
             result = $('<div class="mrge-content-block mrge-left-side" contenteditable="false"><div class="mrge-content-block-item"></div></div>');
             var defWidth = this.editor.options.block.mediaBlock.width.def;
