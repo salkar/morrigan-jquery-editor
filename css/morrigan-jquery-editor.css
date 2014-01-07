@@ -114,6 +114,22 @@
     background: url(main.png) no-repeat no-repeat #eee -191px -21px;
 }
 
+.morrigan-editor .mrge-toolbox .mrge-action-alignLeft {
+    background: url(main.png) no-repeat no-repeat #eee -81px 3px;
+}
+
+.morrigan-editor .mrge-toolbox .mrge-action-alignLeft.mrge-disabled {
+    background: url(main.png) no-repeat no-repeat #eee -81px -21px;
+}
+
+.morrigan-editor .mrge-toolbox .mrge-action-alignCenter {
+    background: url(main.png) no-repeat no-repeat #eee -102px 3px;
+}
+
+.morrigan-editor .mrge-toolbox .mrge-action-alignCenter.mrge-disabled {
+    background: url(main.png) no-repeat no-repeat #eee -102px -21px;
+}
+
 /* Popup */
 
 .morrigan-editor .mrge-popup-wrapper {

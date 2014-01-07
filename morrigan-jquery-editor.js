@@ -10,7 +10,7 @@ $.widget( "morrigan.morrigan_editor", {
         mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
-                ['bold', 'italy', 'strike'], ['img', 'video']
+                ['bold', 'italy', 'strike'], ['img', 'video'], ['alignLeft', 'alignCenter']
             ],
             [
                 ['format']
@@ -151,6 +151,73 @@ $.widget( "morrigan.morrigan_editor", {
                 onHide:function (element) {
                     element.find('.mrge-popup-ok').off('click');
                 }
+            }
+        },
+        alignLeft: {
+            name: 'alignLeft',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Align Left'
+            },
+            onClickHandler: function (editor, action) {
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                $(topElementsWithoutBlocks).css('text-align', '');
+                this.changeActiveIcon(true);
+            },
+            selectionHandler: function (editor, data, e) {
+                var topElements = data.topElements;
+                var firstPAlign = $(topElements).first().css('text-align');
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                var correctTopElements = $(topElementsWithoutBlocks).filter(function () {
+                    return $(this).css('text-align') == firstPAlign;
+                });
+                this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length &&
+                    (firstPAlign == 'left' || firstPAlign =='start'));
+            }
+        },
+        alignCenter: {
+            name: 'alignCenter',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Align Center'
+            },
+            onClickHandler: function (editor, action) {
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                var firstPAlign = $(topElements).first().css('text-align');
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                var correctTopElements = $(topElementsWithoutBlocks).filter(function () {
+                    return $(this).css('text-align') == firstPAlign;
+                });
+                if (topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'center') {
+                    $(topElementsWithoutBlocks).css('text-align', '');
+                } else {
+                    $(topElementsWithoutBlocks).css('text-align', 'center');
+                }
+                editor._content.trigger('mouseup'); //TODO: make radio group without trig selectionChangeHandler
+            },
+            selectionHandler: function (editor, data, e) {
+                var topElements = data.topElements;
+                var firstPAlign = $(topElements).first().css('text-align');
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                var correctTopElements = $(topElementsWithoutBlocks).filter(function () {
+                    return $(this).css('text-align') == firstPAlign;
+                });
+                this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'center');
             }
         },
         bold: {
