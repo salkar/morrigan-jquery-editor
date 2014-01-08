@@ -130,6 +130,14 @@
     background: url(main.png) no-repeat no-repeat #eee -102px -21px;
 }
 
+.morrigan-editor .mrge-toolbox .mrge-action-alignRight {
+    background: url(main.png) no-repeat no-repeat #eee -144px 3px;
+}
+
+.morrigan-editor .mrge-toolbox .mrge-action-alignRight.mrge-disabled {
+    background: url(main.png) no-repeat no-repeat #eee -144px -21px;
+}
+
 /* Popup */
 
 .morrigan-editor .mrge-popup-wrapper {

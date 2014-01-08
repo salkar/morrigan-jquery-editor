@@ -10,7 +10,7 @@ $.widget( "morrigan.morrigan_editor", {
         mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
-                ['bold', 'italy', 'strike'], ['img', 'video'], ['alignLeft', 'alignCenter']
+                ['bold', 'italy', 'strike'], ['img', 'video'], ['alignLeft', 'alignCenter', 'alignRight']
             ],
             [
                 ['format']
@@ -218,6 +218,43 @@ $.widget( "morrigan.morrigan_editor", {
                     return $(this).css('text-align') == firstPAlign;
                 });
                 this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'center');
+            }
+        },
+        alignRight: {
+            name: 'alignRight',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Align Right'
+            },
+            onClickHandler: function (editor, action) {
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                var firstPAlign = $(topElements).first().css('text-align');
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                var correctTopElements = $(topElementsWithoutBlocks).filter(function () {
+                    return $(this).css('text-align') == firstPAlign;
+                });
+                if (topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'right') {
+                    $(topElementsWithoutBlocks).css('text-align', '');
+                } else {
+                    $(topElementsWithoutBlocks).css('text-align', 'right');
+                }
+                editor._content.trigger('mouseup'); //TODO: make radio group without trig selectionChangeHandler
+            },
+            selectionHandler: function (editor, data, e) {
+                var topElements = data.topElements;
+                var firstPAlign = $(topElements).first().css('text-align');
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return this.nodeName != 'DIV';
+                });
+                var correctTopElements = $(topElementsWithoutBlocks).filter(function () {
+                    return $(this).css('text-align') == firstPAlign;
+                });
+                this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'right');
             }
         },
         bold: {
