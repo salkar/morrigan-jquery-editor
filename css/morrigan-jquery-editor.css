@@ -281,6 +281,9 @@
 
 .morrigan-editor .mrge-content {
     width: 100%;
+    /*TODO: for iphone support*/
+    /*overflow-y:auto; */
+    /*-webkit-overflow-scrolling:touch;*/
 }
 
 .morrigan-editor .mrge-content iframe {
