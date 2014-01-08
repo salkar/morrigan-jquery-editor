@@ -1242,9 +1242,19 @@ $.widget( "morrigan.morrigan_editor", {
 //            })).detach();
             return this._content.append(html).get(0);
         } else {
-            this._content.find('.mrge-temp-support-element').remove();
-            this._content.find('br').remove();
-            return this._content.html();
+            var targetHtml;
+            var contentClone = this._content.clone();
+            contentClone.find('.mrge-temp-support-element').remove();
+            contentClone.find('br').remove();
+            contentClone.find('b').each(function () {
+                targetHtml = this.innerHTML;
+                $(this).replaceWith($('<strong></strong>').html(targetHtml))
+            });
+            contentClone.find('i').each(function () {
+                targetHtml = this.innerHTML;
+                $(this).replaceWith($('<em></em>').html(targetHtml))
+            });
+            return contentClone.html();
         }
     }
 
