@@ -168,7 +168,7 @@ $.widget( "morrigan.morrigan_editor", {
                     return this.nodeName != 'DIV';
                 });
                 $(topElementsWithoutBlocks).css('text-align', '');
-                this.changeActiveIcon(true);
+                editor._content.trigger('mouseup'); //TODO: make radio group without trig selectionChangeHandler
             },
             selectionHandler: function (editor, data, e) {
                 var topElements = data.topElements;
