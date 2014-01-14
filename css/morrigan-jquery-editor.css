@@ -5,6 +5,11 @@
     position: relative;
     font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif;
     font-size: 13px;
+    background-color: white;
+}
+
+.morrigan-editor * {
+    font-family: Helvetica, Arial, Verdana, Tahoma, sans-serif;
 }
 
 .morrigan-editor .mrge-clear {
@@ -33,7 +38,6 @@
 }
 
 .morrigan-editor .mrge-toolbox li a {
-    /*background-color: red;*/
     height: 24px;
     width:24px;
     display: inline-block;

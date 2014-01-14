@@ -1,9 +1,10 @@
 body.mrge-iframe-body {
     white-space: pre-line; /* CSS 3.0 */
     word-wrap: break-word; /* IE 5+ */
+    padding: 10px;
 }
 
-.mrge-iframe-body * {
+* {
     padding: 0;
     margin: 0;
 }
@@ -17,13 +18,7 @@ body.mrge-iframe-body {
 .mrge-content-block.mrge-left-side {
     float: left;
     clear: left;
-    margin: 15px 15px 15px 0;
-}
-
-.mrge-content-block.mrge-right-side {
-    float: right;
-    clear: right;
-    margin: 15px 0 15px 15px;
+    margin: 5px 15px 5px 0;
 }
 
 .mrge-content-block img {
@@ -48,14 +43,14 @@ body.mrge-iframe-body {
     top:0;
     left: 50%;
     margin-left: -20px;
-    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -48px -47px;
+    background: url(/morrigan_editor/main.png) no-repeat no-repeat -48px -47px;
 }
 
 .mrge-content-block-bottom {
     bottom:0;
     left: 50%;
     margin-left: -20px;
-    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -86px -47px;
+    background: url(/morrigan_editor/main.png) no-repeat no-repeat -86px -47px;
 }
 
 .mrge-content-block-close {
@@ -66,5 +61,13 @@ body.mrge-iframe-body {
     width: 30px;
     position: absolute;
     cursor: pointer;
-    background: url(/assets/morrigan_editor/main.png) no-repeat no-repeat -123px -47px;
+    background: url(/morrigan_editor/main.png) no-repeat no-repeat -123px -47px;
+}
+
+h2 {
+    margin: 10px 0 10px 0;
+}
+
+h3 {
+    margin: 5px 0 5px 0;
 }

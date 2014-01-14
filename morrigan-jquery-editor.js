@@ -7,6 +7,7 @@ $.widget( "morrigan.morrigan_editor", {
         doctype: '<!DOCTYPE html>',
         notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
+        spellCheck: true,
         mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
@@ -822,6 +823,7 @@ $.widget( "morrigan.morrigan_editor", {
                 idoc.close();
                 editor._content = iframe.contents().find('body');
                 editor._content.height(iframeBodyHeight(iframe));
+                if (!editor.options.spellCheck) editor._content.attr('spellcheck', false);
             };
 
             var contentField = $("<div class='mrge-content' style='height: " + contentFieldHeight() + "px'><iframe frameborder='0' class='mrge-content-iframe'></iframe></div>");
@@ -1036,7 +1038,7 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this.getData = function () {
-            return (this.element.contents().text() ? JSON.parse(this.element.contents().text()) : null);
+            return (this.element.contents().find('body').text() ? JSON.parse(this.element.contents().find('body').text()) : null);
         };
 
         this._formSelf();
