@@ -3,7 +3,6 @@ $.widget( "morrigan.morrigan_editor", {
     options: {
         height: '600px',
         width: '900px',
-        idPrefix: 'mrge_',
         doctype: '<!DOCTYPE html>',
         notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
@@ -60,7 +59,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Video'
+                title: 'Video',
+                classes: 'fa fa-youtube-play'
             },
             popup: {
                 title: 'Add video',
@@ -103,7 +103,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Image'
+                title: 'Image',
+                classes: 'fa fa-picture-o'
             },
             popup: {
                 title: 'Add image',
@@ -159,7 +160,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Align Left'
+                title: 'Align Left',
+                classes: 'fa fa-align-left'
             },
             onClickHandler: function (editor, action) {
                 var cSelection = editor._selectionManager.getCustomSelection();
@@ -189,7 +191,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Align Center'
+                title: 'Align Center',
+                classes: 'fa fa-align-center'
             },
             onClickHandler: function (editor, action) {
                 var cSelection = editor._selectionManager.getCustomSelection();
@@ -226,7 +229,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Align Right'
+                title: 'Align Right',
+                classes: 'fa fa-align-right'
             },
             onClickHandler: function (editor, action) {
                 var cSelection = editor._selectionManager.getCustomSelection();
@@ -263,7 +267,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Bold'
+                title: 'Bold',
+                classes: 'fa fa-bold'
             },
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('bold', false, null);
@@ -278,7 +283,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 activeBackground: '#aaa',
                 inactiveBackground: '#eee',
-                title: 'Italy'
+                title: 'Italy',
+                classes: 'fa fa-italic'
             },
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('italic', false, null);
@@ -293,7 +299,8 @@ $.widget( "morrigan.morrigan_editor", {
             view: {
                 title: 'Strike',
                 activeBackground: '#aaa',
-                inactiveBackground: '#eee'
+                inactiveBackground: '#eee',
+                classes: 'fa fa-strikethrough'
             },
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('strikethrough', false, null);
@@ -573,9 +580,9 @@ $.widget( "morrigan.morrigan_editor", {
 
         this.showBlockManager = function (block) {
             this.current_block = block;
-            $(block).append('<div class="mrge-content-block-top mrge-content-block-move-action mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
-            $(block).append('<div class="mrge-content-block-bottom mrge-content-block-move-action mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
-            $(block).append('<div class="mrge-content-block-close mrge-temp-support-element" contenteditable="false" style="background-image: url(' + editor.options.mainPngPath + 'main.png)"></div>');
+            $(block).append('<div class="mrge-content-block-top mrge-content-block-move-action mrge-temp-support-element" contenteditable="false">▲</div>');
+            $(block).append('<div class="mrge-content-block-bottom mrge-content-block-move-action mrge-temp-support-element" contenteditable="false">▼</div>');
+            $(block).append('<div class="mrge-content-block-close mrge-temp-support-element fa fa-close" contenteditable="false">×</div>');
         };
 
         this._moveUp = function () {
@@ -746,6 +753,7 @@ $.widget( "morrigan.morrigan_editor", {
                 var dropdown, dropdownItem;
                 var item = $('<a></a>');
                 if (config.view.title) item.attr('title', config.view.title);
+                if (config.view.classes) item.addClass(config.view.classes);
                 if (config.view.disabledIcon) item.css("background", config.view.disabledIcon);
                 if (config.view.text) item.append($('<span></span>').text(config.view.text).addClass('mrge-action-text'));
                 item.addClass('mrge-disabled mrge-action mrge-action-' + config.name);
@@ -958,7 +966,7 @@ $.widget( "morrigan.morrigan_editor", {
         this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
                         "<div class='mrge-popup-overlay'></div></div>");
-            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-box-wrapper'><span class='mrge-header-name'></span><div class='mrge-popup-close'></div></div>" +
+            var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-box-wrapper'><span class='mrge-header-name'></span><div class='mrge-popup-close fa fa-times'></div></div>" +
                 "<div class='mrge-clear'></div></div><div class='mrge-popup-content'><div class='mrge-popup-box-wrapper'></div></div>");
             var actionContainer = $("<div class='mrge-popup-actions'><div class='mrge-popup-box-wrapper'></div></div>");
             $.each(editor.options.popup.actions, function (key, value) {
@@ -1048,7 +1056,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.editor = editor;
         this.element = null;
         this._formSelf = function () {
-            var result = $("<div class='mrge-loader-wrapper'><div class='mrge-loader-background'></div><div class='mrge-loader-icon'></div></div>");
+            var result = $("<div class='mrge-loader-wrapper'><div class='mrge-loader-background'></div><div class='mrge-loader-icon fa fa-spinner fa-spin'></div></div>");
             editor.element.append(result);
             this.element = result;
         };

@@ -33,6 +33,7 @@ gem 'carrierwave'
 # Use unicorn as the app server
 # gem 'unicorn'
 gem 'passenger'
+gem 'font-awesome-rails'
 
 # Deploy with Capistrano
 # gem 'capistrano'

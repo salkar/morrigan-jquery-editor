@@ -33,35 +33,38 @@ body.mrge-iframe-body {
 
 .mrge-content-block-move-action {
     height: 30px;
-    width: 30px;
-    background-color: red;
+    width: 40px;
     position: absolute;
     cursor: pointer;
+    font-size: 40px;
+    color: #999999;
+    text-align: center;
+    line-height: 26px;
 }
 
 .mrge-content-block-top {
     top:0;
     left: 50%;
     margin-left: -20px;
-    background: url(/morrigan_editor/main.png) no-repeat no-repeat -48px -47px;
 }
 
 .mrge-content-block-bottom {
     bottom:0;
     left: 50%;
     margin-left: -20px;
-    background: url(/morrigan_editor/main.png) no-repeat no-repeat -86px -47px;
 }
 
 .mrge-content-block-close {
     top:0;
     right: 0;
-    background-color: green;
     height: 30px;
     width: 30px;
     position: absolute;
     cursor: pointer;
-    background: url(/morrigan_editor/main.png) no-repeat no-repeat -123px -47px;
+    font-size: 50px;
+    color: #999999;
+    text-align: center;
+    line-height: 32px;
 }
 
 h2 {
