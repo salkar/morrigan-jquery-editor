@@ -11,7 +11,7 @@ var initPage = function () {
                     ['format'], ['bold', 'italy', 'strike'], ['img', 'video'], ['alignLeft', 'alignCenter', 'alignRight']
                 ]
             ];
-    editor = $('#test').morrigan_editor( {spellCheck:false, toolbox:toolbox, width:'770px', height:'550px'} );
+    editor = $('#test').morrigan_editor( {spellCheck:false, width:'770px', height:'550px'} );
     var html = '<h2 style="text-align: center;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</h2>' +
     '<div class="mrge-content-block mrge-left-side" contenteditable="false" style="max-width: 350px; max-height: 270px;"><div class="mrge-content-block-item" style="max-width: 350px; max-height: 270px;"><img src="/images/Chrysanthemum.jpg" style="max-width: 350px; max-height: 270px;"></div></div>' +
     "<p> Aenean non augue eget odio sagittis accumsan vitae quis felis. In luctus lectus mi, commodo dignissim velit venenatis nec. Mauris id augue odio. Nulla sollicitudin lorem ac nibh consequat, vitae interdum nulla mattis. Etiam viverra dui in est aliquet, lacinia semper felis egestas. Donec iaculis bibendum quam ut viverra. Suspendisse non imperdiet enim. Nunc ut lacus sed nibh iaculis ornare. Nullam sit amet nunc massa. Ut tincidunt posuere viverra. Cras vel luctus ante. Ut iaculis vestibulum dolor eu bibendum. Praesent et mauris tellus. Quisque ac lectus ipsum.</p>" +

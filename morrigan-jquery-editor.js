@@ -7,13 +7,12 @@ $.widget( "morrigan.morrigan_editor", {
         notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
         spellCheck: true,
-        mainPngPath: '/assets/morrigan_editor/',
         toolbox: [
             [
-                ['bold', 'italy', 'strike'], ['img', 'video'], ['alignLeft', 'alignCenter', 'alignRight']
-            ],
-            [
-                ['format']
+                ['format'],
+                ['bold', 'italy', 'strike'],
+                ['img', 'video'],
+                ['alignLeft', 'alignCenter', 'alignRight']
             ]
         ],
         popup: {
