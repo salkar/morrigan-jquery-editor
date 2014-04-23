@@ -36,10 +36,10 @@ body.mrge-iframe-body {
     width: 40px;
     position: absolute;
     cursor: pointer;
-    font-size: 40px;
+    font-size: 34px;
     color: #999999;
     text-align: center;
-    line-height: 26px;
+    line-height: 30px;
 }
 
 .mrge-content-block-top {
