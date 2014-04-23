@@ -64,7 +64,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             popup: {
                 title: 'Add video',
-                height: '200px',
+                height: '130px',
                 html: '<form action="/video/create" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
                     '<div class="mrge-option"><input type="text" placeholder=" add video HTML code here" name="video_html"></div></form>',
                 actions: ['ok', 'cancel'],
@@ -320,7 +320,7 @@ $.widget( "morrigan.morrigan_editor", {
             },
             popup: {
                 title: 'Add link',
-                height: '200px',
+                height: '130px',
                 html: '<div class="mrge-option"><input type="text" placeholder=" URL" name="url"></div>',
                 actions: ['ok', 'cancel'],
                 onShow: function (element, editor) {
