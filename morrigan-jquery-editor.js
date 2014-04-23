@@ -12,7 +12,8 @@ $.widget( "morrigan.morrigan_editor", {
                 ['format'],
                 ['bold', 'italy', 'strike'],
                 ['img', 'video'],
-                ['alignLeft', 'alignCenter', 'alignRight']
+                ['alignLeft', 'alignCenter', 'alignRight'],
+                ['link']
             ]
         ],
         popup: {
@@ -307,6 +308,49 @@ $.widget( "morrigan.morrigan_editor", {
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('strikethrough'));
+            }
+        },
+        link: {
+            name: 'link',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Link',
+                classes: 'fa fa-link'
+            },
+            popup: {
+                title: 'Add link',
+                height: '200px',
+                html: '<div class="mrge-option"><input type="text" placeholder=" URL" name="url"></div>',
+                actions: ['ok', 'cancel'],
+                onShow: function (element, editor) {
+                    var prepareHref = function(linkUrl) {
+                      if ($.inArray('http://', linkUrl) == 0) {
+                          return linkUrl;
+                      } else {
+                          return 'http://' + linkUrl;
+                      }
+                    };
+                    var savedTextRange;
+                    exec = function () {
+                        var linkUrl = prepareHref(element.find('input[name="url"]').val());
+                        if (editor._browser.ie) editor._selectionManager.restoreInternalRange(savedTextRange);
+
+                        editor._window.document.execCommand('CreateLink', false, linkUrl);
+                        editor._popup.hidePopup();
+                    };
+
+                    element.find('.mrge-popup-ok').on('click', function () {
+                        exec();
+                    });
+
+                    if (editor._browser.ie) {
+                        savedTextRange = editor._selectionManager.getInternalRange();
+                    }
+                },
+                onHide: function (element) {
+                    element.find('.mrge-popup-ok').off('click');
+                }
             }
         },
         format: {
