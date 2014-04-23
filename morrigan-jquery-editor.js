@@ -967,13 +967,17 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._bindEventsToPopupAction = function (action) {
             action.element.on('click', function () {
-                editor._popup.showPopup(action);
+                if (action.enabled) {
+                    editor._popup.showPopup(action);
+                }
             });
         };
 
         this._bindEventsToSimpleAction = function (action) {
             action.element.on('click', function () {
-                action.onClickHandler(editor, action);
+                if (action.enabled) {
+                    action.onClickHandler(editor, action);
+                }
             });
         };
 
