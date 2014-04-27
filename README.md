@@ -1,5 +1,5 @@
 # Morrigan jQuery Editor
-WYSIWYG jQuery Morrigan Editor created with predictable behavior, persistence and consistency ideas.
+Morrigan Editor is jQuery WYSIWYG editor with predictable behavior, persistence and consistency.
 
 [Demo](http://morrigan-editor.org/)
 ## To install Morrigan Editor:
