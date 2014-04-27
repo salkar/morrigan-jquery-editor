@@ -1,4 +1,5 @@
 # Morrigan jQuery Editor
+WYSIWYG jQuery Morrigan Editor created with predictable behavior, persistence and consistency ideas.
 [Demo](http://morrigan-editor.org/)
 ## To install Morrigan Editor:
 * Get [jQuery](http://jquery.com/download/) and [jQuery UI](http://jqueryui.com/download/#!version=1.10.4&themeParams=none&components=1111111110000000000000000000000000) (UI Core + Interactions)
