@@ -6,6 +6,7 @@ $.widget( "morrigan.morrigan_editor", {
         doctype: '<!DOCTYPE html>',
         notSupportedMsg: 'Your browser is not supported.',
         iframeStyles: '/iframe.css',
+        imageUpload: null,
         spellCheck: true,
         toolbox: [
             [
@@ -109,9 +110,13 @@ $.widget( "morrigan.morrigan_editor", {
             popup: {
                 title: 'Add image',
                 height: '200px',
-                html: '<form action="/image/create" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
-                    '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div><div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>',
                 actions: ['ok', 'cancel'],
+                customForm: function (editor, container) {
+                    var html = '<form action="' + editor.options.imageUpload + '" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
+                               '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div>' +
+                               '<div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>';
+                    container.html(html);
+                },
                 onShow: function (element, editor) {
                     var savedTextRange;
                     haveFileToUpload = function () {
@@ -1062,7 +1067,13 @@ $.widget( "morrigan.morrigan_editor", {
         this._configure = function (config) {
             this.element.find('.mrge-header-name').text(config.title);
             this.element.find('.mrge-popup').height(config.height);
-            this.element.find('.mrge-popup-content .mrge-popup-box-wrapper').empty().append(config.html);
+            var container = this.element.find('.mrge-popup-content .mrge-popup-box-wrapper');
+            container.empty();
+            if (config.customForm) {
+                config.customForm(editor, container);
+            } else {
+                container.append(config.html);
+            }
             this.element.find('.mrge-popup-actions .mrge-popup-btn.mrge-active').removeClass('mrge-active');
             $.each(config.actions, function () {
                 editor.options.popup.actions[this].element.addClass('mrge-active');
