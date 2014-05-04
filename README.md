@@ -11,8 +11,20 @@ Morrigan Editor is jQuery WYSIWYG editor with predictable behavior, persistence 
 $(function() {
   $('#editor').morrigan_editor( {
     iframeStyles: '/iframe.css',
+    imageUpload:'/image/create',
     width:'770px',
     height:'550px'
   } );
 });
+```
+
+### For Image Upload
+
+Params sending to server sample:
+* **upload_img** (with image) for file uploading
+* **upload_url** (with url) for image uploading by URL
+
+Server response sample:
+```javascript
+  {data: "/url/to/image.jpeg"}
 ```
