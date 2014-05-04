@@ -20,11 +20,20 @@ $(function() {
 
 ### For Image Upload
 
-Params sending to server sample:
-* **upload_img** (with image) for file uploading
-* **upload_url** (with url) for image uploading by URL
+Pass param ```imageUpload``` to init options:
+```javascript
+  $('#editor').morrigan_editor( {
+    //...
+    imageUpload:'/image/create',
+    //...
+  } );
+```
 
-Server response sample:
+Params sending to server sample:
+* ```upload_img``` (with image) for file uploading
+* ```upload_url``` (with url) for image uploading by URL
+
+Server response sample (for both cases):
 ```javascript
   {data: "/url/to/image.jpeg"}
 ```
