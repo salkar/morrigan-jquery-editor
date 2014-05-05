@@ -646,6 +646,7 @@ $.widget( "morrigan.morrigan_editor", {
                     newBlock = this._insertBlockRelative(this.current_block, prevElement, true);
                 }
             }
+            editor._selectionManager.clearSelection();
         };
 
         this._needToGoToBlock = function (nearBlock, nearElement, before) {
@@ -734,6 +735,7 @@ $.widget( "morrigan.morrigan_editor", {
                     }
                 }
             }
+            editor._selectionManager.clearSelection();
         };
 
         this.hideBlockManager = function () {
@@ -1203,6 +1205,7 @@ $.widget( "morrigan.morrigan_editor", {
             var selection, startElement, endElement, result;
             if (cSelection.selection) {
                 selection = cSelection.selection;
+                if (selection.anchorNode === null) return [];
                 startElement = this._getPreBodyNode(selection.anchorNode);
                 if (isCaret) return [startElement];
                 endElement = this._getPreBodyNode(selection.focusNode);
@@ -1248,6 +1251,16 @@ $.widget( "morrigan.morrigan_editor", {
             }
             result.push(endElement);
             return result;
+        };
+
+        this.clearSelection = function () {
+            var sel;
+            if (editor._window.getSelection) {
+                sel = editor._window.getSelection();
+                sel.removeAllRanges();
+            } else {
+                editor._window.document.selection.empty();
+            }
         };
     },
 
