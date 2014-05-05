@@ -600,6 +600,9 @@ $.widget( "morrigan.morrigan_editor", {
             }
             return result;
         };
+        this.addParamToUrl = function (url, param, value) {
+            return url + (url.split('?')[1] ? '&':'?') + param + '=' + value;
+        }
     },
 
     BlockManager: function (editor) {
@@ -761,7 +764,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.element.insertBefore(topNode);
     },
 
-    _blockMethodsInitialize: function () {
+    _blockMethodsInitialize: function (editor) {
         this.Block.prototype._formSelf = function (data) {
             var dataResult, result;
             if (data['imageUrl']) {
@@ -770,6 +773,7 @@ $.widget( "morrigan.morrigan_editor", {
                 dataResult.css('max-height', this.editor.options.block.mediaBlock.height.def);
             } else if (data['videoHTML']) {
                 dataResult = $(data['videoHTML']);
+                dataResult.attr('src', editor._actionSupport.addParamToUrl(dataResult.attr('src'), 'wmode', 'opaque'));
                 dataResult.width(this.editor.options.block.mediaBlock.width.video || this.editor.options.block.mediaBlock.width.def);
                 dataResult.height(this.editor.options.block.mediaBlock.height.video);
                 dataResult.attr('wmode', 'Opaque');
@@ -1306,7 +1310,7 @@ $.widget( "morrigan.morrigan_editor", {
         }
         this._actionMethodsInitialize();
         this._actionManagerMethodInitialize();
-        this._blockMethodsInitialize();
+        this._blockMethodsInitialize(this);
         return true;
     },
 

@@ -40,6 +40,7 @@ body.mrge-iframe-body {
     color: #999999;
     text-align: center;
     line-height: 30px;
+    z-index: 9;
 }
 
 .mrge-content-block-top {
