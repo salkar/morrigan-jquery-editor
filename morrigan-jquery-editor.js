@@ -659,7 +659,7 @@ $.widget( "morrigan.morrigan_editor", {
                 return blockBottomCoord >= curBlockTopCoord;
             } else {
                 var blockTopCoord = nearBlock.offset().top;
-                var curBlockBottomCoord = $(this.current_block).offset().top + $(this.current_block).outerHeight(true) + nearElement.outerHeight(true);
+                var curBlockBottomCoord = $(this.current_block).offset().top + $(this.current_block).outerHeight(true);
                 return blockTopCoord <= curBlockBottomCoord;
             }
         };
