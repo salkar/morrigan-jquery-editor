@@ -43,6 +43,10 @@ body.mrge-iframe-body {
     z-index: 9;
 }
 
+.mrge-content-block-move-action::-moz-selection {
+    user-select: none;
+}
+
 .mrge-content-block-top {
     top:0;
     left: 50%;
@@ -66,6 +70,10 @@ body.mrge-iframe-body {
     color: #999999;
     text-align: center;
     line-height: 32px;
+}
+
+.mrge-content-block-close::-moz-selection {
+    user-select: none;
 }
 
 h2 {
