@@ -45,7 +45,7 @@ To get html from editor:
   editor.morrigan_editor('html');
 ```
 
-To paste html to editor:
+To insert html to editor:
 ```javascript
   editor.morrigan_editor('html', '<p>Your HTML</p>');
 ```
