@@ -85,11 +85,5 @@ h3 {
 }
 
 ul, ol {
-    margin-left: 1em;
+    list-style-position: inside;
 }
-
-ul li, ol li {
-    position: relative;
-    left: 1em;
-    padding-right: 1em;
-}​
