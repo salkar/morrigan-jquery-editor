@@ -14,6 +14,7 @@ $.widget( "morrigan.morrigan_editor", {
                 ['bold', 'italy', 'strike'],
                 ['img', 'video'],
                 ['alignLeft', 'alignCenter', 'alignRight'],
+                ['orderedList', 'unorderedList'],
                 ['link']
             ]
         ],
@@ -267,6 +268,41 @@ $.widget( "morrigan.morrigan_editor", {
                 this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length && firstPAlign == 'right');
             }
         },
+
+        orderedList: {
+            name: 'orderedList',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Ordered List',
+                classes: 'fa fa-list-ol'
+            },
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('InsertOrderedList', false, null);
+                action.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
+            },
+            selectionHandler: function (editor, data, e) {
+                this.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
+            }
+        },
+
+        unorderedList: {
+            name: 'unorderedList',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Unordered List',
+                classes: 'fa fa-list-ul'
+            },
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('InsertUnorderedList', false, null);
+                action.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
+            },
+            selectionHandler: function (editor, data, e) {
+                this.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
+            }
+        },
+
         bold: {
             name: 'bold',
             view: {
