@@ -936,7 +936,10 @@ $.widget( "morrigan.morrigan_editor", {
                 idoc.write("<body contenteditable='true' class='mrge-iframe-body'>" + defaultContentFieldContent() + "</body></html>");
                 idoc.close();
                 editor._content = iframe.contents().find('body');
-                editor._content.height(iframeBodyHeight(iframe));
+                setTimeout(function () {
+                    editor._content.height(iframeBodyHeight(iframe));
+                }, 100);
+
                 if (!editor.options.spellCheck) editor._content.attr('spellcheck', false);
             };
 
@@ -991,7 +994,6 @@ $.widget( "morrigan.morrigan_editor", {
                 var cSelection = editor._selectionManager.getCustomSelection();
                 var isCaret = editor._selectionManager.isCaret(cSelection);
                 var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
-                console.log(topElements);
                 if (!topElements[0] || topElements[0].nodeType == 3 || topElements[0].nodeName == 'DIV') {
                     editor._window.document.execCommand("formatBlock", false, "p");
                 }
@@ -1006,14 +1008,6 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this._defaultBehaviorKeyDownHandler = function (e) {
-            if (editor._browser.webkit) {
-                var cSelection = editor._selectionManager.getCustomSelection();
-                if (e.keyCode == 8) {
-                    if (editor._selectionManager.isLastEmptyPTagSelected(cSelection)) {
-                        e.preventDefault();
-                    }
-                }
-            }
         };
 
         this.bindCustomEvents = function () {
