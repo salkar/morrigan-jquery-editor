@@ -83,3 +83,8 @@ h2 {
 h3 {
     margin: 5px 0 5px 0;
 }
+
+ul, ol {
+    overflow: hidden;
+    padding-left: 20px;
+}
