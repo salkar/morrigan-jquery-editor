@@ -376,7 +376,7 @@ $.widget( "morrigan.morrigan_editor", {
                 actions: ['ok', 'cancel'],
                 onShow: function (element, editor) {
                     var prepareHref = function(linkUrl) {
-                      if ($.inArray('http://', linkUrl) == 0) {
+                      if (linkUrl.indexOf('http') == 0) {
                           return linkUrl;
                       } else {
                           return 'http://' + linkUrl;
