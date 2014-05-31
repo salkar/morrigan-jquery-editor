@@ -9,7 +9,7 @@ Morrigan Editor is jQuery WYSIWYG editor with predictable behavior, persistence 
 * Code:
 ```javascript
 $(function() {
-  $('#editor').morrigan_editor( {
+  editor = $('#editor').morrigan_editor( {
     iframeStyles: '/iframe.css',
     imageUpload:'/image/create',
     width:'770px',
@@ -36,4 +36,16 @@ Params sending to server sample:
 Server response sample (for both cases):
 ```javascript
   {data: "/url/to/image.jpeg"}
+```
+
+## How to use
+
+To get html from editor:
+```javascript
+  editor.morrigan_editor('html');
+```
+
+To insert html to editor:
+```javascript
+  editor.morrigan_editor('html', '<p>Your HTML</p>');
 ```
