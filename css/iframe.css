@@ -85,6 +85,11 @@ h3 {
 }
 
 ul, ol {
-    overflow: hidden;
-    padding-left: 20px;
+    margin-left: 1em;
 }
+
+ul li, ol li {
+    position: relative;
+    left: 1em;
+    padding-right: 1em;
+}​
