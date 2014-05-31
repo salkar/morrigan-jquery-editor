@@ -281,6 +281,10 @@ $.widget( "morrigan.morrigan_editor", {
                 editor._window.document.execCommand('InsertOrderedList', false, null);
                 action.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
                 editor._actionManager.findAction('unorderedList').changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                $(topElements[0]).find('ol').unwrap();
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
@@ -299,6 +303,10 @@ $.widget( "morrigan.morrigan_editor", {
                 editor._window.document.execCommand('InsertUnorderedList', false, null);
                 action.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
                 editor._actionManager.findAction('orderedList').changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                $(topElements[0]).find('ul').unwrap();
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
@@ -914,7 +922,7 @@ $.widget( "morrigan.morrigan_editor", {
             };
             defaultContentFieldContent = function () {
                 if (editor._browser.ie) return "<p></p>";
-                else if (editor._browser.ff) return "";
+                else if (editor._browser.ff || editor._browser.webkit) return "";
                 else return "<p><br></p>";
             };
 
@@ -979,11 +987,12 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this._defaultBehaviorKeyUpHandler = function (e) {
-            if (editor._browser.ff || $.inArray(e.keyCode, this.keyCodesAffectedDomChanges) != -1) {
+            if (editor._browser.ff || editor._browser.webkit || $.inArray(e.keyCode, this.keyCodesAffectedDomChanges) != -1) {
                 var cSelection = editor._selectionManager.getCustomSelection();
                 var isCaret = editor._selectionManager.isCaret(cSelection);
                 var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
-                if (!topElements[0] || topElements[0].nodeType == 3) {
+                console.log(topElements);
+                if (!topElements[0] || topElements[0].nodeType == 3 || topElements[0].nodeName == 'DIV') {
                     editor._window.document.execCommand("formatBlock", false, "p");
                 }
                 this._onSelectionChangedHandlers(e, topElements, isCaret);
