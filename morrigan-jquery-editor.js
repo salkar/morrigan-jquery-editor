@@ -997,6 +997,7 @@ $.widget( "morrigan.morrigan_editor", {
                 if (!topElements[0] || topElements[0].nodeType == 3 || topElements[0].nodeName == 'DIV') {
                     editor._window.document.execCommand("formatBlock", false, "p");
                 }
+                if (topElements[0].nodeType === 3) return;
                 this._onSelectionChangedHandlers(e, topElements, isCaret);
             }
         };
@@ -1258,6 +1259,7 @@ $.widget( "morrigan.morrigan_editor", {
                 selection = cSelection.selection;
                 if (selection.anchorNode === null) return [];
                 startElement = this._getPreBodyNode(selection.anchorNode);
+                if (startElement === null) return [];
                 if (isCaret) return [startElement];
                 endElement = this._getPreBodyNode(selection.focusNode);
                 result = (($(startElement).position().top < $(endElement).position().top) ?
@@ -1289,6 +1291,7 @@ $.widget( "morrigan.morrigan_editor", {
         };
 
         this._getPreBodyNode = function (node) {
+            if (node.nodeName == 'BODY') return null;
             return (node.parentNode.nodeName == 'BODY' ? node : $(node).closest('body > *').get(0));
         };
 
