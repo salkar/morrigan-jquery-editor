@@ -280,6 +280,7 @@ $.widget( "morrigan.morrigan_editor", {
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('InsertOrderedList', false, null);
                 action.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
+                editor._actionManager.findAction('unorderedList').changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
@@ -297,6 +298,7 @@ $.widget( "morrigan.morrigan_editor", {
             onClickHandler: function (editor, action) {
                 editor._window.document.execCommand('InsertUnorderedList', false, null);
                 action.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
+                editor._actionManager.findAction('orderedList').changeActiveIcon(editor._window.document.queryCommandState('InsertOrderedList'));
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('InsertUnorderedList'));
@@ -508,6 +510,11 @@ $.widget( "morrigan.morrigan_editor", {
         this.actions = [];
         this.disabledActions = [];
         this.selectionChangedSubscribers = [];
+        this.findAction = function (name) {
+            return $.grep(this.actions, function (action) {
+                return action.config.name == name;
+            })[0];
+        };
         this.addAction = function (config, item) {
             var action = new this.editor.Action(config, item);
             this.actions.push(action);
