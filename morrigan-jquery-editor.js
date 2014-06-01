@@ -15,7 +15,7 @@ $.widget( "morrigan.morrigan_editor", {
                 ['img', 'video'],
                 ['alignLeft', 'alignCenter', 'alignRight'],
                 ['orderedList', 'unorderedList'],
-                ['link']
+                ['link', 'unLink']
             ]
         ],
         popup: {
@@ -359,6 +359,18 @@ $.widget( "morrigan.morrigan_editor", {
             },
             selectionHandler: function (editor, data, e) {
                 this.changeActiveIcon(editor._window.document.queryCommandState('strikethrough'));
+            }
+        },
+        unLink: {
+            name: 'unLink',
+            view: {
+                title: 'Unlink',
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                classes: 'fa fa-unlink'
+            },
+            onClickHandler: function (editor, action) {
+                editor._window.document.execCommand('Unlink', false, null);
             }
         },
         link: {
