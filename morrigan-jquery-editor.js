@@ -825,7 +825,13 @@ $.widget( "morrigan.morrigan_editor", {
     Block: function (editor, topNode, data) {
         this.editor = editor;
         this.element = this._formSelf(data);
-        this.element.insertBefore(topNode);
+        if (topNode === undefined) {
+            var node = $('<p><br /></p>');
+            node.appendTo(editor._content);
+            this.element.insertBefore(node);
+        } else {
+            this.element.insertBefore(topNode);
+        }
     },
 
     _blockMethodsInitialize: function (editor) {
