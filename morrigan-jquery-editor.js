@@ -116,7 +116,7 @@ $.widget( "morrigan.morrigan_editor", {
                     var html = '<form action="' + editor.options.imageUpload + '" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
                                '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div>' +
                                '<div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>';
-                    container.html(html);
+                    container.html($(html));
                 },
                 onShow: function (element, editor) {
                     var savedTextRange;
