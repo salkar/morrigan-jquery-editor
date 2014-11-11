@@ -3,6 +3,7 @@ Morrigan Editor is jQuery WYSIWYG editor with predictable behavior, persistence 
 
 [Demo](http://morrigan-editor.org/)
 ## To install Morrigan Editor:
+You can install Morrigan Editor manually or by gem if you are using Ruby on Rails (installation manual for RoR is available [here](https://github.com/salkar/morrigan_editor_rails)).
 * Get [jQuery](http://jquery.com/download/) and [jQuery UI](http://jqueryui.com/download/#!version=1.10.4&themeParams=none&components=1111111110000000000000000000000000) (UI Core + Interactions)
 * Get [Font Awesome](http://fortawesome.github.io/Font-Awesome/get-started/)
 * Get [morrigan-jquery-editor.js](https://github.com/salkar/morrigan-jquery-editor/blob/master/morrigan-jquery-editor.js), [morrigan-jquery-editor.css](https://github.com/salkar/morrigan-jquery-editor/blob/master/css/morrigan-jquery-editor.css) and [iframe.css](https://github.com/salkar/morrigan-jquery-editor/blob/master/css/iframe.css)
