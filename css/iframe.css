@@ -1,5 +1,5 @@
 body.mrge-iframe-body {
-    white-space: pre-line; /* CSS 3.0 */
+    /*white-space: pre-line; *//* CSS 3.0 */
     word-wrap: break-word; /* IE 5+ */
     padding: 10px;
 }
