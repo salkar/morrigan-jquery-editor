@@ -66,8 +66,6 @@ $.widget( "morrigan.morrigan_editor", {
             },
             onClickHandler: function (editor, action) {
                 var normalizeBlocks = function (element) {
-                    console.log(element);
-                    console.log(element.nodeName);
                     if (element.nodeName == 'UL' || element.nodeName == 'OL') {
                         removeInlineStyles(element);
                     } else {
