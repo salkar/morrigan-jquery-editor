@@ -10,7 +10,7 @@ $.widget( "morrigan.morrigan_editor", {
         spellCheck: true,
         toolbox: [
             [
-                ['format'],
+                ['format', 'clearFormat'],
                 ['bold', 'italy', 'strike'],
                 ['img', 'video'],
                 ['alignLeft', 'alignCenter', 'alignRight'],
@@ -56,6 +56,42 @@ $.widget( "morrigan.morrigan_editor", {
     _options: {},
 
     _actions: {
+        clearFormat: {
+            name: 'clearFormat',
+            view: {
+                activeBackground: '#aaa',
+                inactiveBackground: '#eee',
+                title: 'Clear format',
+                classes: 'fa fa-times'
+            },
+            onClickHandler: function (editor, action) {
+                var normalizeBlocks = function (element) {
+                    console.log(element);
+                    console.log(element.nodeName);
+                    if (element.nodeName == 'UL' || element.nodeName == 'OL') {
+                        removeInlineStyles(element);
+                    } else {
+                        var text = $(element).text();
+                        $(element).replaceWith('<p>' + text + '</p>');
+                    }
+                };
+                var removeInlineStyles = function (element) {
+                    $(element).removeAttr('style');
+                    $(element).children().each(function() {
+                        removeInlineStyles(this);
+                    });
+                };
+                var cSelection = editor._selectionManager.getCustomSelection();
+                var isCaret = editor._selectionManager.isCaret(cSelection);
+                var topElements = editor._selectionManager.getTopSelectedElements(cSelection, isCaret);
+                var topElementsWithoutBlocks = $(topElements).filter(function () {
+                    return !$(this).hasClass('mrge-content-block');
+                });
+                topElementsWithoutBlocks.each(function () {
+                    normalizeBlocks(this);
+                });
+            }
+        },
         video: {
             name: 'video',
             view: {
