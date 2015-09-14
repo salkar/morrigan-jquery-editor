@@ -1,3 +1,0 @@
-gem 'json'
-gem 'watir-webdriver'
-gem 'rspec'
