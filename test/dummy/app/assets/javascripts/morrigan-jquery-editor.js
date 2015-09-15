@@ -1,1 +1,0 @@
-../../../../../morrigan-jquery-editor.js
