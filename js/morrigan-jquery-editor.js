@@ -211,7 +211,7 @@ $.widget( "morrigan.morrigan_editor", {
                     return this.nodeName != 'DIV';
                 });
                 $(topElementsWithoutBlocks).css('text-align', '');
-                editor._content.trigger('mouseup'); //TODO: make radio group without trig selectionChangeHandler
+                editor._content.trigger('mouseup'); //TODO: change state of action to active
             },
             selectionHandler: function (editor, data, e) {
                 var topElements = data.topElements;
@@ -250,7 +250,7 @@ $.widget( "morrigan.morrigan_editor", {
                 } else {
                     $(topElementsWithoutBlocks).css('text-align', 'center');
                 }
-                editor._content.trigger('mouseup'); //TODO: make radio group without trig selectionChangeHandler
+                editor._content.trigger('mouseup'); //TODO: change state of action to active
             },
             selectionHandler: function (editor, data, e) {
                 var topElements = data.topElements;
