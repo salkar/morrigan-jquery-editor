@@ -1,7 +1,7 @@
-describe("Options", function() {
-    $('body').append('<div id="editor"></div>');
-    var editor = $('#editor').morrigan_editor({
-        iframeStyles: '/base/css/iframe.css'
+describe("Format", function() {
+    beforeEach(function(){
+        $('#editor').remove();
+        $('body').append('<div id="editor"></div>');
     });
 
     it("first test", function() {

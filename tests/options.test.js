@@ -93,4 +93,45 @@ describe('Options', function() {
             expect($('.mrge-action').size()).toEqual(9);
         });
     });
+
+    describe('popup', function() {
+        it('should be by default', function() {
+            $('#editor').morrigan_editor({iframeStyles: '/base/css/iframe.css'});
+            activateActions();
+            $('a.mrge-action-img').click();
+            expect($('.mrge-popup-btn').size()).toEqual(2);
+            expect($('.mrge-popup-ok').size()).toEqual(1);
+            expect($('.mrge-popup-ok').text()).toEqual('Ok');
+            expect($('.mrge-popup-cancel').size()).toEqual(1);
+            expect($('.mrge-popup-cancel').text()).toEqual('Cancel');
+        });
+
+        it('should be with custom settings', function() {
+            $('#editor').morrigan_editor({
+                iframeStyles: '/base/css/iframe.css',
+                popup: {
+                    actions: {
+                        ok: {
+                            caption: 'Ok'
+                        },
+                        cancel: {
+                            caption: 'Back'
+                        },
+                        help: {
+                            caption: 'Help'
+                        }
+                    }
+                }
+            });
+            activateActions();
+            $('a.mrge-action-img').click();
+            expect($('.mrge-popup-btn').size()).toEqual(3);
+            expect($('.mrge-popup-ok').size()).toEqual(1);
+            expect($('.mrge-popup-ok').text()).toEqual('Ok');
+            expect($('.mrge-popup-cancel').size()).toEqual(1);
+            expect($('.mrge-popup-cancel').text()).toEqual('Back');
+            expect($('.mrge-popup-help').size()).toEqual(1);
+            expect($('.mrge-popup-help').text()).toEqual('Help');
+        });
+    });
 });

@@ -1,4 +1,4 @@
-$.widget( "morrigan.morrigan_editor", {
+$.widget("morrigan.morrigan_editor", {
 
     options: {
         height: '600px',
@@ -20,23 +20,23 @@ $.widget( "morrigan.morrigan_editor", {
         ],
         popup: {
             actions: {
-                ok:{
-                    caption:'Ok'
+                ok: {
+                    caption: 'Ok'
                 },
-                cancel:{
-                    caption:'Cancel'
+                cancel: {
+                    caption: 'Cancel'
                 }
             }
         },
         block: {
             mediaBlock: {
                 width: {
-                    def:'350px',
-                    max:'400px'
+                    def: '350px',
+                    max: '400px'
                 },
                 height: {
-                    def:'270px',
-                    max:'430px',
+                    def: '270px',
+                    max: '430px',
                     video: '205px'
                 }
             }
@@ -75,7 +75,7 @@ $.widget( "morrigan.morrigan_editor", {
                 };
                 var removeInlineStyles = function (element) {
                     $(element).removeAttr('style');
-                    $(element).children().each(function() {
+                    $(element).children().each(function () {
                         removeInlineStyles(this);
                     });
                 };
@@ -102,7 +102,7 @@ $.widget( "morrigan.morrigan_editor", {
                 title: 'Add video',
                 height: '130px',
                 html: '<form action="/video/create" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
-                    '<div class="mrge-option"><input type="text" placeholder=" add video HTML code here" name="video_html"></div></form>',
+                '<div class="mrge-option"><input type="text" placeholder=" add video HTML code here" name="video_html"></div></form>',
                 actions: ['ok', 'cancel'],
                 onShow: function (element, editor) {
                     var savedTextRange;
@@ -114,7 +114,7 @@ $.widget( "morrigan.morrigan_editor", {
                         var iframeCode = element.find('input[name="video_html"]').val();
                         if (isIframeCodeCorrect(iframeCode)) {
                             if (editor._browser.ie) editor._selectionManager.restoreInternalRange(savedTextRange);
-                            editor._blockManager.addBlock({videoHTML:iframeCode});
+                            editor._blockManager.addBlock({videoHTML: iframeCode});
                             editor._popup.hidePopup();
                         } else {
                             alert('Video HTML is not correct');
@@ -129,7 +129,7 @@ $.widget( "morrigan.morrigan_editor", {
                         savedTextRange = editor._selectionManager.getInternalRange();
                     }
                 },
-                onHide:function (element) {
+                onHide: function (element) {
                     element.find('.mrge-popup-ok').off('click');
                 }
             }
@@ -148,8 +148,8 @@ $.widget( "morrigan.morrigan_editor", {
                 actions: ['ok', 'cancel'],
                 customForm: function (editor, container) {
                     var html = '<form action="' + editor.options.imageUpload + '" method="post" enctype="multipart/form-data" target="mrge-support-iframe">' +
-                               '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div>' +
-                               '<div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>';
+                        '<div class="mrge-option"><input type="file" name="upload_img"/></div><div class="mrge-divider">or</div>' +
+                        '<div class="mrge-option"><input type="text" placeholder=" add image link here" name="upload_url"></div></form>';
                     container.html($(html));
                 },
                 onShow: function (element, editor) {
@@ -170,7 +170,7 @@ $.widget( "morrigan.morrigan_editor", {
                                 clearInterval(timerId);
                                 editor._loader.hideLoader();
                                 if (editor._browser.ie) editor._selectionManager.restoreInternalRange(savedTextRange);
-                                editor._blockManager.addBlock({imageUrl:imgUrl['data']});
+                                editor._blockManager.addBlock({imageUrl: imgUrl['data']});
                             }
                         }, 100);
                     };
@@ -190,7 +190,7 @@ $.widget( "morrigan.morrigan_editor", {
                         savedTextRange = editor._selectionManager.getInternalRange();
                     }
                 },
-                onHide:function (element) {
+                onHide: function (element) {
                     element.find('.mrge-popup-ok').off('click');
                 }
             }
@@ -223,7 +223,7 @@ $.widget( "morrigan.morrigan_editor", {
                     return $(this).css('text-align') == firstPAlign;
                 });
                 this.changeActiveIcon(topElementsWithoutBlocks.length == correctTopElements.length &&
-                    (firstPAlign == 'left' || firstPAlign =='start'));
+                    (firstPAlign == 'left' || firstPAlign == 'start'));
             }
         },
         alignCenter: {
@@ -421,12 +421,12 @@ $.widget( "morrigan.morrigan_editor", {
                 html: '<div class="mrge-option"><input type="text" placeholder=" URL" name="url"></div>',
                 actions: ['ok', 'cancel'],
                 onShow: function (element, editor) {
-                    var prepareHref = function(linkUrl) {
-                      if (linkUrl.indexOf('http') == 0) {
-                          return linkUrl;
-                      } else {
-                          return 'http://' + linkUrl;
-                      }
+                    var prepareHref = function (linkUrl) {
+                        if (linkUrl.indexOf('http') == 0) {
+                            return linkUrl;
+                        } else {
+                            return 'http://' + linkUrl;
+                        }
                     };
                     var savedTextRange;
                     exec = function () {
@@ -698,7 +698,7 @@ $.widget( "morrigan.morrigan_editor", {
             return result;
         };
         this.addParamToUrl = function (url, param, value) {
-            return url + (url.split('?')[1] ? '&':'?') + param + '=' + value;
+            return url + (url.split('?')[1] ? '&' : '?') + param + '=' + value;
         }
     },
 
@@ -715,9 +715,9 @@ $.widget( "morrigan.morrigan_editor", {
                 self.showBlockManager(this);
             }).on('mouseleave', '.mrge-content-block', function (e) {
                 self.hideBlockManager(this);
-            }).on('click', '.mrge-content-block-top', function(e) {
+            }).on('click', '.mrge-content-block-top', function (e) {
                 self._moveUp();
-            }).on('click', '.mrge-content-block-bottom', function(e) {
+            }).on('click', '.mrge-content-block-bottom', function (e) {
                 self._moveDown();
             }).on('click', '.mrge-content-block-close', function (e) {
                 self.removeBlock();
@@ -808,7 +808,7 @@ $.widget( "morrigan.morrigan_editor", {
             var children = editor._content.children();
             var curIndex = $(this.current_block).index();
             if (before) targetChildren = children.slice(0, curIndex);
-            else targetChildren = children.slice(curIndex+1, children.length);
+            else targetChildren = children.slice(curIndex + 1, children.length);
             return $.grep(targetChildren, function (item) {
                 return !$(item).hasClass('mrge-support-element');
             });
@@ -988,8 +988,11 @@ $.widget( "morrigan.morrigan_editor", {
                 idoc.write("<body contenteditable='true' class='mrge-iframe-body'>" + defaultContentFieldContent() + "</body></html>");
                 idoc.close();
                 editor._content = iframe.contents().find('body');
-                setTimeout(function () {
-                    editor._content.height(iframeBodyHeight(iframe));
+                var iframeProcessingInterval = setInterval(function () {
+                    if (iframe[0].contentWindow) {
+                        editor._content.height(iframeBodyHeight(iframe));
+                        clearInterval(iframeProcessingInterval);
+                    }
                 }, 100);
 
                 if (!editor.options.spellCheck) editor._content.attr('spellcheck', false);
@@ -1006,7 +1009,7 @@ $.widget( "morrigan.morrigan_editor", {
     },
 
     EventBinder: function (editor) {
-        this.keyCodesAffectedDomChanges = [8,13,33,34,35,36,37,38,39,40,46];
+        this.keyCodesAffectedDomChanges = [8, 13, 33, 34, 35, 36, 37, 38, 39, 40, 46];
         this.editor = editor;
         this.bindDefaultEvents = function () {
             this._defaultActivateWidgetsEvent();
@@ -1025,12 +1028,14 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._defaultBehaviorEvents = function () {
             var self = this;
-            editor._content.on('keydown',function (e) {
+            editor._content.on('keydown', function (e) {
                 self._defaultBehaviorKeyDownHandler(e);
             }).on('keyup', function (e) {
                 self._defaultBehaviorKeyUpHandler(e);
             }).on('mouseup', function (e) {
-                window.setTimeout(function () {self._defaultBehaviorMouseEvent(e)}, 10);
+                window.setTimeout(function () {
+                    self._defaultBehaviorMouseEvent(e)
+                }, 10);
             });
         };
 
@@ -1056,7 +1061,10 @@ $.widget( "morrigan.morrigan_editor", {
 
         this._onSelectionChangedHandlers = function (e, topElements, isCaret) {
             $(editor._actionManager.selectionChangedSubscribers).each(function () {
-                (editor._actionManager.actions[this]).selectionHandler(editor, {topElements:topElements, isCaret:isCaret}, e);
+                (editor._actionManager.actions[this]).selectionHandler(editor, {
+                    topElements: topElements,
+                    isCaret: isCaret
+                }, e);
             });
         };
 
@@ -1123,7 +1131,7 @@ $.widget( "morrigan.morrigan_editor", {
         this.element = null;
         this._formSelf = function () {
             var result = $("<div class='mrge-popup-wrapper'>" +
-                        "<div class='mrge-popup-overlay'></div></div>");
+                "<div class='mrge-popup-overlay'></div></div>");
             var popup = $("<div class='mrge-popup'><div class='mrge-popup-header'><div class='mrge-popup-box-wrapper'><span class='mrge-header-name'></span><div class='mrge-popup-close fa fa-times'></div></div>" +
                 "<div class='mrge-clear'></div></div><div class='mrge-popup-content'><div class='mrge-popup-box-wrapper'></div></div>");
             var actionContainer = $("<div class='mrge-popup-actions'><div class='mrge-popup-box-wrapper'></div></div>");
