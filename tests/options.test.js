@@ -134,4 +134,34 @@ describe('Options', function() {
             expect($('.mrge-popup-help').text()).toEqual('Help');
         });
     });
+
+    describe('media block', function() {
+        it('should have correct size by default', function () {
+            $('#editor').morrigan_editor({iframeStyles: '/base/css/iframe.css'});
+            activateActions();
+            addVideo('<iframe width="854" height="480" src="https://www.youtube.com/embed/jlACgYHtWCI" frameborder="0" allowfullscreen></iframe>');
+            expect($('iframe.mrge-content-iframe').contents().find('.mrge-content-block iframe').css('width')).toEqual('350px');
+            expect($('iframe.mrge-content-iframe').contents().find('.mrge-content-block iframe').css('height')).toEqual('205px');
+        });
+
+        it('should have correct size with custom settings', function () {
+            $('#editor').morrigan_editor({
+                iframeStyles: '/base/css/iframe.css',
+                block: {
+                    mediaBlock: {
+                        width: {
+                            def: '400px'
+                        },
+                        height: {
+                            video: '300px'
+                        }
+                    }
+                }
+            });
+            activateActions();
+            addVideo('<iframe width="854" height="480" src="https://www.youtube.com/embed/jlACgYHtWCI" frameborder="0" allowfullscreen></iframe>');
+            expect($('iframe.mrge-content-iframe').contents().find('.mrge-content-block iframe').css('width')).toEqual('400px');
+            expect($('iframe.mrge-content-iframe').contents().find('.mrge-content-block iframe').css('height')).toEqual('300px');
+        });
+    });
 });
