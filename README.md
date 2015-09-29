@@ -50,3 +50,8 @@ To insert html to editor:
 ```javascript
   editor.morrigan_editor('html', '<p>Your HTML</p>');
 ```
+
+## Tests
+For run tests move to `tests` folder and do next:
+1. npm install
+2. http-server -p 80 -a localhost

@@ -1,3 +1,5 @@
+//TODO: delete
+
 describe('Options', function() {
     var doctypeAsString = function (doctype) {
         return '<!DOCTYPE '

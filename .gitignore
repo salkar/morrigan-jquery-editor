@@ -26,7 +26,6 @@ test/version_tmp
 tmp
 
 .idea
-Gemfile.lock
 .bundle/
 log/*.log
 test/dummy/db/*.sqlite3

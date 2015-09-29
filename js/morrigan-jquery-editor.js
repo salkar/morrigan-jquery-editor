@@ -1,5 +1,4 @@
 $.widget("morrigan.morrigan_editor", {
-
     options: {
         height: '600px',
         width: '900px',
