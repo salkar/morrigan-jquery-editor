@@ -10,6 +10,11 @@ RSpec.configure do |config|
     @b.goto(@url)
   end
 
+  config.before :each, with_active_editor: true do
+    start_editor
+    @iframe.click
+  end
+
   config.after :all do
     @b.close
   end
